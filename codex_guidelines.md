@@ -14,3 +14,4 @@
 - Legibility 
   - code should be written so that it is readable
   - functions that are meant to run in order should be written in that order, and should be called sequentially, rather than in a nested / dependent manner
+  - whenever changes are made to a function or class, the relevant docstring should be updated. This update should be minimal. 

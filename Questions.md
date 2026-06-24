@@ -43,6 +43,11 @@
     - okay, I updated, and now when I run 
         `Optimization.solve(optprob,OptimizationOptimisers.Adam(η, β);maxiters=1, )` with Enzyme the julia notebook crashes again. So I'm abandoning Enzyme 
 
+- DeBugging ROM Training
+  - going to switch to ReverseDiffVJP(false) for now
+    - that worked (for 400 iterations); now going to try ReverseDiffVJP(true)
+
+## General Questions
 
 - Conceptual questions about SysID on ROM
   - So the idea is take a trajectory with f(u) snapshots to build POD / DEIM modes
@@ -56,9 +61,13 @@
   - why is our error on the full trajectory instead of reduced? because the minimum RMSE is the error of our true DEIM operator anyway (b/c generated from SVD), so we're just adding a constant floor error
   - Is there a nice way to learn the low dimensional representation update rule, but get out a high dimensional **pointwise** function?
 
-- DeBugging ROM Training
-  - going to switch to ReverseDiffVJP(false) for now
-    - that worked (for 400 iterations); now going to try ReverseDiffVJP(true)
+
+- Building a non-DEIM interpolator
+  - do we even want to train on the ROM? If we're learning per NN evaluation, then does it matter?
+    -  more evaluations per time step in the FOM might be fine if we're learning per eval, especially if the NN is the main cost
+    - if the NN is the main cost, then the only reason not to do FOM is because we're sampling a more 'learnable' set of points / trajectory by learning on the ROM
+
+## `training_on_FOM.ipynb`
 
 - Building a .jl file with helper functions
   - so I got an error because I wasn't passing in properly destructured Lux NN parameters, and apparently this breaks ReverseDiffVJP(compile = true)
@@ -66,7 +75,8 @@
     - it wants me to switch to Enzyme if i'm not going to destructure
       - so I'm going to try not destructuring and just using Enzyme, but I'm expecting that this won't work and I'll have to use ReverseDiff and de/re structure. 
 
-- Building a non-DEIM interpolator
-  - do we even want to train on the ROM? If we're learning per NN evaluation, then does it matter?
-    -  more evaluations per time step in the FOM might be fine if we're learning per eval, especially if the NN is the main cost
-    - if the NN is the main cost, then the only reason not to do FOM is because we're sampling a more 'learnable' set of points / trajectory by learning on the ROM
+
+- Hyperparameter optimization
+  - Optimization Params: η = 0.05; β = (0.9, 0.99); N_iter = 400
+    - Big jump in error around 300 iterates but falls back down around 400
+
