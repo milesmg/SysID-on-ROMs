@@ -1,7 +1,6 @@
 # Repo-local Julia for hpc1
 
-### ADJUSTED: Document the self-contained Julia runtime, project, and depot used by HPC jobs.
-This directory owns the Julia setup used by the hpc1 Slurm wrappers.
+This directory contains the Julia setup used by the hpc1 Slurm wrappers.
 
 - `HPC_compatibility/Project.toml` and `Manifest.toml` are the locked Julia environment for the batch scripts.
 - `depot/` is created on hpc1 by `setup_hpc_julia.sh` and stores packages/artifacts/compiled caches.

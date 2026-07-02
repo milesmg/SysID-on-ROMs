@@ -24,5 +24,6 @@
   - when writing code for the HPC, you won't have access to the files on the cluster
   - be cognizant of when you don't have access to a file. Do not assume, or try to work around lack of a necessary file; rather, say that you are missing something, and give instructions for how it can be provided to you
   - Important: Do not rsync, or write an rsync command, unless you're absolutely sure that it won't delete any important files (whether you're going from HPC to local or vice versa)
+  - When writing rsync commands for this repo, use `--filter='dir-merge .rsync-filter'`, exclude `.git/`, and use `--delete` only when explicitly requested so per-directory `.rsync-filter` files protect machine-built/local-only paths like `Julia/depot/`.
 
 - Questions: Ask clarifying questions rather than proceeding if you're unsure !s

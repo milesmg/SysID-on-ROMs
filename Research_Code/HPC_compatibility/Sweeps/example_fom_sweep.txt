@@ -1,0 +1,17 @@
+# target may be rom or fom.
+target = fom
+
+# RUN_NAME is used as a prefix; the sweep task index and parameter label are appended.
+RUN_NAME = FOM_sweep_example
+
+N_OBS = 50,100
+H = 4,8
+SEED = 1
+REFERENCE_DT_FACTOR = 0.5
+PRINT_FREQUENCY = 100
+SAVE_FREQUENCY = 10
+WARMUP = true
+
+# These are grouped schedules, not scalar values to cross independently.
+ITERS = [[500,800,1100],[1000,1600,2200]]
+ETAS = [[1e-3,1e-4,1e-5]]

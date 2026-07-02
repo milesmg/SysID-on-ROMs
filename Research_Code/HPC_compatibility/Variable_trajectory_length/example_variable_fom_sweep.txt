@@ -1,0 +1,22 @@
+# target may be fom, rom, or fom_variable.
+target = fom_variable
+
+# RUN_NAME is used as a prefix; the sweep task index and parameter label are appended.
+RUN_NAME = FOM_variable_window_sweep_example
+
+N_OBS = 50
+H = 8
+SEED = 1
+REFERENCE_DT_FACTOR = 0.5
+PRINT_FREQUENCY = 100
+SAVE_FREQUENCY = 10
+WARMUP = true
+LOSS_NORMALIZATION = mean
+
+# These are grouped schedules, not scalar values to cross independently.
+ITERS = [[500,800,1100]]
+ETAS = [[1e-3,1e-4,1e-5]]
+WINDOW_T = [[0.05,0.25,2.0]]
+WINDOW_N_OBS = [[20,40,50]]
+WINDOW_START_POLICY = [[random,random,beginning]]
+WINDOWS_PER_ITER = [[1,2,1]]

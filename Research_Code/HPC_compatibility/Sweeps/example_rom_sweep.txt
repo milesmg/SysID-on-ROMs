@@ -1,0 +1,22 @@
+# target may be rom or fom.
+target = rom
+
+# RUN_NAME is used as a prefix; the sweep task index and parameter label are appended.
+RUN_NAME = ROM_sweep_example
+
+# Shared FOM/ROM settings.
+N_OBS = 100
+H = 8
+SEED = 1
+REFERENCE_DT_FACTOR = 0.5
+PRINT_FREQUENCY = 100
+SAVE_FREQUENCY = 10
+WARMUP = true
+
+# ROM-only settings.
+R = 20
+M = 3,4
+
+# Bracketed schedules stay grouped; this gives three ITERS choices and two ETAS choices.
+ITERS = [[50,40,30],[30,20,10],[20,10,5]]
+ETAS = [[1e-3,1e-4,1e-5],[2e-3,2e-4,2e-5]]
