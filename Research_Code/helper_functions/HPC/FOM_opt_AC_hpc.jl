@@ -1,41 +1,95 @@
-using LinearAlgebra
-using SparseArrays
-using Random
-using ComponentArrays
-using LinearSolve
-using OrdinaryDiffEq
-using OrdinaryDiffEqSDIRK
-using OrdinaryDiffEqLowOrderRK
-using SciMLSensitivity
-using ADTypes
-using Zygote
-using Enzyme
-using Optimization
-using OptimizationOptimisers
-using OptimizationOptimJL
-using LineSearches
-using Lux
-using Functors
-using Plots
-using Dates
-using Serialization
+include(joinpath(@__DIR__, "..", "..", "HPC_compatibility", "hpc_logging.jl"))
+include(joinpath(@__DIR__, "..", "run_name_guard.jl"))
 
-include("run_name_guard.jl")
-include("integration_AC.jl")
+hpc_log_package("LinearAlgebra", "Loading")
+using LinearAlgebra
+hpc_log_package("LinearAlgebra", "Loaded")
+hpc_log_package("SparseArrays", "Loading")
+using SparseArrays
+hpc_log_package("SparseArrays", "Loaded")
+hpc_log_package("Random", "Loading")
+using Random
+hpc_log_package("Random", "Loaded")
+hpc_log_package("ComponentArrays", "Loading")
+using ComponentArrays
+hpc_log_package("ComponentArrays", "Loaded")
+hpc_log_package("LinearSolve", "Loading")
+using LinearSolve
+hpc_log_package("LinearSolve", "Loaded")
+hpc_log_package("OrdinaryDiffEq", "Loading")
+using OrdinaryDiffEq
+hpc_log_package("OrdinaryDiffEq", "Loaded")
+hpc_log_package("OrdinaryDiffEqSDIRK", "Loading")
+using OrdinaryDiffEqSDIRK
+hpc_log_package("OrdinaryDiffEqSDIRK", "Loaded")
+hpc_log_package("OrdinaryDiffEqLowOrderRK", "Loading")
+using OrdinaryDiffEqLowOrderRK
+hpc_log_package("OrdinaryDiffEqLowOrderRK", "Loaded")
+hpc_log_package("SciMLSensitivity", "Loading")
+using SciMLSensitivity
+hpc_log_package("SciMLSensitivity", "Loaded")
+hpc_log_package("ADTypes", "Loading")
+using ADTypes
+hpc_log_package("ADTypes", "Loaded")
+hpc_log_package("Zygote", "Loading")
+using Zygote
+hpc_log_package("Zygote", "Loaded")
+hpc_log_package("Enzyme", "Loading")
+using Enzyme
+hpc_log_package("Enzyme", "Loaded")
+hpc_log_package("Optimization", "Loading")
+using Optimization
+hpc_log_package("Optimization", "Loaded")
+hpc_log_package("OptimizationOptimisers", "Loading")
+using OptimizationOptimisers
+hpc_log_package("OptimizationOptimisers", "Loaded")
+hpc_log_package("OptimizationOptimJL", "Loading")
+using OptimizationOptimJL
+hpc_log_package("OptimizationOptimJL", "Loaded")
+hpc_log_package("LineSearches", "Loading")
+using LineSearches
+hpc_log_package("LineSearches", "Loaded")
+hpc_log_package("Lux", "Loading")
+using Lux
+hpc_log_package("Lux", "Loaded")
+hpc_log_package("Functors", "Loading")
+using Functors
+hpc_log_package("Functors", "Loaded")
+hpc_log_package("Plots", "Loading")
+using Plots
+hpc_log_package("Plots", "Loaded")
+hpc_log_package("Dates", "Loading")
+using Dates
+hpc_log_package("Dates", "Loaded")
+hpc_log_package("Serialization", "Loading")
+using Serialization
+hpc_log_package("Serialization", "Loaded")
+
+hpc_log("package-load", "Including integration_AC_hpc.jl")
+include("integration_AC_hpc.jl")
+hpc_log("package-load", "Included integration_AC_hpc.jl")
 
 
 #### Train Neural Network ####
 
 
 """
-a loss function (MSE) to train our model with
-- args:(u_ref_obs,prob, θ, alg, t_obs, sensalg)
-    - params should have the structure: ComponentVector(ε2=ε2, Δx=Δx, θ=θ)
+Compute the spatially weighted MSE loss against reference observations.
 
+- args: `(u_ref_obs, prob, p, alg, t_obs, sensalg)`
+- `p` should have the structure `ComponentVector(ε2=ε2, Δx=Δx, θ=θ)`
 """
 function loss_ref_F(u_ref_obs,prob, p, alg, t_obs, sensalg)
-    r = model_FNN(prob, p, alg, t_obs, sensalg).u - u_ref_obs
-    return 0.5 * p.Δx * sum(sum(abs2, ri) for ri in r)
+    sol = model_FNN(prob, p, alg, t_obs, sensalg)
+    total = zero(eltype(first(sol.u)))
+    @inbounds for j in eachindex(sol.u, u_ref_obs)
+        u_model = sol.u[j]
+        u_ref = u_ref_obs[j]
+        @simd for i in eachindex(u_model, u_ref)
+            total += abs2(u_model[i] - u_ref[i])
+        end
+    end
+    return 0.5 * p.Δx * total
 end
 
 """
@@ -163,9 +217,9 @@ end
 
 
 """
-Runs a full (Adam) optimization and returns parameter history.
+Runs a full (Adam) optimization with flushed phase timing logs and returns parameter history.
 
-- args: (optprob;η = 5e-2,β = (0.9, 0.99), N_iter = 400, warmup = true, save_frequency = nothing)
+- args: (optprob;η = 5e-2,β = (0.9, 0.99), N_iter = 400, warmup = true, save_frequency = nothing, print_frequency = 50)
     - `η` and `N_iter` can also be same-length vectors for staged learning rates
 
     - returns: (; result=res, parameter_history, run_params, final_loss), with `result.u` set from the latest callback state.
@@ -176,23 +230,28 @@ function run_full_optimization(optprob;η = 5e-2,
                         N_iter = 400,
                         warmup = true,
                         save_frequency = nothing,
+                        print_frequency = 50,
                         )
 
-    # run optimization with printing
     η_schedule = η isa AbstractVector ? collect(η) : [η]
     N_iter_schedule = N_iter isa AbstractVector ? collect(N_iter) : [N_iter]
     length(η_schedule) == length(N_iter_schedule) || error("η and N_iter must have the same length")
     total_iterations = sum(N_iter_schedule)
     last_time = Ref{Float64}(time())
     save_frequency = isnothing(save_frequency) ? max(1, cld(total_iterations, 10)) : save_frequency
+
+    hpc_log_timed("run_full_optimization", "Optimization Params: η = $η_schedule; β = $β; N_iter = $N_iter_schedule; total_iterations = $total_iterations; save_frequency = $save_frequency; print_frequency = $print_frequency; warmup = $warmup")
+
+    initial_loss_start = time()
+    hpc_log_timed("run_full_optimization", "Computing initial loss")
     initial_loss = optprob.f(optprob.u0, optprob.p)
+    hpc_log_timed("run_full_optimization", "Initial loss = $initial_loss; elapsed = $(round(time() - initial_loss_start; digits=2)) s")
+
     parameter_history = [(iteration=0, θ=copy(optprob.u0), loss=initial_loss)]
     last_iteration = Ref(0)
     iteration_offset = Ref(0)
     stage_index = Ref(1)
-    latest_θ = Ref(copy(optprob.u0))
-
-    println("Optimization Params: η = $η_schedule; β = $β; N_iter = $N_iter_schedule; save_frequency = $save_frequency; warmup = $warmup")
+    latest_θ = Ref(optprob.u0)
 
 
     function cb_nn(state, loss)
@@ -206,24 +265,22 @@ function run_full_optimization(optprob;η = 5e-2,
         end
 
         last_iteration[] = global_iteration
-        latest_θ[] = copy(state.u)
+        latest_θ[] = state.u
 
         if global_iteration > 0 && global_iteration % save_frequency == 0 && parameter_history[end].iteration != global_iteration
             push!(parameter_history, (iteration=global_iteration, θ=copy(state.u), loss=loss))
         end
 
-        if global_iteration % 10 == 0
-            println(
-                "iteration = $(global_iteration), loss = $loss, ",
-                "last iteration = $(round(elapsed; digits=2)) s"
-            )
+        if global_iteration % print_frequency == 0
+            hpc_log_timed("run_full_optimization", "iteration = $(global_iteration), loss = $loss, last iteration = $(round(elapsed; digits=2)) s")
         end
 
         return false
     end
 
     if warmup
-        println("Warming up")
+        warmup_start = time()
+        hpc_log_timed("run_full_optimization", "Warming up")
 
         # Warm-up compilation
         Optimization.solve(
@@ -232,32 +289,39 @@ function run_full_optimization(optprob;η = 5e-2,
             maxiters=1,
         )
 
-        println("Warmup Complete")
+        hpc_log_timed("run_full_optimization", "Warmup complete; elapsed = $(round(time() - warmup_start; digits=2)) s")
     end
 
     last_time[] = time()
     
-    println("\nBeginning Optimization\n")
+    hpc_log_timed("run_full_optimization", "Beginning optimization")
 
     current_optprob = optprob
     res = nothing
     for stage in eachindex(η_schedule)
         stage_index[] = stage
-        println("\nStage $stage / $(length(η_schedule)): η = $(η_schedule[stage]); N_iter = $(N_iter_schedule[stage])\n")
+        stage_start = time()
+        hpc_log_timed("run_full_optimization", "Stage $stage / $(length(η_schedule)) started: η = $(η_schedule[stage]); N_iter = $(N_iter_schedule[stage])")
         res = Optimization.solve(
             current_optprob,
             OptimizationOptimisers.Adam(η_schedule[stage], β);
             maxiters=N_iter_schedule[stage],
             callback=cb_nn,
         )
+        hpc_log_timed("run_full_optimization", "Stage $stage / $(length(η_schedule)) complete; elapsed = $(round(time() - stage_start; digits=2)) s")
         iteration_offset[] += N_iter_schedule[stage]
         if stage < length(η_schedule)
+            hpc_log_timed("run_full_optimization", "Rebuilding OptimizationProblem for next stage")
             current_optprob = Optimization.OptimizationProblem(current_optprob.f, copy(latest_θ[]), current_optprob.p)
         end
     end
 
-    println("\nCompleted Optimization\n")
+    hpc_log_timed("run_full_optimization", "Completed optimization")
+
+    final_loss_start = time()
+    hpc_log_timed("run_full_optimization", "Computing final loss")
     final_loss = current_optprob.f(latest_θ[], current_optprob.p)
+    hpc_log_timed("run_full_optimization", "Final loss = $final_loss; elapsed = $(round(time() - final_loss_start; digits=2)) s")
 
     final_iteration = last_iteration[] == 0 ? total_iterations : last_iteration[]
     if parameter_history[end].iteration == final_iteration
@@ -275,6 +339,7 @@ function run_full_optimization(optprob;η = 5e-2,
         N_iter_schedule=copy(N_iter_schedule),
         warmup,
         save_frequency,
+        print_frequency,
     ))
     result = merge(NamedTuple{fieldnames(typeof(res))}(getfield(res, name) for name in fieldnames(typeof(res))), (; u=copy(latest_θ[]), objective=final_loss))
     return (; result, parameter_history, run_params, final_loss)
@@ -286,7 +351,7 @@ Save an optimization output and its propagated `run_params` under
 `Optimization/Data/<run_name>`.
 """
 function save_optimization_data(output, run_name::AbstractString)
-    data_root = normpath(joinpath(@__DIR__, "..", "Optimization", "Data"))
+    data_root = normpath(joinpath(@__DIR__, "..", "..", "Optimization", "Data"))
     run_directory = assert_run_name_available(run_name; data_root)
     mkpath(data_root)
     mkdir(run_directory)
