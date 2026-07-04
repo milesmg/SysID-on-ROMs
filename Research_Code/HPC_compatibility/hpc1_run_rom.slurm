@@ -88,6 +88,14 @@ ARGS=(
     --warmup "$WARMUP"
 )
 
+### ADJUSTED: Forward optional variable-window settings through the standard ROM wrapper.
+if [ -n "${WINDOW_T:-}" ]; then ARGS+=(--window-T "$WINDOW_T"); fi
+if [ -n "${WINDOW_N_OBS:-}" ]; then ARGS+=(--window-N-obs "$WINDOW_N_OBS"); fi
+if [ -n "${WINDOW_START_POLICY:-}" ]; then ARGS+=(--window-start-policy "$WINDOW_START_POLICY"); fi
+if [ -n "${WINDOWS_PER_ITER:-}" ]; then ARGS+=(--windows-per-iter "$WINDOWS_PER_ITER"); fi
+if [ -n "${LOSS_NORMALIZATION:-}" ]; then ARGS+=(--loss-normalization "$LOSS_NORMALIZATION"); fi
+if [ -n "${WINDOW_SEED:-}" ]; then ARGS+=(--window-seed "$WINDOW_SEED"); fi
+
 if [ -n "${RUN_NAME:-}" ]; then
     ARGS+=(--run-name "$RUN_NAME")
 fi

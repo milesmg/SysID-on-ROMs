@@ -1,5 +1,6 @@
 /Research_Code/Optimization/Data/*
 !/Research_Code/Optimization/Data/.gitkeep
+!Research_Code/Optimization/Data/Sweeps
 /AI_jam
 /talks_and_papers
 /Julia/depot/

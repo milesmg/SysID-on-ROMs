@@ -27,3 +27,5 @@
   - When writing rsync commands for this repo, use `--filter='dir-merge .rsync-filter'`, exclude `.git/`, and use `--delete` only when explicitly requested so per-directory `.rsync-filter` files protect machine-built/local-only paths like `Julia/depot/`.
 
 - Questions: Ask clarifying questions rather than proceeding if you're unsure !s
+
+- Github: Don't commit or push anything. 

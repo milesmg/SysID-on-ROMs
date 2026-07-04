@@ -73,6 +73,10 @@ get_float_vector(opts, key, default) = parse.(Float64, split(get(opts, key, join
 """Return a comma-separated integer vector option from `opts`."""
 get_int_vector(opts, key, default) = parse.(Int, split(get(opts, key, join(default, ",")), ","))
 
+### ADJUSTED: Parse staged window policies for the standard FOM and ROM runners.
+"""Return a comma-separated string vector option from `opts`."""
+get_string_vector(opts, key, default) = strip.(split(get(opts, key, join(default, ",")), ","))
+
 """
 Configure and print runtime information for hpc1 batch jobs.
 

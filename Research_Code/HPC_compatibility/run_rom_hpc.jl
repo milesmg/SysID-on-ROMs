@@ -26,13 +26,30 @@ seed = get_int(opts, "seed", 1)
 reference_dt_factor = get_float(opts, "reference-dt-factor", 0.5)
 etas = get_float_vector(opts, "etas", [5e-3, 1e-3, 1e-4])
 iterations = get_int_vector(opts, "iters", [500, 800, 1100])
+### ADJUSTED: Parse variable-window schedules while defaulting every stage to the full trajectory.
+stage_count = length(etas)
+window_T = get_float_vector(opts, "window-T", fill(tfinal, stage_count))
+window_N_obs = get_int_vector(opts, "window-N-obs", fill(N_obs, stage_count))
+window_start_policy = get_string_vector(opts, "window-start-policy", fill("beginning", stage_count))
+windows_per_iter = get_int_vector(opts, "windows-per-iter", fill(1, stage_count))
+loss_normalization = get_string(opts, "loss-normalization", "mean")
+window_seed = get_int(opts, "window-seed", seed)
 β = get_float_tuple(opts, "beta", (0.9, 0.99))
 warmup = get_bool(opts, "warmup", true)
 save_frequency = get_int(opts, "save-frequency", 10)
 print_frequency = get_int(opts, "print-frequency", 10)
 run_name = get_string(opts, "run-name", timestamp_run_name("ROM_AC_hpc"))
 
-length(etas) == length(iterations) || error("--etas and --iters must have the same length")
+### ADJUSTED: Validate the complete staged learning and window schedule before building the reference solution.
+schedule_lengths = (;
+    etas=length(etas),
+    iters=length(iterations),
+    window_T=length(window_T),
+    window_N_obs=length(window_N_obs),
+    window_start_policy=length(window_start_policy),
+    windows_per_iter=length(windows_per_iter),
+)
+all(==(stage_count), values(schedule_lengths)) || error("--etas, --iters, --window-T, --window-N-obs, --window-start-policy, and --windows-per-iter must have the same length; got $schedule_lengths")
 assert_run_name_available(run_name)
 
 hpc_log("run_rom_hpc", "Configuring HPC runtime")
@@ -44,8 +61,6 @@ hpc_log("run_rom_hpc", "Building Laplacian matrix")
 A = get_lap1d_matrix(N, ε2, reference.Δx)
 hpc_log("run_rom_hpc", "Preparing ROM optimization problem")
 prob_rom = prepare_ROM_optimization(A, reference.u_ref, r, m; N_obs, h, seed)
-hpc_log("run_rom_hpc", "Setting up Optimization.jl problem")
-optprob_rom = set_up_ROM_optimization(prob_rom)
 hpc_log("run_rom_hpc", "Prepared ROM optimization parameters")
 println("  run_name = ", run_name)
 println("  N = ", N)
@@ -64,6 +79,13 @@ println("  reference_Δt = ", reference.Δt)
 println("  reference_save_count = ", length(reference.t))
 println("  etas = ", etas)
 println("  iterations = ", iterations)
+### ADJUSTED: Print the window schedule used by standard and sweep jobs.
+println("  window_T = ", window_T)
+println("  window_N_obs = ", window_N_obs)
+println("  window_start_policy = ", window_start_policy)
+println("  windows_per_iter = ", windows_per_iter)
+println("  loss_normalization = ", loss_normalization)
+println("  window_seed = ", window_seed)
 println("  β = ", β)
 println("  warmup = ", warmup)
 println("  save_frequency = ", save_frequency)
@@ -72,10 +94,29 @@ println("  SLURM_JOB_ID = ", get(ENV, "SLURM_JOB_ID", "local"))
 println("  SLURM_ARRAY_TASK_ID = ", get(ENV, "SLURM_ARRAY_TASK_ID", ""))
 flush(stdout)
 hpc_log("run_rom_hpc", "Running ROM optimization")
-output = run_ROM_optimization(optprob_rom; η=etas, β, N_iter=iterations, warmup, save_frequency, print_frequency)
+### ADJUSTED: Use the central ROM variable-window path for all runs, including full-trajectory defaults.
+output = run_variable_window_ROM_optimization(
+    reference.u_ref,
+    prob_rom;
+    eta=etas,
+    beta=β,
+    N_iter=iterations,
+    window_T,
+    window_N_obs,
+    window_start_policy,
+    windows_per_iter,
+    loss_normalization,
+    window_seed,
+    validation_N_obs=N_obs,
+    warmup,
+    save_frequency,
+    print_frequency,
+)
 hpc_log("run_rom_hpc", "Saving ROM optimization data")
-save_dir = save_ROM_optimization_data(output, run_name)
+### ADJUSTED: Save window and full-trajectory validation histories for every ROM run.
+save_dir = save_variable_window_ROM_optimization_data(output, run_name)
 
 println("Saved ROM output to: ", save_dir)
-println("Final loss: ", output.final_loss)
+println("Final full-trajectory loss: ", output.final_full_trajectory_loss)
+println("Final training-window loss: ", output.final_training_loss)
 flush(stdout)

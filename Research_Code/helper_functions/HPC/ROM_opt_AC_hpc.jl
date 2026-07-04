@@ -44,6 +44,7 @@ hpc_log_package("Serialization", "Loaded")
 hpc_log("package-load", "Including integration_AC_hpc.jl")
 include("integration_AC_hpc.jl")
 hpc_log("package-load", "Included integration_AC_hpc.jl")
+include("variable_window_common_hpc.jl")
 
 
 ### Build ROM ###
@@ -131,6 +132,37 @@ function loss_ROM(prob, p, alg, sensalg)
     return 0.5 * data.Δx * total
 end
 
+"""Materialize full-state references and the projected ROM initial state."""
+function materialize_ROM_batch(u_ref, rom, specs)
+    return [merge(window, (; u0_rom=rom.U' * window.u0)) for window in materialize_batch(u_ref, specs)]
+end
+
+"""Compute one window's reconstructed spatially weighted ROM loss."""
+function variable_window_ROM_loss(window, prob, p, alg, sensalg, normalization)
+    data = prob.f.f.data
+    window_prob = remake(prob; u0=window.u0_rom, tspan=(window.t_start, window.t_end), p=p)
+    sol = solve(window_prob, alg; saveat=window.t_obs, sensealg=sensalg)
+    total = zero(eltype(first(sol.u)))
+    @inbounds for j in eachindex(sol.u, window.u_ref_obs)
+        u_model = data.rom.U * sol.u[j]
+        u_ref = window.u_ref_obs[j]
+        @simd for i in eachindex(u_model, u_ref)
+            total += abs2(u_model[i] - u_ref[i])
+        end
+    end
+    loss = 0.5 * data.Δx * total
+    return normalization == "mean" ? loss / length(window.u_ref_obs) : loss
+end
+
+"""Average or sum the ROM windows scheduled for one optimizer iteration."""
+function variable_window_ROM_batch_loss(batch, prob, p, alg, sensalg, normalization)
+    total = zero(eltype(first(batch).u0_rom))
+    for window in batch
+        total += variable_window_ROM_loss(window, prob, p, alg, sensalg, normalization)
+    end
+    return normalization == "mean" ? total / length(batch) : total
+end
+
 
 ### Optimize ROM ###
 
@@ -193,6 +225,7 @@ function prepare_ROM_optimization(
         reference_algorithm=string(nameof(typeof(u_ref.alg))),
         h,
         seed,
+        requested_N_obs=N_obs,
         use_default_nonlinearity,
     )
 
@@ -206,18 +239,18 @@ end
 Build an `OptimizationProblem` from a prepared neural ROM `ODEProblem`.
 - arg: (
     prob;
-    alg=TRBDF2(),
-    sensalg=GaussAdjoint(autojacvec=ReverseDiffVJP(true)),
+    alg=TRBDF2(autodiff=AutoFiniteDiff()),
+    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(...)),
 )
 - Keywords:
-    - `alg=TRBDF2()`: forward ROM solver
-    - `sensalg=GaussAdjoint(autojacvec=ReverseDiffVJP(true))`: sensitivity method
+    - `alg=TRBDF2(autodiff=AutoFiniteDiff())`: forward ROM solver
+    - `sensalg=GaussAdjoint(autojacvec=EnzymeVJP(...))`: sensitivity method
 - returns: optprob
     """
 function set_up_ROM_optimization(
     prob;
-    alg=TRBDF2(),
-    sensalg=GaussAdjoint(autojacvec=ReverseDiffVJP(true)),
+    alg=TRBDF2(autodiff=AutoFiniteDiff()),
+    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
 )
     p₀ = prob.p
     θ₀, re = Optimisers.destructure(p₀.θ)
@@ -373,6 +406,70 @@ function run_ROM_optimization(
     )
 end
 
+"""
+Run staged Adam ROM training on deterministic variable-length windows.
+
+Window settings are scalar or same-length schedules with `eta`/`N_iter`.
+Defaults use the whole trajectory, one window per iteration, and mean loss.
+"""
+function run_variable_window_ROM_optimization(
+    u_ref,
+    prob;
+    eta=5e-2,
+    beta=(0.9, 0.99),
+    N_iter=400,
+    window_T=nothing,
+    window_N_obs=nothing,
+    window_start_policy="beginning",
+    windows_per_iter=1,
+    loss_normalization="mean",
+    window_seed=1,
+    validation_N_obs=prob.f.f.data.requested_N_obs,
+    alg=TRBDF2(autodiff=AutoFiniteDiff()),
+    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
+    warmup=true,
+    save_frequency=nothing,
+    print_frequency=10,
+)
+    rom = prob.f.f.data.rom
+    core = run_variable_window_stages(
+        u_ref,
+        prob,
+        prob.p;
+        optimization_data=(; rom_prob=prob),
+        materialize_model_batch=(reference, specs) -> materialize_ROM_batch(reference, rom, specs),
+        rebuild_params=(p, re, theta) -> ComponentVector(Ã=p.Ã, Up=p.Up, B=p.B, θ=re(theta)),
+        batch_loss=variable_window_ROM_batch_loss,
+        validation_N_obs,
+        log_name="run_variable_window_ROM_optimization",
+        eta,
+        beta,
+        N_iter,
+        window_T,
+        window_N_obs,
+        window_start_policy,
+        windows_per_iter,
+        loss_normalization,
+        window_seed,
+        alg,
+        sensalg,
+        warmup,
+        save_frequency,
+        print_frequency,
+    )
+    return (;
+        core.result,
+        core.parameter_history,
+        core.final_loss,
+        core.final_training_loss,
+        core.final_full_trajectory_loss,
+        rom_prob=prob,
+        run_settings=core.settings,
+        core.window_history,
+        core.validation_history,
+    )
+end
+
 
 ### Save ROM optimization ###
 
@@ -387,7 +484,6 @@ values, indices, and scalar problem parameters.
 """
 function save_ROM_optimization_data(output, run_name::AbstractString)
     data_root = normpath(joinpath(@__DIR__, "..", "..", "Optimization", "Data"))
-    ### ADJUSTED: Fail explicitly if the requested run directory already exists.
     run_directory = assert_run_name_available(run_name; data_root)
     mkpath(data_root)
     mkdir(run_directory)
@@ -450,5 +546,14 @@ function save_ROM_optimization_data(output, run_name::AbstractString)
         end
     end
 
+    return run_directory
+end
+
+"""Save variable-window ROM output under the standard run directory."""
+function save_variable_window_ROM_optimization_data(output, run_name::AbstractString)
+    run_directory = save_ROM_optimization_data(output, run_name)
+    serialize(joinpath(run_directory, "window_history.jls"), output.window_history)
+    serialize(joinpath(run_directory, "validation_history.jls"), output.validation_history)
+    serialize(joinpath(run_directory, "evaluation_history.jls"), output.validation_history)
     return run_directory
 end

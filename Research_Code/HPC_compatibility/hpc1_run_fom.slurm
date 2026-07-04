@@ -3,7 +3,6 @@
 #SBATCH -J ac_fom
 #SBATCH -p cpu
 #SBATCH -N 1
-### ADJUSTED: Default FOM jobs to the measured J8/B1 threading setup.
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=128G
 #SBATCH -t 35:59:00
@@ -14,7 +13,6 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$SLURM_SUBMIT_DIR}"
 HPC_DIR="$REPO_ROOT/Research_Code/HPC_compatibility"
-### ADJUSTED: Use the repo-local Julia runtime/project defaults for hpc1 jobs.
 JULIA_ROOT="$REPO_ROOT/Julia"
 HPC_JULIA_PROJECT="$JULIA_ROOT/HPC_compatibility"
 JULIA_EXE="$JULIA_ROOT/julia-1.12.6/bin/julia"
@@ -22,19 +20,16 @@ JULIA_EXE="$JULIA_ROOT/julia-1.12.6/bin/julia"
 cd "$REPO_ROOT"
 mkdir -p "$HPC_DIR/logs" "$REPO_ROOT/Research_Code/Optimization/Data"
 
-### ADJUSTED: Fail fast if the repo-local Julia runtime has not been built.
 if [ ! -x "$JULIA_EXE" ]; then
     echo "Missing repo-local Julia runtime: $JULIA_EXE"
     echo "Run: bash Julia/setup_hpc_julia.sh"
     exit 1
 fi
 
-### ADJUSTED: Keep Julia's bundled depots available while using the repo-local HPC depot.
 JULIA_USER_DEPOT="$JULIA_ROOT/depot"
 export JULIA_DEPOT_PATH="$JULIA_USER_DEPOT:"
 export JULIA_PKG_DEVDIR="$JULIA_USER_DEPOT/dev"
 export JULIA_PKG_USE_CLI_GIT=true
-### ADJUSTED: Default FOM training to 8 Julia threads and 1 BLAS thread.
 export JULIA_NUM_THREADS="${JULIA_NUM_THREADS:-8}"
 export JULIA_BLAS_THREADS="${JULIA_BLAS_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="$JULIA_BLAS_THREADS"
@@ -84,6 +79,14 @@ ARGS=(
     --print-frequency "$PRINT_FREQUENCY"
     --warmup "$WARMUP"
 )
+
+### ADJUSTED: Forward optional variable-window settings through the standard FOM wrapper.
+if [ -n "${WINDOW_T:-}" ]; then ARGS+=(--window-T "$WINDOW_T"); fi
+if [ -n "${WINDOW_N_OBS:-}" ]; then ARGS+=(--window-N-obs "$WINDOW_N_OBS"); fi
+if [ -n "${WINDOW_START_POLICY:-}" ]; then ARGS+=(--window-start-policy "$WINDOW_START_POLICY"); fi
+if [ -n "${WINDOWS_PER_ITER:-}" ]; then ARGS+=(--windows-per-iter "$WINDOWS_PER_ITER"); fi
+if [ -n "${LOSS_NORMALIZATION:-}" ]; then ARGS+=(--loss-normalization "$LOSS_NORMALIZATION"); fi
+if [ -n "${WINDOW_SEED:-}" ]; then ARGS+=(--window-seed "$WINDOW_SEED"); fi
 
 if [ -n "${RUN_NAME:-}" ]; then
     ARGS+=(--run-name "$RUN_NAME")

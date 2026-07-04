@@ -38,16 +38,15 @@ fi
 
 PYTHON="${PYTHON:-python3}"
 
-eval "$("$PYTHON" "$SWEEP_DIR/sweep_params.py" env "$SWEEP_FILE" "$SLURM_ARRAY_TASK_ID")"
-
-SWEEP_TARGET="${SWEEP_TARGET:-}"
+SWEEP_TARGET="$("$PYTHON" "$SWEEP_DIR/sweep_params.py" target "$SWEEP_FILE")"
 case "$SWEEP_TARGET" in
     fom|FOM)
         TARGET_SCRIPT="$HPC_DIR/hpc1_run_fom.slurm"
         TARGET_LABEL="FOM"
         ;;
     fom_variable|FOM_VARIABLE|variable_fom|VARIABLE_FOM)
-        TARGET_SCRIPT="$HPC_DIR/Variable_trajectory_length/hpc1_run_variable_fom.slurm"
+        ### ADJUSTED: Route legacy variable-FOM sweeps through the standard central FOM wrapper.
+        TARGET_SCRIPT="$HPC_DIR/hpc1_run_fom.slurm"
         TARGET_LABEL="FOM_VARIABLE"
         ;;
     rom|ROM)
@@ -55,28 +54,38 @@ case "$SWEEP_TARGET" in
         TARGET_LABEL="ROM"
         ;;
     *)
-        echo "Sweep target must be fom or rom. Set target=rom or target=fom in $SWEEP_FILE."
+        echo "Sweep target must be fom, fom_variable, or rom in $SWEEP_FILE."
         exit 1
         ;;
 esac
 
-BASE_RUN_NAME="${RUN_NAME:-${SWEEP_NAME:-${TARGET_LABEL}_sweep}}"
-RUN_NAME="${BASE_RUN_NAME}_${SLURM_ARRAY_TASK_ID}_${SWEEP_COMBO_LABEL}"
-export RUN_NAME
-
+SWEEP_TOTAL_COUNT="${SWEEP_TOTAL_COUNT:-$("$PYTHON" "$SWEEP_DIR/sweep_params.py" count "$SWEEP_FILE")}"
+SWEEP_WORKER_COUNT="${SWEEP_WORKER_COUNT:-$SWEEP_TOTAL_COUNT}"
+SWEEP_WORKER_INDEX="$SLURM_ARRAY_TASK_ID"
+INITIAL_RUN_NAME="${RUN_NAME:-}"
+INITIAL_SWEEP_NAME="${SWEEP_NAME:-}"
 export INSTANTIATE="${INSTANTIATE:-false}"
 
-echo "[$(date)] Starting $TARGET_LABEL sweep task $SLURM_ARRAY_TASK_ID / $SWEEP_COMBO_COUNT"
-echo "Sweep file: $SWEEP_FILE"
-echo "Run name: $RUN_NAME"
-echo "Combination label: $SWEEP_COMBO_LABEL"
-env | sort | grep -E '^(N|L|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|WINDOWS_PER_ITER|LOSS_NORMALIZATION|WINDOW_SEED|JULIA_NUM_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
+for ((COMBO_INDEX=SWEEP_WORKER_INDEX; COMBO_INDEX<SWEEP_TOTAL_COUNT; COMBO_INDEX+=SWEEP_WORKER_COUNT)); do
+    RUN_NAME="$INITIAL_RUN_NAME"
+    SWEEP_NAME="$INITIAL_SWEEP_NAME"
+    eval "$("$PYTHON" "$SWEEP_DIR/sweep_params.py" env "$SWEEP_FILE" "$COMBO_INDEX")"
 
-if [ "${DRY_RUN:-false}" = "true" ]; then
-    echo "DRY_RUN=true, not running $TARGET_SCRIPT"
-    exit 0
-fi
+    BASE_RUN_NAME="${RUN_NAME:-${SWEEP_NAME:-${TARGET_LABEL}_sweep}}"
+    RUN_NAME="${BASE_RUN_NAME}_${COMBO_INDEX}_${SWEEP_COMBO_LABEL}"
+    export RUN_NAME SWEEP_WORKER_COUNT SWEEP_WORKER_INDEX
 
-bash "$TARGET_SCRIPT"
+    echo "[$(date)] Worker $SWEEP_WORKER_INDEX starting $TARGET_LABEL combination $COMBO_INDEX / $SWEEP_TOTAL_COUNT"
+    echo "Sweep file: $SWEEP_FILE"
+    echo "Run name: $RUN_NAME"
+    echo "Combination label: $SWEEP_COMBO_LABEL"
+    env | sort | grep -E '^(N|L|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|WINDOWS_PER_ITER|LOSS_NORMALIZATION|WINDOW_SEED|JULIA_NUM_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
 
-echo "[$(date)] Finished $TARGET_LABEL sweep task $SLURM_ARRAY_TASK_ID"
+    if [ "${DRY_RUN:-false}" = "true" ]; then
+        echo "DRY_RUN=true, not running $TARGET_SCRIPT"
+        continue
+    fi
+
+    bash "$TARGET_SCRIPT"
+    echo "[$(date)] Worker $SWEEP_WORKER_INDEX finished $TARGET_LABEL combination $COMBO_INDEX"
+done

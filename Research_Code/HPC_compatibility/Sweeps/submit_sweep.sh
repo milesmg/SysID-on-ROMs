@@ -27,20 +27,38 @@ if [ "$COUNT" -lt 1 ]; then
     exit 1
 fi
 
-ARRAY_END=$((COUNT - 1))
-ARRAY_SPEC="0-${ARRAY_END}"
+### ADJUSTED: Fit sweep workers within the hpc1 submit limit and run excess combinations sequentially.
+MAX_SUBMITTED="${MAX_SUBMITTED:-20}"
+MAX_CONCURRENT="${MAX_CONCURRENT:-8}"
+CURRENT_SUBMITTED="${CURRENT_SUBMITTED:-$(squeue -r -h -u "$USER" | wc -l | tr -d '[:space:]')}"
+AVAILABLE_SUBMISSIONS=$((MAX_SUBMITTED - CURRENT_SUBMITTED))
 
-if [ -n "${MAX_CONCURRENT:-}" ]; then
-    ARRAY_SPEC="${ARRAY_SPEC}%${MAX_CONCURRENT}"
+if [ "$AVAILABLE_SUBMISSIONS" -lt 1 ]; then
+    echo "No submission slots available: $CURRENT_SUBMITTED of $MAX_SUBMITTED are already in use."
+    exit 1
 fi
 
-echo "Submitting $COUNT sweep jobs from $SWEEP_FILE"
+WORKER_COUNT="$COUNT"
+if [ "$WORKER_COUNT" -gt "$AVAILABLE_SUBMISSIONS" ]; then
+    WORKER_COUNT="$AVAILABLE_SUBMISSIONS"
+fi
+
+CONCURRENT_WORKERS="$MAX_CONCURRENT"
+if [ "$CONCURRENT_WORKERS" -gt "$WORKER_COUNT" ]; then
+    CONCURRENT_WORKERS="$WORKER_COUNT"
+fi
+
+ARRAY_END=$((WORKER_COUNT - 1))
+ARRAY_SPEC="0-${ARRAY_END}%${CONCURRENT_WORKERS}"
+
+echo "Submitting $COUNT sweep combinations with $WORKER_COUNT Slurm workers from $SWEEP_FILE"
+echo "Submitted jobs already in queue: $CURRENT_SUBMITTED / $MAX_SUBMITTED"
 echo "Array spec: $ARRAY_SPEC"
 
 if [ "${DRY_RUN:-false}" = "true" ]; then
     echo "DRY_RUN=true, not submitting."
-    echo "SWEEP_FILE=\"$SWEEP_FILE\" sbatch --array=\"$ARRAY_SPEC\" \"$SWEEP_DIR/hpc1_run_sweep.slurm\""
+    echo "SWEEP_FILE=\"$SWEEP_FILE\" SWEEP_TOTAL_COUNT=\"$COUNT\" SWEEP_WORKER_COUNT=\"$WORKER_COUNT\" sbatch --array=\"$ARRAY_SPEC\" \"$SWEEP_DIR/hpc1_run_sweep.slurm\""
     exit 0
 fi
 
-SWEEP_FILE="$SWEEP_FILE" sbatch --array="$ARRAY_SPEC" "$SWEEP_DIR/hpc1_run_sweep.slurm"
+SWEEP_FILE="$SWEEP_FILE" SWEEP_TOTAL_COUNT="$COUNT" SWEEP_WORKER_COUNT="$WORKER_COUNT" sbatch --array="$ARRAY_SPEC" "$SWEEP_DIR/hpc1_run_sweep.slurm"
