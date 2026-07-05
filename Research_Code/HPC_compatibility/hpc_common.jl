@@ -1,6 +1,5 @@
 include(joinpath(@__DIR__, "hpc_logging.jl"))
-### ADJUSTED: Load shared output run-name collision checks for HPC entrypoints.
-include(joinpath(@__DIR__, "..", "helper_functions", "run_name_guard.jl"))
+include(joinpath(@__DIR__, "..", "src", "Misc.", "run_name_guard.jl"))
 
 hpc_log_package("LinearAlgebra", "Loading")
 using LinearAlgebra

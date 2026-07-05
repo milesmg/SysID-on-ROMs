@@ -1,5 +1,6 @@
 include(joinpath(@__DIR__, "..", "..", "HPC_compatibility", "hpc_logging.jl"))
-include(joinpath(@__DIR__, "..", "run_name_guard.jl"))
+### ADJUSTED: Load the run-name guard from its moved Misc. directory.
+include(joinpath(@__DIR__, "..", "Misc.", "run_name_guard.jl"))
 
 hpc_log_package("LinearAlgebra", "Loading")
 using LinearAlgebra
@@ -115,23 +116,7 @@ function model_ROM(prob, p, alg, sensalg)
 end
 
 
-"""
-Compute the spatially weighted squared error between the reconstructed ROM
-trajectory and full-order observations stored in `prob`.
-"""
-function loss_ROM(prob, p, alg, sensalg)
-    data = prob.f.f.data
-    sol = solve(remake(prob; p), alg; saveat=data.t_obs, sensealg=sensalg)
-    total = zero(eltype(first(sol.u)))
-    @inbounds for j in eachindex(sol.u)
-        u_model = data.rom.U * sol.u[j]
-        for i in axes(data.u_ref_obs, 1)
-            total += abs2(u_model[i] - data.u_ref_obs[i, j])
-        end
-    end
-    return 0.5 * data.Δx * total
-end
-
+### ADJUSTED: Keep only the active variable-window ROM loss in HPC tooling.
 """Materialize full-state references and the projected ROM initial state."""
 function materialize_ROM_batch(u_ref, rom, specs)
     return [merge(window, (; u0_rom=rom.U' * window.u0)) for window in materialize_batch(u_ref, specs)]
@@ -235,182 +220,13 @@ function prepare_ROM_optimization(
 end
 
 
-"""
-Build an `OptimizationProblem` from a prepared neural ROM `ODEProblem`.
-- arg: (
-    prob;
-    alg=TRBDF2(autodiff=AutoFiniteDiff()),
-    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(...)),
-)
-- Keywords:
-    - `alg=TRBDF2(autodiff=AutoFiniteDiff())`: forward ROM solver
-    - `sensalg=GaussAdjoint(autojacvec=EnzymeVJP(...))`: sensitivity method
-- returns: optprob
-    """
-function set_up_ROM_optimization(
-    prob;
-    alg=TRBDF2(autodiff=AutoFiniteDiff()),
-    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
-)
-    p₀ = prob.p
-    θ₀, re = Optimisers.destructure(p₀.θ)
-    optimization_data = (;
-        rom_prob=prob,
-        ode_algorithm=string(nameof(typeof(alg))),
-        sensitivity_algorithm=string(sensalg),
-    )
-
-    optf = Optimization.OptimizationFunction(
-        (θ, data) -> begin
-            params = ComponentVector(Ã=p₀.Ã, Up=p₀.Up, B=p₀.B, θ=re(θ))
-            loss_ROM(prob, params, alg, sensalg)
-        end,
-        Optimization.AutoZygote(),
-    )
-
-    return Optimization.OptimizationProblem(optf, copy(θ₀), optimization_data)
-end
-
-
-"""
-Run an Adam ROM optimization with flushed phase timing logs for HPC jobs.
-
-- Args: `(optprob; η=5e-2, β=(0.9, 0.99), N_iter=400,
-  warmup=true, save_frequency=nothing, print_frequency=50)`
-    - `η` and `N_iter` can also be same-length vectors for staged learning rates
-- Returns: result, parameter history, final loss, the originating ROM problem, and optimizer settings, with `result.u` set from the latest callback state.
-"""
-function run_ROM_optimization(
-    optprob;
-    η=5e-2,
-    β=(0.9, 0.99),
-    N_iter=400,
-    warmup=true,
-    save_frequency=nothing,
-    print_frequency=50,
-)
-
-    η_schedule = η isa AbstractVector ? collect(η) : [η]
-    N_iter_schedule = N_iter isa AbstractVector ? collect(N_iter) : [N_iter]
-    length(η_schedule) == length(N_iter_schedule) || error("η and N_iter must have the same length")
-    total_iterations = sum(N_iter_schedule)
-    last_time = Ref{Float64}(time())
-    save_frequency = isnothing(save_frequency) ? max(1, cld(total_iterations, 10)) : save_frequency
-
-    hpc_log_timed("run_ROM_optimization", "Optimization Params: η = $η_schedule; β = $β; N_iter = $N_iter_schedule; total_iterations = $total_iterations; save_frequency = $save_frequency; print_frequency = $print_frequency; warmup = $warmup")
-
-    initial_loss_start = time()
-    hpc_log_timed("run_ROM_optimization", "Computing initial loss")
-    initial_loss = optprob.f(optprob.u0, optprob.p)
-    hpc_log_timed("run_ROM_optimization", "Initial loss = $initial_loss; elapsed = $(round(time() - initial_loss_start; digits=2)) s")
-
-    parameter_history = [(iteration=0, θ=copy(optprob.u0), loss=initial_loss)]
-    last_iteration = Ref(0)
-    iteration_offset = Ref(0)
-    stage_index = Ref(1)
-    latest_θ = Ref(optprob.u0)
-
-    function callback(state, loss)
-        now = time()
-        elapsed = now - last_time[]
-        last_time[] = now
-        global_iteration = iteration_offset[] + state.iter
-
-        if stage_index[] > 1 && state.iter == 0
-            return false
-        end
-
-        last_iteration[] = global_iteration
-        latest_θ[] = state.u
-
-        if global_iteration > 0 && global_iteration % save_frequency == 0 && parameter_history[end].iteration != global_iteration
-            push!(parameter_history, (iteration=global_iteration, θ=copy(state.u), loss))
-        end
-
-        if global_iteration % print_frequency == 0
-            hpc_log_timed("run_ROM_optimization", "iteration = $(global_iteration), loss = $loss, last iteration = $(round(elapsed; digits=2)) s")
-        end
-
-        return false
-    end
-
-    if warmup
-        warmup_start = time()
-        hpc_log_timed("run_ROM_optimization", "Warming up")
-        Optimization.solve(
-            optprob,
-            OptimizationOptimisers.Adam(η_schedule[1], β);
-            maxiters=1,
-        )
-        hpc_log_timed("run_ROM_optimization", "Warmup complete; elapsed = $(round(time() - warmup_start; digits=2)) s")
-    end
-
-    last_time[] = time()
-
-    hpc_log_timed("run_ROM_optimization", "Beginning optimization")
-    current_optprob = optprob
-    result = nothing
-    for stage in eachindex(η_schedule)
-        stage_index[] = stage
-        stage_start = time()
-        hpc_log_timed("run_ROM_optimization", "Stage $stage / $(length(η_schedule)) started: η = $(η_schedule[stage]); N_iter = $(N_iter_schedule[stage])")
-        result = Optimization.solve(
-            current_optprob,
-            OptimizationOptimisers.Adam(η_schedule[stage], β);
-            maxiters=N_iter_schedule[stage],
-            callback,
-        )
-        hpc_log_timed("run_ROM_optimization", "Stage $stage / $(length(η_schedule)) complete; elapsed = $(round(time() - stage_start; digits=2)) s")
-        iteration_offset[] += N_iter_schedule[stage]
-        if stage < length(η_schedule)
-            hpc_log_timed("run_ROM_optimization", "Rebuilding OptimizationProblem for next stage")
-            current_optprob = Optimization.OptimizationProblem(current_optprob.f, copy(latest_θ[]), current_optprob.p)
-        end
-    end
-    hpc_log_timed("run_ROM_optimization", "Completed optimization")
-
-    final_loss_start = time()
-    hpc_log_timed("run_ROM_optimization", "Computing final loss")
-    final_loss = current_optprob.f(latest_θ[], current_optprob.p)
-    hpc_log_timed("run_ROM_optimization", "Final loss = $final_loss; elapsed = $(round(time() - final_loss_start; digits=2)) s")
-
-    final_iteration = last_iteration[] == 0 ? total_iterations : last_iteration[]
-    if parameter_history[end].iteration == final_iteration
-        parameter_history[end] = (iteration=final_iteration, θ=copy(latest_θ[]), loss=final_loss)
-    else
-        push!(parameter_history, (iteration=final_iteration, θ=copy(latest_θ[]), loss=final_loss))
-    end
-
-    run_settings = (;
-        ode_algorithm=optprob.p.ode_algorithm,
-        sensitivity_algorithm=optprob.p.sensitivity_algorithm,
-        optimizer=length(η_schedule) == 1 ? "Adam" : "Adam staged",
-        η=length(η_schedule) == 1 ? η_schedule[1] : copy(η_schedule),
-        β,
-        N_iter=length(N_iter_schedule) == 1 ? N_iter_schedule[1] : total_iterations,
-        η_schedule=copy(η_schedule),
-        N_iter_schedule=copy(N_iter_schedule),
-        warmup,
-        save_frequency,
-        print_frequency,
-    )
-
-    result = merge(NamedTuple{fieldnames(typeof(result))}(getfield(result, name) for name in fieldnames(typeof(result))), (; u=copy(latest_θ[]), objective=final_loss))
-
-    return (;
-        result,
-        parameter_history,
-        final_loss,
-        rom_prob=optprob.p.rom_prob,
-        run_settings,
-    )
-end
+### ADJUSTED: Keep the HPC ROM path focused on the central variable-window optimizer.
 
 """
 Run staged Adam ROM training on deterministic variable-length windows.
 
 Window settings are scalar or same-length schedules with `eta`/`N_iter`.
-Defaults use the whole trajectory, one window per iteration, and mean loss.
+Defaults use the whole trajectory, a batch size of one, and mean loss.
 """
 function run_variable_window_ROM_optimization(
     u_ref,
@@ -421,7 +237,7 @@ function run_variable_window_ROM_optimization(
     window_T=nothing,
     window_N_obs=nothing,
     window_start_policy="beginning",
-    windows_per_iter=1,
+    batch_size=1,
     loss_normalization="mean",
     window_seed=1,
     validation_N_obs=prob.f.f.data.requested_N_obs,
@@ -448,7 +264,7 @@ function run_variable_window_ROM_optimization(
         window_T,
         window_N_obs,
         window_start_policy,
-        windows_per_iter,
+        batch_size,
         loss_normalization,
         window_seed,
         alg,

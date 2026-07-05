@@ -16,9 +16,9 @@ training wrappers.
 Use one `KEY = value` entry per line. Keys are converted to the environment
 variables consumed by `hpc1_run_fom.slurm` and `hpc1_run_rom.slurm`.
 
-### ADJUSTED: Document central variable-window support for both standard sweep targets.
+### ADJUSTED: Document central variable-window support and batch-size naming for both sweep targets.
 Both wrappers accept grouped `WINDOW_T`, `WINDOW_N_OBS`,
-`WINDOW_START_POLICY`, and `WINDOWS_PER_ITER` schedules. Omitting them uses the
+`WINDOW_START_POLICY`, and `BATCH_SIZE` schedules. Omitting them uses the
 full trajectory for every optimizer stage. Legacy `target=fom_variable` files
 also route through the standard FOM wrapper. Supplied window schedules must
 have the same number of entries as `ETAS` and `ITERS`.

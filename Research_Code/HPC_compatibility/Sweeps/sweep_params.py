@@ -7,7 +7,8 @@ import shlex
 import sys
 
 
-GROUPED_KEYS = {"ETAS", "ITERS", "BETA", "WINDOW_T", "WINDOW_N_OBS", "WINDOW_START_POLICY", "WINDOWS_PER_ITER"}
+### ADJUSTED: Use BATCH_SIZE for grouped trajectory-window batches.
+GROUPED_KEYS = {"ETAS", "ITERS", "BETA", "WINDOW_T", "WINDOW_N_OBS", "WINDOW_START_POLICY", "BATCH_SIZE"}
 METADATA_KEYS = {"TARGET", "SWEEP_TARGET", "MODEL", "CODE", "SWEEP_NAME", "RUN_NAME", "BASE_RUN_NAME"}
 
 
@@ -31,7 +32,7 @@ def canonical_key(key):
         "WINDOW_N_OBSERVATIONS": "WINDOW_N_OBS",
         "WINDOW_POLICY": "WINDOW_START_POLICY",
         "WINDOW_START": "WINDOW_START_POLICY",
-        "WINDOWS_PER_ITERS": "WINDOWS_PER_ITER",
+        "BATCH_SIZES": "BATCH_SIZE",
     }
     return aliases.get(normalized, normalized)
 

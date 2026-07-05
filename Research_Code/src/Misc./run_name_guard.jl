@@ -1,7 +1,8 @@
 if !isdefined(@__MODULE__, :optimization_data_root)
     """Return the shared optimization Data directory."""
     function optimization_data_root()
-        return normpath(joinpath(@__DIR__, "..", "Optimization", "Data"))
+        ### ADJUSTED: Resolve saved data from the new src/Misc. location.
+        return normpath(joinpath(@__DIR__, "..", "..", "Optimization", "Data"))
     end
 end
 

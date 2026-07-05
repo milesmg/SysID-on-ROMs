@@ -4,7 +4,8 @@ This directory contains batch entrypoints for running the notebook workflows on 
 
 ## Files
 
-- `Project.toml`: Julia environment for the batch scripts.
+### ADJUSTED: Point to the repo-local Julia environment after removing the duplicate project.
+- `Julia/HPC_compatibility/Project.toml`: Julia environment for the batch scripts.
 - `setup_hpc_project.jl`: instantiates/precompiles the Julia environment.
 - `hpc_common.jl`: shared CLI parsing, reference-solve setup, and staged learning-rate helpers.
 - `run_fom_hpc.jl`: Julia entrypoint for full-order-model NN training.

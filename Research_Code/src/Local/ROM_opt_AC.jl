@@ -12,7 +12,8 @@ using Functors
 using Dates
 using Serialization
 
-include("run_name_guard.jl")
+### ADJUSTED: Load the run-name guard from its moved Misc. directory.
+include(joinpath(@__DIR__, "..", "Misc.", "run_name_guard.jl"))
 include("integration_AC.jl")
 
 
@@ -338,7 +339,8 @@ not saved because they can be reconstructed from the saved modes, singular
 values, indices, and scalar problem parameters.
 """
 function save_ROM_optimization_data(output, run_name::AbstractString)
-    data_root = normpath(joinpath(@__DIR__, "..", "Optimization", "Data"))
+    ### ADJUSTED: Resolve saved data from the new src/Local location.
+    data_root = normpath(joinpath(@__DIR__, "..", "..", "Optimization", "Data"))
     run_directory = assert_run_name_available(run_name; data_root)
     mkpath(data_root)
     mkdir(run_directory)

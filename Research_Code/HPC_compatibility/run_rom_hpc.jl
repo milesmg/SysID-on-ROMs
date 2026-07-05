@@ -7,7 +7,8 @@ hpc_log("run_rom_hpc", "Julia entrypoint started")
 
 
 hpc_log("run_rom_hpc", "Loading ROM helper code")
-include(joinpath(REPO_ROOT, "Research_Code", "helper_functions", "HPC", "ROM_opt_AC_hpc.jl"))
+### ADJUSTED: Load the moved ROM implementation from Research_Code/src/HPC.
+include(joinpath(REPO_ROOT, "Research_Code", "src", "HPC", "ROM_opt_AC_hpc.jl"))
 hpc_log("run_rom_hpc", "Loading HPC common code")
 include(joinpath(@__DIR__, "hpc_common.jl"))
 
@@ -31,7 +32,8 @@ stage_count = length(etas)
 window_T = get_float_vector(opts, "window-T", fill(tfinal, stage_count))
 window_N_obs = get_int_vector(opts, "window-N-obs", fill(N_obs, stage_count))
 window_start_policy = get_string_vector(opts, "window-start-policy", fill("beginning", stage_count))
-windows_per_iter = get_int_vector(opts, "windows-per-iter", fill(1, stage_count))
+### ADJUSTED: Parse the trajectory-window batch size under its direct name.
+batch_size = get_int_vector(opts, "batch-size", fill(1, stage_count))
 loss_normalization = get_string(opts, "loss-normalization", "mean")
 window_seed = get_int(opts, "window-seed", seed)
 β = get_float_tuple(opts, "beta", (0.9, 0.99))
@@ -47,9 +49,9 @@ schedule_lengths = (;
     window_T=length(window_T),
     window_N_obs=length(window_N_obs),
     window_start_policy=length(window_start_policy),
-    windows_per_iter=length(windows_per_iter),
+    batch_size=length(batch_size),
 )
-all(==(stage_count), values(schedule_lengths)) || error("--etas, --iters, --window-T, --window-N-obs, --window-start-policy, and --windows-per-iter must have the same length; got $schedule_lengths")
+all(==(stage_count), values(schedule_lengths)) || error("--etas, --iters, --window-T, --window-N-obs, --window-start-policy, and --batch-size must have the same length; got $schedule_lengths")
 assert_run_name_available(run_name)
 
 hpc_log("run_rom_hpc", "Configuring HPC runtime")
@@ -83,7 +85,7 @@ println("  iterations = ", iterations)
 println("  window_T = ", window_T)
 println("  window_N_obs = ", window_N_obs)
 println("  window_start_policy = ", window_start_policy)
-println("  windows_per_iter = ", windows_per_iter)
+println("  batch_size = ", batch_size)
 println("  loss_normalization = ", loss_normalization)
 println("  window_seed = ", window_seed)
 println("  β = ", β)
@@ -104,7 +106,7 @@ output = run_variable_window_ROM_optimization(
     window_T,
     window_N_obs,
     window_start_policy,
-    windows_per_iter,
+    batch_size,
     loss_normalization,
     window_seed,
     validation_N_obs=N_obs,

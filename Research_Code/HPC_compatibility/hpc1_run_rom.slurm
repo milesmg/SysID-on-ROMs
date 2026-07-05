@@ -41,24 +41,6 @@ export MKL_NUM_THREADS="$JULIA_BLAS_THREADS"
 
 mkdir -p "$JULIA_USER_DEPOT" "$JULIA_PKG_DEVDIR"
 
-N="${N:-256}"
-L="${L:-1.0}"
-EPS2="${EPS2:-1e-2}"
-K="${K:-1.0}"
-TFINAL="${TFINAL:-2.0}"
-N_OBS="${N_OBS:-10}"
-R="${R:-10}"
-M="${M:-10}"
-H="${H:-8}"
-SEED="${SEED:-1}"
-REFERENCE_DT_FACTOR="${REFERENCE_DT_FACTOR:-0.5}"
-ETAS="${ETAS:-5e-3,1e-3,1e-4}"
-ITERS="${ITERS:-500,800,1100}"
-BETA="${BETA:-0.9,0.99}"
-SAVE_FREQUENCY="${SAVE_FREQUENCY:-10}"
-PRINT_FREQUENCY="${PRINT_FREQUENCY:-10}"
-WARMUP="${WARMUP:-true}"
-
 if [ "${INSTANTIATE:-true}" = "true" ]; then
     ### ADJUSTED: Print Julia runtime paths before package setup for HPC debugging.
     echo "JULIA_EXE=$JULIA_EXE"
@@ -68,37 +50,33 @@ if [ "${INSTANTIATE:-true}" = "true" ]; then
     "$JULIA_EXE" --project="$HPC_JULIA_PROJECT" "$HPC_DIR/setup_hpc_project.jl"
 fi
 
-ARGS=(
-    --N "$N"
-    --L "$L"
-    --eps2 "$EPS2"
-    --k "$K"
-    --tfinal "$TFINAL"
-    --N-obs "$N_OBS"
-    --r "$R"
-    --m "$M"
-    --h "$H"
-    --seed "$SEED"
-    --reference-dt-factor "$REFERENCE_DT_FACTOR"
-    --etas "$ETAS"
-    --iters "$ITERS"
-    --beta "$BETA"
-    --save-frequency "$SAVE_FREQUENCY"
-    --print-frequency "$PRINT_FREQUENCY"
-    --warmup "$WARMUP"
-)
-
-### ADJUSTED: Forward optional variable-window settings through the standard ROM wrapper.
+### ADJUSTED: Forward only explicitly supplied ROM settings and keep defaults in Julia.
+ARGS=()
+if [ -n "${N:-}" ]; then ARGS+=(--N "$N"); fi
+if [ -n "${L:-}" ]; then ARGS+=(--L "$L"); fi
+if [ -n "${EPS2:-}" ]; then ARGS+=(--eps2 "$EPS2"); fi
+if [ -n "${K:-}" ]; then ARGS+=(--k "$K"); fi
+if [ -n "${TFINAL:-}" ]; then ARGS+=(--tfinal "$TFINAL"); fi
+if [ -n "${N_OBS:-}" ]; then ARGS+=(--N-obs "$N_OBS"); fi
+if [ -n "${R:-}" ]; then ARGS+=(--r "$R"); fi
+if [ -n "${M:-}" ]; then ARGS+=(--m "$M"); fi
+if [ -n "${H:-}" ]; then ARGS+=(--h "$H"); fi
+if [ -n "${SEED:-}" ]; then ARGS+=(--seed "$SEED"); fi
+if [ -n "${REFERENCE_DT_FACTOR:-}" ]; then ARGS+=(--reference-dt-factor "$REFERENCE_DT_FACTOR"); fi
+if [ -n "${ETAS:-}" ]; then ARGS+=(--etas "$ETAS"); fi
+if [ -n "${ITERS:-}" ]; then ARGS+=(--iters "$ITERS"); fi
+if [ -n "${BETA:-}" ]; then ARGS+=(--beta "$BETA"); fi
+if [ -n "${SAVE_FREQUENCY:-}" ]; then ARGS+=(--save-frequency "$SAVE_FREQUENCY"); fi
+if [ -n "${PRINT_FREQUENCY:-}" ]; then ARGS+=(--print-frequency "$PRINT_FREQUENCY"); fi
+if [ -n "${WARMUP:-}" ]; then ARGS+=(--warmup "$WARMUP"); fi
 if [ -n "${WINDOW_T:-}" ]; then ARGS+=(--window-T "$WINDOW_T"); fi
 if [ -n "${WINDOW_N_OBS:-}" ]; then ARGS+=(--window-N-obs "$WINDOW_N_OBS"); fi
 if [ -n "${WINDOW_START_POLICY:-}" ]; then ARGS+=(--window-start-policy "$WINDOW_START_POLICY"); fi
-if [ -n "${WINDOWS_PER_ITER:-}" ]; then ARGS+=(--windows-per-iter "$WINDOWS_PER_ITER"); fi
+# ### ADJUSTED: Forward trajectory-window batch size under the renamed interface.
+if [ -n "${BATCH_SIZE:-}" ]; then ARGS+=(--batch-size "$BATCH_SIZE"); fi
 if [ -n "${LOSS_NORMALIZATION:-}" ]; then ARGS+=(--loss-normalization "$LOSS_NORMALIZATION"); fi
 if [ -n "${WINDOW_SEED:-}" ]; then ARGS+=(--window-seed "$WINDOW_SEED"); fi
-
-if [ -n "${RUN_NAME:-}" ]; then
-    ARGS+=(--run-name "$RUN_NAME")
-fi
+if [ -n "${RUN_NAME:-}" ]; then ARGS+=(--run-name "$RUN_NAME"); fi
 
 echo "[$(date)] Starting ROM training on $HOSTNAME"
 "$JULIA_EXE" --project="$HPC_JULIA_PROJECT" "$HPC_DIR/run_rom_hpc.jl" "${ARGS[@]}"

@@ -1,38 +1,8 @@
 if !isdefined(@__MODULE__, :build_window_schedule)
 
-"""Broadcast a scalar schedule value or validate a per-stage schedule."""
-function variable_window_schedule(values, stage_count::Integer, name::AbstractString)
-    collected = values isa AbstractVector ? collect(values) : [values]
-    if length(collected) == 1
-        return fill(collected[1], stage_count)
-    elseif length(collected) == stage_count
-        return collected
-    end
-    error("$name must be scalar or have one entry per stage")
-end
-
-"""Normalize a window start policy name."""
-function normalize_window_start_policy(policy)
-    normalized = lowercase(strip(String(policy)))
-    normalized in ("beginning", "random") || error("WINDOW_START_POLICY must be beginning or random")
-    return normalized
-end
-
-"""Normalize the loss scaling mode."""
-function normalize_loss_normalization(loss_normalization)
-    normalized = lowercase(strip(String(loss_normalization)))
-    normalized in ("mean", "sum") || error("LOSS_NORMALIZATION must be mean or sum")
-    return normalized
-end
-
-"""Return exact observation times inside `(t_start, t_end]`."""
-function window_observation_times(t_start, t_end, n_obs::Integer)
-    n_obs > 0 || error("WINDOW_N_OBS entries must be positive")
-    return collect(LinRange(t_start + (t_end - t_start) / n_obs, t_end, n_obs))
-end
-
 """Build a lightweight deterministic physical-time window specification."""
 function make_window_spec(t_start, window_T, n_obs::Integer; stage::Integer, batch::Integer, window::Integer, policy::AbstractString)
+    n_obs > 0 || error("WINDOW_N_OBS entries must be positive")
     t_end = t_start + window_T
     return (;
         stage,
@@ -43,7 +13,7 @@ function make_window_spec(t_start, window_T, n_obs::Integer; stage::Integer, bat
         t_end,
         window_T,
         n_obs,
-        t_obs=window_observation_times(t_start, t_end, n_obs),
+        t_obs=collect(LinRange(t_start + window_T / n_obs, t_end, n_obs)),
     )
 end
 
@@ -58,19 +28,19 @@ end
 """Materialize all full-order reference data for one optimizer iteration."""
 materialize_batch(u_ref, specs) = [materialize_window(u_ref, spec) for spec in specs]
 
-"""Precompute deterministic window specifications for one optimization stage."""
-function build_stage_window_specs(tspan, stage::Integer, n_iter::Integer, window_T, n_obs::Integer, policy::AbstractString, windows_per_iter::Integer, rng)
+"""Precompute deterministic batches of window specifications for one optimization stage."""
+function build_stage_window_specs(tspan, stage::Integer, n_iter::Integer, window_T, n_obs::Integer, policy::AbstractString, batch_size::Integer, rng)
     t0, tfinal = tspan
     n_iter > 0 || error("N_iter entries must be positive")
     window_T > 0 || error("window_T entries must be positive")
     window_T <= tfinal - t0 || error("window_T entries cannot exceed the full trajectory length")
-    windows_per_iter > 0 || error("windows_per_iter entries must be positive")
+    batch_size > 0 || error("batch_size entries must be positive")
 
     batches = Vector{Vector{Any}}(undef, n_iter)
     latest_start = tfinal - window_T
     for batch in 1:n_iter
-        batch_specs = Vector{Any}(undef, windows_per_iter)
-        for window in 1:windows_per_iter
+        batch_specs = Vector{Any}(undef, batch_size)
+        for window in 1:batch_size
             t_start = policy == "beginning" ? t0 : t0 + rand(rng) * (latest_start - t0)
             batch_specs[window] = make_window_spec(t_start, window_T, n_obs; stage, batch, window, policy)
         end
@@ -80,7 +50,7 @@ function build_stage_window_specs(tspan, stage::Integer, n_iter::Integer, window
 end
 
 """Build all staged window specifications and a flattened history."""
-function build_window_schedule(tspan, N_iter_schedule, window_T_schedule, window_N_obs_schedule, policy_schedule, windows_per_iter_schedule, window_seed)
+function build_window_schedule(tspan, N_iter_schedule, window_T_schedule, window_N_obs_schedule, policy_schedule, batch_size_schedule, window_seed)
     rng = MersenneTwister(window_seed)
     stage_specs = Vector{Any}(undef, length(N_iter_schedule))
     window_history = Any[]
@@ -92,7 +62,7 @@ function build_window_schedule(tspan, N_iter_schedule, window_T_schedule, window
             window_T_schedule[stage],
             window_N_obs_schedule[stage],
             policy_schedule[stage],
-            windows_per_iter_schedule[stage],
+            batch_size_schedule[stage],
             rng,
         )
         stage_specs[stage] = specs
@@ -106,6 +76,8 @@ Run the model-independent staged variable-window optimization loop.
 
 The parent FOM or ROM helper supplies model-specific batch materialization,
 parameter reconstruction, and loss evaluation functions.
+Window settings accept scalars or complete vectors with one entry per stage.
+`batch_size` is the number of trajectory windows averaged per optimizer iteration.
 """
 function run_variable_window_stages(
     u_ref,
@@ -123,7 +95,7 @@ function run_variable_window_stages(
     window_T=nothing,
     window_N_obs=nothing,
     window_start_policy="beginning",
-    windows_per_iter=1,
+    batch_size=1,
     loss_normalization="mean",
     window_seed=1,
     alg=TRBDF2(autodiff=AutoFiniteDiff()),
@@ -134,16 +106,14 @@ function run_variable_window_stages(
 )
     eta_schedule = eta isa AbstractVector ? collect(eta) : [eta]
     N_iter_schedule = N_iter isa AbstractVector ? collect(N_iter) : [N_iter]
-    length(eta_schedule) == length(N_iter_schedule) || error("eta and N_iter must have the same length")
     stage_count = length(eta_schedule)
     total_iterations = sum(N_iter_schedule)
     full_T = base_prob.tspan[2] - base_prob.tspan[1]
 
-    window_T_schedule = Float64.(variable_window_schedule(isnothing(window_T) ? full_T : window_T, stage_count, "window_T"))
-    window_N_obs_schedule = Int.(variable_window_schedule(isnothing(window_N_obs) ? validation_N_obs : window_N_obs, stage_count, "window_N_obs"))
-    policy_schedule = normalize_window_start_policy.(variable_window_schedule(window_start_policy, stage_count, "window_start_policy"))
-    windows_per_iter_schedule = Int.(variable_window_schedule(windows_per_iter, stage_count, "windows_per_iter"))
-    loss_normalization = normalize_loss_normalization(loss_normalization)
+    window_T_schedule = Float64.(window_T isa AbstractVector ? collect(window_T) : fill(isnothing(window_T) ? full_T : window_T, stage_count))
+    window_N_obs_schedule = Int.(window_N_obs isa AbstractVector ? collect(window_N_obs) : fill(isnothing(window_N_obs) ? validation_N_obs : window_N_obs, stage_count))
+    policy_schedule = window_start_policy isa AbstractVector ? collect(window_start_policy) : fill(window_start_policy, stage_count)
+    batch_size_schedule = Int.(batch_size isa AbstractVector ? collect(batch_size) : fill(batch_size, stage_count))
     save_frequency = isnothing(save_frequency) ? max(1, cld(total_iterations, 10)) : save_frequency
 
     stage_specs, window_history = build_window_schedule(
@@ -152,7 +122,7 @@ function run_variable_window_stages(
         window_T_schedule,
         window_N_obs_schedule,
         policy_schedule,
-        windows_per_iter_schedule,
+        batch_size_schedule,
         window_seed,
     )
     validation_spec = make_window_spec(
@@ -192,7 +162,7 @@ function run_variable_window_stages(
     last_time = Ref{Float64}(time())
     result = nothing
 
-    hpc_log_timed(log_name, "Optimization Params: eta = $eta_schedule; beta = $beta; N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; windows_per_iter = $windows_per_iter_schedule; loss_normalization = $loss_normalization; total_iterations = $total_iterations")
+    hpc_log_timed(log_name, "Optimization Params: eta = $eta_schedule; beta = $beta; N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; batch_size = $batch_size_schedule; loss_normalization = $loss_normalization; total_iterations = $total_iterations")
 
     if warmup
         hpc_log_timed(log_name, "Warming up")
@@ -205,7 +175,7 @@ function run_variable_window_stages(
         current_stage_specs = stage_specs[stage]
         current_batch[] = materialize_model_batch(u_ref, current_stage_specs[1])
         stage_start = time()
-        hpc_log_timed(log_name, "Stage $stage / $stage_count started: eta = $(eta_schedule[stage]); N_iter = $(N_iter_schedule[stage]); window_T = $(window_T_schedule[stage]); window_N_obs = $(window_N_obs_schedule[stage]); window_start_policy = $(policy_schedule[stage]); windows_per_iter = $(windows_per_iter_schedule[stage])")
+        hpc_log_timed(log_name, "Stage $stage / $stage_count started: eta = $(eta_schedule[stage]); N_iter = $(N_iter_schedule[stage]); window_T = $(window_T_schedule[stage]); window_N_obs = $(window_N_obs_schedule[stage]); window_start_policy = $(policy_schedule[stage]); batch_size = $(batch_size_schedule[stage])")
 
         function callback_variable_window(state, loss)
             now = time()
@@ -273,11 +243,11 @@ function run_variable_window_stages(
         window_T=length(window_T_schedule) == 1 ? window_T_schedule[1] : copy(window_T_schedule),
         window_N_obs=length(window_N_obs_schedule) == 1 ? window_N_obs_schedule[1] : copy(window_N_obs_schedule),
         window_start_policy=length(policy_schedule) == 1 ? policy_schedule[1] : copy(policy_schedule),
-        windows_per_iter=length(windows_per_iter_schedule) == 1 ? windows_per_iter_schedule[1] : copy(windows_per_iter_schedule),
+        batch_size=length(batch_size_schedule) == 1 ? batch_size_schedule[1] : copy(batch_size_schedule),
         window_T_schedule=copy(window_T_schedule),
         window_N_obs_schedule=copy(window_N_obs_schedule),
         window_start_policy_schedule=copy(policy_schedule),
-        windows_per_iter_schedule=copy(windows_per_iter_schedule),
+        batch_size_schedule=copy(batch_size_schedule),
         loss_normalization,
         window_seed,
         validation_N_obs,
