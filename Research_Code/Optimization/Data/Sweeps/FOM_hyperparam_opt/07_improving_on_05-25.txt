@@ -1,0 +1,268 @@
+target = fom
+RUN_NAME = FOM_improve_05_25_mooncake
+
+# Exploitation sweep around the best practical HPO recipe so far:
+# case 25 from 01_mooncake_true_hpo_90_cases, with
+# WINDOW_T=[0.05,0.5,2.0], WINDOW_N_OBS=[2,5,10],
+# ETAS=[0.01,0.003,0.001], and ITERS=[2016,2208,2349].
+# The 30 explicit cases test shorter/longer iteration budgets, nearby
+# window/Nobs/eta choices, and seed sensitivity.
+
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random
+SEED = 1
+WINDOW_SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100000
+PRINT_FREQUENCY = 250
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = 001_iter_half
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 1008,1104,1174
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 002_iter_three_quarter
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 1512,1656,1762
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 003_iter_baseline
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 004_iter_one_quarter_more
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 2520,2760,2936
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 005_iter_one_half_more
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 3024,3312,3524
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 006_iter_double
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 4032,4416,4698
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 007_iter_triple
+HPO_GROUP = iter_scale
+ETAS = 0.01,0.003,0.001
+ITERS = 6048,6624,7047
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 008_window_0p025_0p5_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.025,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 009_window_0p1_0p5_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.1,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 010_window_0p05_0p25_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.25,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 011_window_0p05_0p75_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.75,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 012_window_0p05_1p0_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,1.0,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 013_window_0p025_0p25_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.025,0.25,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 014_window_0p1_1p0_2p0
+HPO_GROUP = window_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.1,1.0,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 015_obs_1_5_10
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 1,5,10
+
+[[case]]
+CASE_NAME = 016_obs_2_3_10
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,3,10
+
+[[case]]
+CASE_NAME = 017_obs_2_5_5
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,5
+
+[[case]]
+CASE_NAME = 018_obs_2_5_15
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,15
+
+[[case]]
+CASE_NAME = 019_obs_2_10_10
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,10,10
+
+[[case]]
+CASE_NAME = 020_obs_5_5_10
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 5,5,10
+
+[[case]]
+CASE_NAME = 021_obs_5_10_25
+HPO_GROUP = obs_variant
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 5,10,25
+
+[[case]]
+CASE_NAME = 022_eta_0p0075_0p0025_0p00075
+HPO_GROUP = eta_variant
+ETAS = 0.0075,0.0025,0.00075
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 023_eta_0p01_0p002_0p0005
+HPO_GROUP = eta_variant
+ETAS = 0.01,0.002,0.0005
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 024_eta_0p015_0p003_0p001
+HPO_GROUP = eta_variant
+ETAS = 0.015,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 025_eta_0p003_0p001_0p0003
+HPO_GROUP = eta_variant
+ETAS = 0.003,0.001,0.0003
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 026_eta_0p006_0p002_0p0006
+HPO_GROUP = eta_variant
+ETAS = 0.006,0.002,0.0006
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 027_eta_0p01_0p003_0p0003
+HPO_GROUP = eta_variant
+ETAS = 0.01,0.003,0.0003
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 028_seed_2
+HPO_GROUP = seed_repeat
+SEED = 2
+WINDOW_SEED = 2
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 029_seed_3
+HPO_GROUP = seed_repeat
+SEED = 3
+WINDOW_SEED = 3
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+
+[[case]]
+CASE_NAME = 030_seed_4
+HPO_GROUP = seed_repeat
+SEED = 4
+WINDOW_SEED = 4
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10

@@ -1,0 +1,28 @@
+### ADJUSTED: Add a single polynomial ROM case matching the labeled best m=4,r=10 ROM HPO recipe.
+target = rom
+RUN_NAME = ROM_polynomial_best_hpo
+
+LEARNER = polynomial
+POLYNOMIAL_DEGREE = 3
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+M = 4
+R = 10
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 250
+
+[[case]]
+CASE_NAME = best_short_m4_r10
+HPO_GROUP = polynomial_rom_best_hpo
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+BATCH_SIZE = 1,1,1

@@ -47,8 +47,15 @@ fi
 
 ### ADJUSTED: Forward only explicitly supplied FOM settings and keep defaults in Julia.
 ARGS=()
+### ADJUSTED: Forward optional learned nonlinearity model selection.
+if [ -n "${LEARNER:-}" ]; then ARGS+=(--learner "$LEARNER"); fi
+if [ -n "${POLYNOMIAL_DEGREE:-}" ]; then ARGS+=(--polynomial-degree "$POLYNOMIAL_DEGREE"); fi
 if [ -n "${N:-}" ]; then ARGS+=(--N "$N"); fi
 if [ -n "${L:-}" ]; then ARGS+=(--L "$L"); fi
+### ADJUSTED: Forward optional 1D/2D spatial dimension selection.
+if [ -n "${DIMENSION:-}" ]; then ARGS+=(--dimension "$DIMENSION"); fi
+### ADJUSTED: Forward optional Allen-Cahn boundary-condition selection.
+if [ -n "${BOUNDARY_CONDITION:-}" ]; then ARGS+=(--boundary-condition "$BOUNDARY_CONDITION"); fi
 if [ -n "${EPS2:-}" ]; then ARGS+=(--eps2 "$EPS2"); fi
 if [ -n "${K:-}" ]; then ARGS+=(--k "$K"); fi
 if [ -n "${TFINAL:-}" ]; then ARGS+=(--tfinal "$TFINAL"); fi
@@ -74,3 +81,14 @@ if [ -n "${RUN_NAME:-}" ]; then ARGS+=(--run-name "$RUN_NAME"); fi
 echo "[$(date)] Starting FOM training on $HOSTNAME"
 "$JULIA_EXE" --project="$HPC_JULIA_PROJECT" "$HPC_DIR/run_fom_hpc.jl" "${ARGS[@]}"
 echo "[$(date)] Finished FOM training"
+
+### ADJUSTED: Move successful direct-job Slurm logs into the saved run directory.
+if [ -z "${SWEEP_WORKER_INDEX:-}" ] && [ -n "${SLURM_JOB_ID:-}" ] && [ -n "${RUN_NAME:-}" ]; then
+    RUN_DIR="$REPO_ROOT/Research_Code/Optimization/Data/$RUN_NAME"
+    LOG_OUT="$HPC_DIR/logs/${SLURM_JOB_NAME}-${SLURM_JOB_ID}.out"
+    LOG_ERR="$HPC_DIR/logs/${SLURM_JOB_NAME}-${SLURM_JOB_ID}.err"
+    if [ -d "$RUN_DIR" ]; then
+        [ -f "$LOG_OUT" ] && mv "$LOG_OUT" "$RUN_DIR/"
+        [ -f "$LOG_ERR" ] && mv "$LOG_ERR" "$RUN_DIR/"
+    fi
+fi

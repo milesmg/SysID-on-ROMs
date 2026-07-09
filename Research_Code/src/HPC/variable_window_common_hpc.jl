@@ -99,7 +99,8 @@ function run_variable_window_stages(
     loss_normalization="mean",
     window_seed=1,
     alg=TRBDF2(autodiff=AutoFiniteDiff()),
-    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
+    ### ADJUSTED: Keep the shared variable-window default on Mooncake instead of Enzyme.
+    sensalg=GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP()),
     warmup=true,
     save_frequency=nothing,
     print_frequency=10,
@@ -162,7 +163,10 @@ function run_variable_window_stages(
     last_time = Ref{Float64}(time())
     result = nothing
 
-    hpc_log_timed(log_name, "Optimization Params: eta = $eta_schedule; beta = $beta; N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; batch_size = $batch_size_schedule; loss_normalization = $loss_normalization; total_iterations = $total_iterations")
+    ### ADJUSTED: Print readable backend labels instead of raw SciML object internals.
+    alg_label = occursin("AutoFiniteDiff", string(alg)) ? "TRBDF2(autodiff=AutoFiniteDiff())" : string(nameof(typeof(alg)))
+    sensalg_label = occursin("MooncakeVJP", string(sensalg)) ? "GaussAdjoint(MooncakeVJP)" : string(nameof(typeof(sensalg)))
+    hpc_log_timed(log_name, "Optimization Params: ode_algorithm = $alg_label; sensitivity_algorithm = $sensalg_label; eta = $eta_schedule; beta = $beta; N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; batch_size = $batch_size_schedule; loss_normalization = $loss_normalization; total_iterations = $total_iterations")
 
     if warmup
         hpc_log_timed(log_name, "Warming up")

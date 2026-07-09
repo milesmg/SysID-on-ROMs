@@ -1,0 +1,114 @@
+### Focused logical extensions of the original m=4,r=10 ROM short run.
+# These cases preserve the first three windows from
+# 01_mooncake_rom_FOM_best_short_with_different_m_r.txt exactly:
+#   ETAS = 0.01,0.003,0.001
+#   ITERS = 2016,2208,2349
+#   WINDOW_T = 0.05,0.5,2.0
+#   WINDOW_N_OBS = 2,5,10
+# Then each case appends one or two lower-eta, higher-observation full-window stages.
+target = rom
+RUN_NAME = ROM_m4_r10_longer_fu_tuning_logical_extension
+
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+M = 4
+R = 10
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random,random,random
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 500
+
+[[case]]
+CASE_NAME = 001_extend_10k_eta3e-4_obs25
+ETAS = 0.01,0.003,0.001,0.0003
+ITERS = 2016,2208,2349,10000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 002_extend_20k_eta3e-4_obs25
+ETAS = 0.01,0.003,0.001,0.0003
+ITERS = 2016,2208,2349,20000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 003_extend_40k_eta3e-4_obs25
+ETAS = 0.01,0.003,0.001,0.0003
+ITERS = 2016,2208,2349,40000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 004_extend_20k_eta1e-4_obs25
+ETAS = 0.01,0.003,0.001,0.0001
+ITERS = 2016,2208,2349,20000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 005_extend_40k_eta1e-4_obs25
+ETAS = 0.01,0.003,0.001,0.0001
+ITERS = 2016,2208,2349,40000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 006_extend_60k_eta1e-4_obs50
+ETAS = 0.01,0.003,0.001,0.0001
+ITERS = 2016,2208,2349,60000
+WINDOW_T = 0.05,0.5,2.0,2.0
+WINDOW_N_OBS = 2,5,10,50
+WINDOW_START_POLICY = random,random,random,random
+BATCH_SIZE = 1,1,1,1
+
+[[case]]
+CASE_NAME = 007_extend_20k_20k_eta3e-4_1e-4_obs25_50
+ETAS = 0.01,0.003,0.001,0.0003,0.0001
+ITERS = 2016,2208,2349,20000,20000
+WINDOW_T = 0.05,0.5,2.0,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = 008_extend_40k_20k_eta3e-4_1e-4_obs25_50
+ETAS = 0.01,0.003,0.001,0.0003,0.0001
+ITERS = 2016,2208,2349,40000,20000
+WINDOW_T = 0.05,0.5,2.0,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = 009_extend_20k_40k_eta1e-4_3e-5_obs25_50
+ETAS = 0.01,0.003,0.001,0.0001,0.00003
+ITERS = 2016,2208,2349,20000,40000
+WINDOW_T = 0.05,0.5,2.0,2.0,2.0
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = 010_extend_40k_40k_eta1e-4_3e-5_obs50_100
+ETAS = 0.01,0.003,0.001,0.0001,0.00003
+ITERS = 2016,2208,2349,40000,40000
+WINDOW_T = 0.05,0.5,2.0,2.0,2.0
+WINDOW_N_OBS = 2,5,10,50,100
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1

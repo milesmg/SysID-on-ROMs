@@ -10,6 +10,8 @@ import sys
 ### ADJUSTED: Use BATCH_SIZE for grouped trajectory-window batches.
 GROUPED_KEYS = {"ETAS", "ITERS", "BETA", "WINDOW_T", "WINDOW_N_OBS", "WINDOW_START_POLICY", "BATCH_SIZE"}
 METADATA_KEYS = {"TARGET", "SWEEP_TARGET", "MODEL", "CODE", "SWEEP_NAME", "RUN_NAME", "BASE_RUN_NAME"}
+### ADJUSTED: Store explicit row-wise sweep cases without changing the command API.
+ROW_CASES_KEY = "__ROW_CASES__"
 
 
 def canonical_key(key):
@@ -17,6 +19,22 @@ def canonical_key(key):
     aliases = {
         "NOBS": "N_OBS",
         "N_OBSERVATIONS": "N_OBS",
+        ### ADJUSTED: Accept common names for the 1D/2D spatial dimension flag.
+        "DIM": "DIMENSION",
+        "DIMS": "DIMENSION",
+        "SPATIAL_DIMENSION": "DIMENSION",
+        "SPATIAL_DIMENSIONS": "DIMENSION",
+        ### ADJUSTED: Accept aliases for polynomial learned-nonlinearity sweeps.
+        "MODEL_TYPE": "LEARNER",
+        "NONLINEARITY": "LEARNER",
+        "LEARNED_NONLINEARITY": "LEARNER",
+        "POLY_DEGREE": "POLYNOMIAL_DEGREE",
+        "POLYNOMIAL_DEG": "POLYNOMIAL_DEGREE",
+        "DEGREE": "POLYNOMIAL_DEGREE",
+        ### ADJUSTED: Accept common names for AC boundary-condition sweeps.
+        "BC": "BOUNDARY_CONDITION",
+        "BOUNDARY": "BOUNDARY_CONDITION",
+        "BOUNDARY_CONDITIONS": "BOUNDARY_CONDITION",
         "EPSILON2": "EPS2",
         "REFERENCE_DT": "REFERENCE_DT_FACTOR",
         "REFERENCE_DTFACTOR": "REFERENCE_DT_FACTOR",
@@ -164,10 +182,17 @@ def parse_values(key, raw_value):
 def read_sweep_file(path):
     metadata = {}
     variables = []
+    row_cases = []
+    current_case = None
     with open(path, "r", encoding="utf-8") as handle:
         for line_number, raw_line in enumerate(handle, start=1):
             line = strip_comment(raw_line).strip()
             if not line:
+                continue
+            if line == "[[case]]":
+                if current_case is not None:
+                    row_cases.append(current_case)
+                current_case = []
                 continue
             if "=" not in line:
                 raise ValueError(f"{path}:{line_number}: expected KEY=VALUE")
@@ -176,14 +201,35 @@ def read_sweep_file(path):
             values = parse_values(key, raw_value)
             if not values:
                 raise ValueError(f"{path}:{line_number}: {key} has no values")
-            if key in METADATA_KEYS:
+            target_variables = variables if current_case is None else current_case
+            if key in METADATA_KEYS and current_case is None:
                 metadata[key] = values[0]
             else:
-                variables.append((key, values))
+                target_variables.append((key, values))
+    if current_case is not None:
+        row_cases.append(current_case)
+    if row_cases:
+        for key, values in variables:
+            length = len(values)
+            if length != 1:
+                raise ValueError(f"{path}: row-wise sweep global {key} must have one value, got {length}")
+        cases = []
+        global_assignments = [(key, values[0]) for key, values in variables]
+        for case_index, row_case in enumerate(row_cases):
+            assignments = list(global_assignments)
+            for key, values in row_case:
+                length = len(values)
+                if length != 1:
+                    raise ValueError(f"{path}: row-wise case {case_index} key {key} must have one value, got {length}")
+                assignments.append((key, values[0]))
+            cases.append(assignments)
+        return metadata, [(ROW_CASES_KEY, cases)]
     return metadata, variables
 
 
 def combo_count(variables):
+    if len(variables) == 1 and variables[0][0] == ROW_CASES_KEY:
+        return len(variables[0][1])
     count = 1
     for _, values in variables:
         count *= len(values)
@@ -194,12 +240,17 @@ def combo_at(variables, index):
     total = combo_count(variables)
     if index < 0 or index >= total:
         raise IndexError(f"combination index {index} outside 0:{total - 1}")
+    if len(variables) == 1 and variables[0][0] == ROW_CASES_KEY:
+        return variables[0][1][index]
     products = itertools.product(*(values for _, values in variables))
     values = next(itertools.islice(products, index, None))
     return list(zip((key for key, _ in variables), values))
 
 
 def combo_label(combo, swept_keys=None):
+    for key, value in combo:
+        if key == "CASE_NAME":
+            return re.sub(r"[^A-Za-z0-9._+-]+", "_", value).strip("_")[:180] or "case"
     pieces = []
     for key, value in combo:
         if swept_keys is not None and key not in swept_keys:

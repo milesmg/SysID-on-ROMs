@@ -1,0 +1,512 @@
+[Wed Jul  8 11:08:36 AM EDT 2026] Worker 4 starting ROM combination 4 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_4_m-1__r-5
+Combination label: m-1__r-5
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=1
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=5
+RUN_NAME=ROM_short_training_param_sweep_4_m-1__r-5
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=4
+SWEEP_COMBO_LABEL=m-1__r-5
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:14:21 AM EDT 2026] Worker 4 finished ROM combination 4
+[Wed Jul  8 11:14:21 AM EDT 2026] Worker 4 starting ROM combination 9 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_9_m-2__r-1
+Combination label: m-2__r-1
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=2
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=1
+RUN_NAME=ROM_short_training_param_sweep_9_m-2__r-1
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=9
+SWEEP_COMBO_LABEL=m-2__r-1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:19:58 AM EDT 2026] Worker 4 finished ROM combination 9
+[Wed Jul  8 11:19:59 AM EDT 2026] Worker 4 starting ROM combination 14 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_14_m-2__r-10
+Combination label: m-2__r-10
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=2
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=10
+RUN_NAME=ROM_short_training_param_sweep_14_m-2__r-10
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=14
+SWEEP_COMBO_LABEL=m-2__r-10
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:25:35 AM EDT 2026] Worker 4 finished ROM combination 14
+[Wed Jul  8 11:25:35 AM EDT 2026] Worker 4 starting ROM combination 19 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_19_m-3__r-2
+Combination label: m-3__r-2
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=3
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=2
+RUN_NAME=ROM_short_training_param_sweep_19_m-3__r-2
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=19
+SWEEP_COMBO_LABEL=m-3__r-2
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:30:59 AM EDT 2026] Worker 4 finished ROM combination 19
+[Wed Jul  8 11:30:59 AM EDT 2026] Worker 4 starting ROM combination 24 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_24_m-3__r-15
+Combination label: m-3__r-15
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=3
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=15
+RUN_NAME=ROM_short_training_param_sweep_24_m-3__r-15
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=24
+SWEEP_COMBO_LABEL=m-3__r-15
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:36:29 AM EDT 2026] Worker 4 finished ROM combination 24
+[Wed Jul  8 11:36:29 AM EDT 2026] Worker 4 starting ROM combination 29 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_29_m-4__r-3
+Combination label: m-4__r-3
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=4
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=3
+RUN_NAME=ROM_short_training_param_sweep_29_m-4__r-3
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=29
+SWEEP_COMBO_LABEL=m-4__r-3
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:42:07 AM EDT 2026] Worker 4 finished ROM combination 29
+[Wed Jul  8 11:42:07 AM EDT 2026] Worker 4 starting ROM combination 34 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_34_m-4__r-20
+Combination label: m-4__r-20
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=4
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=20
+RUN_NAME=ROM_short_training_param_sweep_34_m-4__r-20
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=34
+SWEEP_COMBO_LABEL=m-4__r-20
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:47:45 AM EDT 2026] Worker 4 finished ROM combination 34
+[Wed Jul  8 11:47:45 AM EDT 2026] Worker 4 starting ROM combination 39 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_39_m-5__r-4
+Combination label: m-5__r-4
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=5
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=4
+RUN_NAME=ROM_short_training_param_sweep_39_m-5__r-4
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=39
+SWEEP_COMBO_LABEL=m-5__r-4
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:53:34 AM EDT 2026] Worker 4 finished ROM combination 39
+[Wed Jul  8 11:53:34 AM EDT 2026] Worker 4 starting ROM combination 44 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_44_m-5__r-30
+Combination label: m-5__r-30
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=5
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=30
+RUN_NAME=ROM_short_training_param_sweep_44_m-5__r-30
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=44
+SWEEP_COMBO_LABEL=m-5__r-30
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 11:59:29 AM EDT 2026] Worker 4 finished ROM combination 44
+[Wed Jul  8 11:59:29 AM EDT 2026] Worker 4 starting ROM combination 49 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_49_m-10__r-5
+Combination label: m-10__r-5
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=10
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=5
+RUN_NAME=ROM_short_training_param_sweep_49_m-10__r-5
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=49
+SWEEP_COMBO_LABEL=m-10__r-5
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:05:58 PM EDT 2026] Worker 4 finished ROM combination 49
+[Wed Jul  8 12:05:58 PM EDT 2026] Worker 4 starting ROM combination 54 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_54_m-15__r-1
+Combination label: m-15__r-1
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=15
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=1
+RUN_NAME=ROM_short_training_param_sweep_54_m-15__r-1
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=54
+SWEEP_COMBO_LABEL=m-15__r-1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:11:27 PM EDT 2026] Worker 4 finished ROM combination 54
+[Wed Jul  8 12:11:27 PM EDT 2026] Worker 4 starting ROM combination 59 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_59_m-15__r-10
+Combination label: m-15__r-10
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=15
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=10
+RUN_NAME=ROM_short_training_param_sweep_59_m-15__r-10
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=59
+SWEEP_COMBO_LABEL=m-15__r-10
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:18:07 PM EDT 2026] Worker 4 finished ROM combination 59
+[Wed Jul  8 12:18:07 PM EDT 2026] Worker 4 starting ROM combination 64 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_64_m-20__r-2
+Combination label: m-20__r-2
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=20
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=2
+RUN_NAME=ROM_short_training_param_sweep_64_m-20__r-2
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=64
+SWEEP_COMBO_LABEL=m-20__r-2
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:24:06 PM EDT 2026] Worker 4 finished ROM combination 64
+[Wed Jul  8 12:24:06 PM EDT 2026] Worker 4 starting ROM combination 69 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_69_m-20__r-15
+Combination label: m-20__r-15
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=20
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=15
+RUN_NAME=ROM_short_training_param_sweep_69_m-20__r-15
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=69
+SWEEP_COMBO_LABEL=m-20__r-15
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:30:43 PM EDT 2026] Worker 4 finished ROM combination 69
+[Wed Jul  8 12:30:43 PM EDT 2026] Worker 4 starting ROM combination 74 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_74_m-30__r-3
+Combination label: m-30__r-3
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=30
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=3
+RUN_NAME=ROM_short_training_param_sweep_74_m-30__r-3
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=74
+SWEEP_COMBO_LABEL=m-30__r-3
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:36:51 PM EDT 2026] Worker 4 finished ROM combination 74
+[Wed Jul  8 12:36:51 PM EDT 2026] Worker 4 starting ROM combination 79 / 81
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+Run name: ROM_short_training_param_sweep_79_m-30__r-20
+Combination label: m-30__r-20
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=30
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+R=20
+RUN_NAME=ROM_short_training_param_sweep_79_m-30__r-20
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=81
+SWEEP_COMBO_INDEX=79
+SWEEP_COMBO_LABEL=m-30__r-20
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/01_mooncake_rom_FOM_best_short_with_different_m_r.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=81
+SWEEP_WORKER_COUNT=5
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 12:44:19 PM EDT 2026] Worker 4 finished ROM combination 79

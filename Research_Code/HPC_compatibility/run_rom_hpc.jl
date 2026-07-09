@@ -5,25 +5,51 @@ include(joinpath(@__DIR__, "hpc_logging.jl"))
 
 hpc_log("run_rom_hpc", "Julia entrypoint started")
 
+### ADJUSTED: Read the learner flag before choosing the ROM implementation file.
+function raw_cli_value(args, key, default)
+    prefix = "--" * key * "="
+    for i in eachindex(args)
+        if args[i] == "--" * key && i < length(args)
+            return args[i + 1]
+        elseif startswith(args[i], prefix)
+            return args[i][length(prefix)+1:end]
+        end
+    end
+    return default
+end
+
+learner = lowercase(raw_cli_value(ARGS, "learner", raw_cli_value(ARGS, "model-type", "NN")))
 
 hpc_log("run_rom_hpc", "Loading ROM helper code")
-### ADJUSTED: Load the moved ROM implementation from Research_Code/src/HPC.
+### ADJUSTED: Select the NN or polynomial ROM helper from the same runner.
+hpc_log("run_rom_hpc", "Loading NN ROM helper code")
 include(joinpath(REPO_ROOT, "Research_Code", "src", "HPC", "ROM_opt_AC_hpc.jl"))
+if learner == "polynomial"
+    hpc_log("run_rom_hpc", "Loading polynomial ROM extension code")
+    include(joinpath(REPO_ROOT, "Research_Code", "src", "HPC", "FOM_ROM_polynomial_learning_AC.jl"))
+end
 hpc_log("run_rom_hpc", "Loading HPC common code")
 include(joinpath(@__DIR__, "hpc_common.jl"))
 
 opts = parse_cli(ARGS)
+learner = lowercase(get_string(opts, "learner", learner))
 
 N = get_int(opts, "N", 256)
 L = get_float(opts, "L", 1.0)
 ε2 = get_float(opts, "eps2", 1e-2)
 k = get_float(opts, "k", 1.0)
+### ADJUSTED: Parse spatial dimension for 1D/2D HPC ROM runs.
+dimension = get_int(opts, "dimension", 1)
+### ADJUSTED: Parse optional Allen-Cahn boundary-condition selection for ROM runs.
+boundary_condition = get_string(opts, "boundary-condition", "homogeneous_dirichlet")
 tfinal = get_float(opts, "tfinal", 2.0)
 N_obs = get_int(opts, "N-obs", 10)
 r = get_int(opts, "r", 10)
 m = get_int(opts, "m", 10)
 h = get_int(opts, "h", 8)
 seed = get_int(opts, "seed", 1)
+### ADJUSTED: Parse polynomial degree for polynomial ROM learning.
+polynomial_degree = get_int(opts, "polynomial-degree", 3)
 reference_dt_factor = get_float(opts, "reference-dt-factor", 0.5)
 etas = get_float_vector(opts, "etas", [5e-3, 1e-3, 1e-4])
 iterations = get_int_vector(opts, "iters", [500, 800, 1100])
@@ -40,7 +66,7 @@ window_seed = get_int(opts, "window-seed", seed)
 warmup = get_bool(opts, "warmup", true)
 save_frequency = get_int(opts, "save-frequency", 10)
 print_frequency = get_int(opts, "print-frequency", 10)
-run_name = get_string(opts, "run-name", timestamp_run_name("ROM_AC_hpc"))
+run_name = get_string(opts, "run-name", timestamp_run_name(learner == "polynomial" ? "ROM_AC_polynomial_hpc" : "ROM_AC_hpc"))
 
 ### ADJUSTED: Validate the complete staged learning and window schedule before building the reference solution.
 schedule_lengths = (;
@@ -58,15 +84,23 @@ hpc_log("run_rom_hpc", "Configuring HPC runtime")
 setup_hpc_runtime()
 
 hpc_log("run_rom_hpc", "Building Allen-Cahn reference solution")
-reference = build_ac_reference(; N, L, ε2, k, tfinal, reference_dt_factor)
+reference = build_ac_reference(; N, L, ε2, k, tfinal, reference_dt_factor, dimension, boundary_condition)
 hpc_log("run_rom_hpc", "Building Laplacian matrix")
-A = get_lap1d_matrix(N, ε2, reference.Δx)
+### ADJUSTED: Use the dimension- and boundary-aware sparse diffusion matrix for ROM basis construction.
+A = get_lap_ac_matrix(N, ε2, reference.Δx, dimension, reference.boundary_condition)
 hpc_log("run_rom_hpc", "Preparing ROM optimization problem")
-prob_rom = prepare_ROM_optimization(A, reference.u_ref, r, m; N_obs, h, seed)
+### ADJUSTED: Pass polynomial degree only when the polynomial helper is active.
+prob_rom = learner == "polynomial" ?
+    prepare_ROM_optimization(A, reference.u_ref, r, m; N_obs, h, seed, dimension, boundary_condition=reference.boundary_condition, polynomial_degree) :
+    prepare_ROM_optimization(A, reference.u_ref, r, m; N_obs, h, seed, dimension, boundary_condition=reference.boundary_condition)
 hpc_log("run_rom_hpc", "Prepared ROM optimization parameters")
 println("  run_name = ", run_name)
+println("  learner = ", learner)
+println("  polynomial_degree = ", learner == "polynomial" ? polynomial_degree : "n/a")
 println("  N = ", N)
 println("  L = ", L)
+println("  dimension = ", dimension)
+println("  boundary_condition = ", reference.boundary_condition)
 println("  ε2 = ", ε2)
 println("  k = ", k)
 println("  tfinal = ", tfinal)

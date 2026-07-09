@@ -1,0 +1,35 @@
+[Tue Jul  7 05:04:29 PM EDT 2026] Worker 5 starting ROM combination 5 / 8
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_backend_tests/00_mooncake_rom_backend_smoke.txt
+Run name: ROM_backend_smoke_mooncake_5_006_1d_seed_repeat_b
+Combination label: 006_1d_seed_repeat_b
+BATCH_SIZE=1
+ETAS=1e-3
+H=8
+ITERS=100
+JULIA_BLAS_THREADS=1
+JULIA_NUM_THREADS=8
+LOSS_NORMALIZATION=mean
+M=8
+N=64
+N_OBS=16
+PRINT_FREQUENCY=1
+R=8
+REFERENCE_DT_FACTOR=0.5
+RUN_NAME=ROM_backend_smoke_mooncake_5_006_1d_seed_repeat_b
+SAVE_FREQUENCY=100000
+SEED=3
+SWEEP_COMBO_COUNT=8
+SWEEP_COMBO_INDEX=5
+SWEEP_COMBO_LABEL=006_1d_seed_repeat_b
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_backend_tests/00_mooncake_rom_backend_smoke.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=8
+SWEEP_WORKER_COUNT=8
+SWEEP_WORKER_INDEX=5
+TFINAL=0.2
+WARMUP=true
+WINDOW_N_OBS=4
+WINDOW_SEED=3
+WINDOW_START_POLICY=random
+WINDOW_T=0.05
+[Tue Jul  7 05:07:53 PM EDT 2026] Worker 5 finished ROM combination 5

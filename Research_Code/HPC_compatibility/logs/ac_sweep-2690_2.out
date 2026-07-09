@@ -1,0 +1,240 @@
+[Tue Jul  7 04:58:28 PM EDT 2026] Worker 2 starting FOM combination 2 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_2_003_fast10m_w_1p0_1p0_1p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+Combination label: 003_fast10m_w_1p0_1p0_1p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.003,0.001,0.0003
+H=8
+ITERS=1676,2515,4192
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_2_003_fast10m_w_1p0_1p0_1p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=2
+SWEEP_COMBO_LABEL=003_fast10m_w_1p0_1p0_1p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,2,2
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=1.0,1.0,1.0
+[Tue Jul  7 05:09:13 PM EDT 2026] Worker 2 finished FOM combination 2
+[Tue Jul  7 05:09:13 PM EDT 2026] Worker 2 starting FOM combination 14 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_14_015_fast10m_w_0p05_1p0_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+Combination label: 015_fast10m_w_0p05_1p0_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.003,0.001,0.0003
+H=8
+ITERS=2016,2515,3560
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_14_015_fast10m_w_0p05_1p0_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=14
+SWEEP_COMBO_LABEL=015_fast10m_w_0p05_1p0_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,2,2
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,1.0,2.0
+[Tue Jul  7 05:20:17 PM EDT 2026] Worker 2 finished FOM combination 14
+[Tue Jul  7 05:20:17 PM EDT 2026] Worker 2 starting FOM combination 26 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_26_027_fast10m_w_0p05_0p5_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+Combination label: 027_fast10m_w_0p05_0p5_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.003,0.001,0.0003
+H=8
+ITERS=2016,2760,3560
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_26_027_fast10m_w_0p05_0p5_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=26
+SWEEP_COMBO_LABEL=027_fast10m_w_0p05_0p5_2p0__obs_2_2_2__eta_0.003_0.001_0.0003__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,2,2
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Tue Jul  7 05:30:22 PM EDT 2026] Worker 2 finished FOM combination 26
+[Tue Jul  7 05:30:22 PM EDT 2026] Worker 2 starting FOM combination 38 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_38_039_medium30m_w_2p0_2p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+Combination label: 039_medium30m_w_2p0_2p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.003,0.001,0.0003
+H=8
+ITERS=4272,5370,7047
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_38_039_medium30m_w_2p0_2p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=38
+SWEEP_COMBO_LABEL=039_medium30m_w_2p0_2p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=2.0,2.0,2.0
+[Tue Jul  7 06:16:54 PM EDT 2026] Worker 2 finished FOM combination 38
+[Tue Jul  7 06:16:54 PM EDT 2026] Worker 2 starting FOM combination 50 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_50_051_medium30m_w_0p1_1p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+Combination label: 051_medium30m_w_0p1_1p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.003,0.001,0.0003
+H=8
+ITERS=5987,6146,7047
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_50_051_medium30m_w_0p1_1p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=50
+SWEEP_COMBO_LABEL=051_medium30m_w_0p1_1p0_2p0__obs_2_5_10__eta_0.003_0.001_0.0003__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.1,1.0,2.0
+[Tue Jul  7 06:38:25 PM EDT 2026] Worker 2 finished FOM combination 50
+[Tue Jul  7 06:38:25 PM EDT 2026] Worker 2 starting FOM combination 62 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_62_063_batch30m_w_1p0_1p0_1p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+Combination label: 063_batch30m_w_1p0_1p0_1p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+BATCH_SIZE=2,2,2
+ETAS=0.001,0.0003,0.0001
+H=8
+ITERS=2515,3073,3913
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_62_063_batch30m_w_1p0_1p0_1p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=62
+SWEEP_COMBO_LABEL=063_batch30m_w_1p0_1p0_1p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=1.0,1.0,1.0
+[Tue Jul  7 07:02:11 PM EDT 2026] Worker 2 finished FOM combination 62
+[Tue Jul  7 07:02:11 PM EDT 2026] Worker 2 starting FOM combination 74 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_74_075_batch30m_w_0p05_0p5_2p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+Combination label: 075_batch30m_w_0p05_0p5_2p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+BATCH_SIZE=2,2,2
+ETAS=0.001,0.0003,0.0001
+H=8
+ITERS=3025,3312,3523
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_74_075_batch30m_w_0p05_0p5_2p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=74
+SWEEP_COMBO_LABEL=075_batch30m_w_0p05_0p5_2p0__obs_2_5_10__eta_0.001_0.0003_0.0001__b_2_2_2
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Tue Jul  7 07:24:32 PM EDT 2026] Worker 2 finished FOM combination 74
+[Tue Jul  7 07:24:32 PM EDT 2026] Worker 2 starting FOM combination 86 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+Run name: FOM_true_hpo_mooncake_90_86_087_long60m_w_0p1_1p0_2p0__obs_10_25_50__eta_0.001_0.0003_0.0001__b_1_1_1
+Combination label: 087_long60m_w_0p1_1p0_2p0__obs_10_25_50__eta_0.001_0.0003_0.0001__b_1_1_1
+BATCH_SIZE=1,1,1
+ETAS=0.001,0.0003,0.0001
+H=8
+ITERS=6951,5497,5218
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_true_hpo_mooncake_90_86_087_long60m_w_0p1_1p0_2p0__obs_10_25_50__eta_0.001_0.0003_0.0001__b_1_1_1
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=86
+SWEEP_COMBO_LABEL=087_long60m_w_0p1_1p0_2p0__obs_10_25_50__eta_0.001_0.0003_0.0001__b_1_1_1
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/01_mooncake_true_hpo_90_cases.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=12
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=10,25,50
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.1,1.0,2.0
+[Tue Jul  7 08:19:25 PM EDT 2026] Worker 2 finished FOM combination 86

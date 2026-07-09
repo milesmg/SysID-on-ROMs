@@ -1,0 +1,1098 @@
+### ADJUSTED: Add an explicit ROM m=10 stability HPO sweep focused on lower late-stage learning rates.
+# Old m=10 runs usually failed when stages 2-3 entered longer/full windows with eta=[0.01,0.003,0.001].
+# This sweep tests lower learning rates, longer taper schedules, higher late Nobs, and limited batching.
+# Each [[case]] sets schedule-valued keys explicitly so 3-stage and 5-stage recipes both validate.
+target = rom
+RUN_NAME = ROM_m10_stability_fu_learning
+
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+M = 10
+LOSS_NORMALIZATION = mean
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 500
+
+[[case]]
+CASE_NAME = r3_conservative_oldshape_eta_3e-3_to_3e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 3
+ETAS = 0.003,0.001,0.0003
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r3_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 3
+ETAS = 0.001,0.0003,0.0001
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r3_conservative_oldshape_eta_3e-4_to_3e-5_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 3
+ETAS = 0.0003,0.0001,3e-05
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r3_five_stage_taper_eta_3e-3_to_3e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_five_stage_taper_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_five_stage_taper_eta_5e-4_to_1e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_high_obs_late_eta_3e-3_to_3e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 3
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_high_obs_late_eta_1e-3_to_2e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 3
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_high_obs_late_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 3
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_short_pretrain_heavy_eta_3e-3_to_3e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_short_pretrain_heavy_eta_1e-3_to_2e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_short_pretrain_heavy_eta_5e-4_to_1e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 3
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_gentle_full_finish_eta_1e-3_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 3
+ETAS = 0.001,0.0003,0.0001,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 3
+ETAS = 0.0005,0.0002,8e-05,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_gentle_full_finish_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 3
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r3_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+HPO_GROUP = batch_taper_probe
+ESTIMATED_OPT_SECONDS = 1799.9
+R = 3
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,14619,12631,4714,4909
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r3_batch_highobs_probe_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_highobs_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 3
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 16470,11789,8571,2148,1615
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r3_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_gentle_finish_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 3
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 16470,11789,7636,2148,1615
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r4_conservative_oldshape_eta_3e-3_to_3e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 4
+ETAS = 0.003,0.001,0.0003
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r4_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 4
+ETAS = 0.001,0.0003,0.0001
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r4_conservative_oldshape_eta_3e-4_to_3e-5_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 4
+ETAS = 0.0003,0.0001,3e-05
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r4_five_stage_taper_eta_3e-3_to_3e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_five_stage_taper_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_five_stage_taper_eta_5e-4_to_1e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_high_obs_late_eta_3e-3_to_3e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 4
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_high_obs_late_eta_1e-3_to_2e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 4
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_high_obs_late_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 4
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_short_pretrain_heavy_eta_3e-3_to_3e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_short_pretrain_heavy_eta_1e-3_to_2e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_short_pretrain_heavy_eta_5e-4_to_1e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 4
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_gentle_full_finish_eta_1e-3_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 4
+ETAS = 0.001,0.0003,0.0001,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 4
+ETAS = 0.0005,0.0002,8e-05,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_gentle_full_finish_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 4
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r4_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+HPO_GROUP = batch_taper_probe
+ESTIMATED_OPT_SECONDS = 1799.9
+R = 4
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,14619,12631,4714,4909
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r4_batch_highobs_probe_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_highobs_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 4
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 16470,11789,8571,2148,1615
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r4_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_gentle_finish_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 4
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 16470,11789,7636,2148,1615
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r5_conservative_oldshape_eta_3e-3_to_3e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 5
+ETAS = 0.003,0.001,0.0003
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r5_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 5
+ETAS = 0.001,0.0003,0.0001
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r5_conservative_oldshape_eta_3e-4_to_3e-5_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 5
+ETAS = 0.0003,0.0001,3e-05
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r5_five_stage_taper_eta_3e-3_to_3e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_five_stage_taper_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_five_stage_taper_eta_5e-4_to_1e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_high_obs_late_eta_3e-3_to_3e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 5
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_high_obs_late_eta_1e-3_to_2e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 5
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_high_obs_late_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 5
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_short_pretrain_heavy_eta_3e-3_to_3e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_short_pretrain_heavy_eta_1e-3_to_2e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_short_pretrain_heavy_eta_5e-4_to_1e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 5
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_gentle_full_finish_eta_1e-3_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 5
+ETAS = 0.001,0.0003,0.0001,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 5
+ETAS = 0.0005,0.0002,8e-05,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_gentle_full_finish_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 5
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r5_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+HPO_GROUP = batch_taper_probe
+ESTIMATED_OPT_SECONDS = 1799.9
+R = 5
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,14619,12631,4714,4909
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r5_batch_highobs_probe_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_highobs_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 5
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 16470,11789,8571,2148,1615
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r5_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_gentle_finish_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 5
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 16470,11789,7636,2148,1615
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r10_conservative_oldshape_eta_3e-3_to_3e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 10
+ETAS = 0.003,0.001,0.0003
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r10_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 10
+ETAS = 0.001,0.0003,0.0001
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r10_conservative_oldshape_eta_3e-4_to_3e-5_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 10
+ETAS = 0.0003,0.0001,3e-05
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r10_five_stage_taper_eta_3e-3_to_3e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_five_stage_taper_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_five_stage_taper_eta_5e-4_to_1e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_high_obs_late_eta_3e-3_to_3e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 10
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_high_obs_late_eta_1e-3_to_2e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 10
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_high_obs_late_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 10
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_short_pretrain_heavy_eta_3e-3_to_3e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_short_pretrain_heavy_eta_1e-3_to_2e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_short_pretrain_heavy_eta_5e-4_to_1e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 10
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_gentle_full_finish_eta_1e-3_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 10
+ETAS = 0.001,0.0003,0.0001,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 10
+ETAS = 0.0005,0.0002,8e-05,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_gentle_full_finish_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 10
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r10_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+HPO_GROUP = batch_taper_probe
+ESTIMATED_OPT_SECONDS = 1799.9
+R = 10
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,14619,12631,4714,4909
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r10_batch_highobs_probe_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_highobs_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 10
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 16470,11789,8571,2148,1615
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r10_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_gentle_finish_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 10
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 16470,11789,7636,2148,1615
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r15_conservative_oldshape_eta_3e-3_to_3e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 15
+ETAS = 0.003,0.001,0.0003
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r15_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 15
+ETAS = 0.001,0.0003,0.0001
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r15_conservative_oldshape_eta_3e-4_to_3e-5_obs_2_5_10_budget15m
+HPO_GROUP = conservative_oldshape
+ESTIMATED_OPT_SECONDS = 899.9
+R = 15
+ETAS = 0.0003,0.0001,3e-05
+ITERS = 11764,9473,8181
+WINDOW_T = 0.05,0.5,2
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = r15_five_stage_taper_eta_3e-3_to_3e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_five_stage_taper_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_five_stage_taper_eta_5e-4_to_1e-5_obs_2_3_5_8_10_budget20m
+HPO_GROUP = five_stage_taper
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,9746,8421,6285,6545
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_high_obs_late_eta_3e-3_to_3e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 15
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_high_obs_late_eta_1e-3_to_2e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 15
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_high_obs_late_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget30m
+HPO_GROUP = high_obs_late
+ESTIMATED_OPT_SECONDS = 1799.8
+R = 15
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 14117,10105,7346,3683,2769
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_short_pretrain_heavy_eta_3e-3_to_3e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.003,0.001,0.0003,0.0001,3e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_short_pretrain_heavy_eta_1e-3_to_2e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_short_pretrain_heavy_eta_5e-4_to_1e-5_obs_2_2_3_5_10_budget20m
+HPO_GROUP = short_pretrain_heavy
+ESTIMATED_OPT_SECONDS = 1199.9
+R = 15
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 9411,12549,12182,9263,6545
+WINDOW_T = 0.05,0.05,0.2,0.5,2
+WINDOW_N_OBS = 2,2,3,5,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_gentle_full_finish_eta_1e-3_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 15
+ETAS = 0.001,0.0003,0.0001,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 15
+ETAS = 0.0005,0.0002,8e-05,3e-05,1e-05
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_gentle_full_finish_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget40m
+HPO_GROUP = gentle_full_finish
+ESTIMATED_OPT_SECONDS = 2399.8
+R = 15
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 18823,13473,8727,4911,3692
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,1,1
+
+[[case]]
+CASE_NAME = r15_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+HPO_GROUP = batch_taper_probe
+ESTIMATED_OPT_SECONDS = 1799.9
+R = 15
+ETAS = 0.001,0.0005,0.0002,8e-05,2e-05
+ITERS = 14117,14619,12631,4714,4909
+WINDOW_T = 0.05,0.2,0.5,1,2
+WINDOW_N_OBS = 2,3,5,8,10
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r15_batch_highobs_probe_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_highobs_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 15
+ETAS = 0.0005,0.0002,0.0001,3e-05,1e-05
+ITERS = 16470,11789,8571,2148,1615
+WINDOW_T = 0.05,0.5,1,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2
+
+[[case]]
+CASE_NAME = r15_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+HPO_GROUP = batch_gentle_finish_probe
+ESTIMATED_OPT_SECONDS = 2099.6
+R = 15
+ETAS = 0.0003,0.0001,3e-05,1e-05,3e-06
+ITERS = 16470,11789,7636,2148,1615
+WINDOW_T = 0.05,0.5,2,2,2
+WINDOW_N_OBS = 2,5,10,25,50
+WINDOW_START_POLICY = random,random,random,random,random
+BATCH_SIZE = 1,1,1,2,2

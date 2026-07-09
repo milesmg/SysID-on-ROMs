@@ -1,0 +1,62 @@
+### ADJUSTED: Focused longer ROM runs for m=4,r=10 to tune the learned f(u) with more saved checkpoints.
+# Small m=4,r=10 ROM sweep extending the best short run from the M/R scan.
+# These cases mostly vary iteration budgets while keeping the successful window/Nobs schedule fixed.
+target = rom
+RUN_NAME = ROM_m4_r10_longer_fu_tuning
+
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+M = 4
+R = 10
+LOSS_NORMALIZATION = mean
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+WINDOW_START_POLICY = random,random,random
+BATCH_SIZE = 1,1,1
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 500
+
+[[case]]
+CASE_NAME = 020m_more_full_stage_base_eta
+ETAS = 0.01,0.003,0.001
+ITERS = 4000,5000,24000
+
+[[case]]
+CASE_NAME = 020m_balanced_base_eta
+ETAS = 0.01,0.003,0.001
+ITERS = 8000,9000,17000
+
+[[case]]
+CASE_NAME = 030m_more_full_stage_base_eta
+ETAS = 0.01,0.003,0.001
+ITERS = 5000,8000,42000
+
+[[case]]
+CASE_NAME = 030m_full_stage_lower_final_eta
+ETAS = 0.01,0.003,0.0005
+ITERS = 5000,8000,42000
+
+[[case]]
+CASE_NAME = 045m_more_full_stage_base_eta
+ETAS = 0.01,0.003,0.001
+ITERS = 7000,11000,65000
+
+[[case]]
+CASE_NAME = 045m_full_stage_lower_final_eta
+ETAS = 0.01,0.003,0.0005
+ITERS = 7000,11000,65000
+
+[[case]]
+CASE_NAME = 060m_more_full_stage_base_eta
+ETAS = 0.01,0.003,0.001
+ITERS = 9000,14000,95000
+
+[[case]]
+CASE_NAME = 060m_full_stage_lower_final_eta
+ETAS = 0.01,0.003,0.0005
+ITERS = 9000,14000,95000

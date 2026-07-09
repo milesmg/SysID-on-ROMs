@@ -1,0 +1,151 @@
+GC error (probable corruption)
+Allocations: 463988472 (Pool: 463985879; Big: 2593); GC: 131
+<?#0x12ab0b10::<circular reference @-1>>
+
+[2806029] signal 6 (-6): Aborted
+in expression starting at /home/mgantcher/Brookhaven/Research_Code/HPC_compatibility/run_fom_hpc.jl:101
+__pthread_kill_implementation at /lib64/libc.so.6 (unknown line)
+raise at /lib64/libc.so.6 (unknown line)
+abort at /lib64/libc.so.6 (unknown line)
+gc_dump_queue_and_abort at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:1664
+gc_mark_outrefs at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:2365 [inlined]
+gc_mark_and_steal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:2567
+gc_mark_loop_parallel at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:2714 [inlined]
+gc_mark_loop at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:2733 [inlined]
+_jl_gc_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3074
+ijl_gc_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3475
+maybe_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:351 [inlined]
+jl_gc_small_alloc_inner at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:727 [inlined]
+jl_gc_small_alloc_noinline at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:785 [inlined]
+jl_gc_alloc_ at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:799
+jl_alloc_genericmemory_unchecked at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/genericmemory.c:41
+GenericMemory at ./boot.jl:588 [inlined]
+copy at ./array.jl:354 [inlined]
+augmented_primal at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxLib/zPBrt/src/impl/matmul.jl:276 [inlined]
+matmuladd at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxLib/zPBrt/src/impl/matmul.jl:36 [inlined]
+matmuladd at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxLib/zPBrt/src/impl/matmul.jl:7 [inlined]
+fused_dense at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxLib/zPBrt/src/impl/dense.jl:10 [inlined]
+fused_dense_bias_activation at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxLib/zPBrt/src/api/dense.jl:36
+##d::Denseinternal#345 at /home/mgantcher/Brookhaven/Julia/depot/packages/Lux/ZSmgp/src/layers/basic.jl:369 [inlined]
+macro expansion at /home/mgantcher/Brookhaven/Julia/depot/packages/ReactantCore/WerTZ/src/ReactantCore.jl:331 [inlined]
+Dense at ./none:0 [inlined]
+apply at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxCore/kQC9S/src/LuxCore.jl:155 [inlined]
+macro expansion at /home/mgantcher/Brookhaven/Julia/depot/packages/Lux/ZSmgp/src/layers/containers.jl (unknown line) [inlined]
+applychain at /home/mgantcher/Brookhaven/Julia/depot/packages/Lux/ZSmgp/src/layers/containers.jl:577 [inlined]
+Chain at /home/mgantcher/Brookhaven/Julia/depot/packages/Lux/ZSmgp/src/layers/containers.jl:575 [inlined]
+apply at /home/mgantcher/Brookhaven/Julia/depot/packages/LuxCore/kQC9S/src/LuxCore.jl:155 [inlined]
+Fnn_batch at /home/mgantcher/Brookhaven/Research_Code/src/HPC/integration_AC_hpc.jl:138
+rhs_ac_NN! at /home/mgantcher/Brookhaven/Research_Code/src/HPC/integration_AC_hpc.jl:149
+#neural_ODE_prob##2 at /home/mgantcher/Brookhaven/Research_Code/src/HPC/integration_AC_hpc.jl:163 [inlined]
+ODEFunction at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/scimlfunctions.jl:2656 [inlined]
+ODEFunction at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/scimlfunctions.jl:2656 [inlined]
+Void at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/utils.jl:513 [inlined]
+Void at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/utils.jl:0 [inlined]
+diffejulia_Void_40922_inner_43wrap at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/utils.jl:0
+macro expansion at /home/mgantcher/Brookhaven/Julia/depot/packages/Enzyme/OqFpK/src/compiler.jl:6886 [inlined]
+enzyme_call at /home/mgantcher/Brookhaven/Julia/depot/packages/Enzyme/OqFpK/src/compiler.jl:6356 [inlined]
+CombinedAdjointThunk at /home/mgantcher/Brookhaven/Julia/depot/packages/Enzyme/OqFpK/src/compiler.jl:6240 [inlined]
+autodiff at /home/mgantcher/Brookhaven/Julia/depot/packages/Enzyme/OqFpK/src/Enzyme.jl:536 [inlined]
+_vecjacobian! at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/derivative_wrappers.jl:1079
+#vecjacobian!#22 at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/derivative_wrappers.jl:264 [inlined]
+vecjacobian! at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/derivative_wrappers.jl:256 [inlined]
+ODEGaussAdjointSensitivityFunction at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/gauss_adjoint.jl:123
+ODEFunction at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/scimlfunctions.jl:2656 [inlined]
+UJacobianWrapper at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLBase/b28nr/src/function_wrappers.jl:85 [inlined]
+#finite_difference_jvp!#39 at /home/mgantcher/Brookhaven/Julia/depot/packages/FiniteDiff/TxEKZ/src/jvp.jl:262
+finite_difference_jvp! at /home/mgantcher/Brookhaven/Julia/depot/packages/FiniteDiff/TxEKZ/src/jvp.jl:238 [inlined]
+finite_difference_jvp! at /home/mgantcher/Brookhaven/Julia/depot/packages/FiniteDiff/TxEKZ/src/jvp.jl:238 [inlined]
+pushforward! at /home/mgantcher/Brookhaven/Julia/depot/packages/DifferentiationInterface/f85Vv/ext/DifferentiationInterfaceFiniteDiffExt/twoarg.jl:128 [inlined]
+_sparse_jacobian_aux! at /home/mgantcher/Brookhaven/Julia/depot/packages/DifferentiationInterface/f85Vv/ext/DifferentiationInterfaceSparseMatrixColoringsExt/jacobian.jl:308
+jacobian! at /home/mgantcher/Brookhaven/Julia/depot/packages/DifferentiationInterface/f85Vv/ext/DifferentiationInterfaceSparseMatrixColoringsExt/jacobian.jl:237 [inlined]
+jacobian! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqDifferentiation/Tj33L/src/derivative_wrappers.jl:245
+calc_J! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqDifferentiation/Tj33L/src/derivative_utils.jl:380 [inlined]
+calc_W! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqDifferentiation/Tj33L/src/derivative_utils.jl:770
+update_W! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqDifferentiation/Tj33L/src/derivative_utils.jl:969 [inlined]
+update_W! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqDifferentiation/Tj33L/src/derivative_utils.jl:968 [inlined]
+nlsolve! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqNonlinearSolve/g0Xmj/src/nlsolve.jl:34
+_perform_step_iip! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqSDIRK/wgI6e/src/generic_imex_perform_step.jl:205
+perform_step! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqSDIRK/wgI6e/src/generic_imex_perform_step.jl:29 [inlined]
+perform_step! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqSDIRK/wgI6e/src/generic_imex_perform_step.jl:29 [inlined]
+solve! at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqCore/dTRyE/src/solve.jl:834
+#__solve#64 at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqCore/dTRyE/src/solve.jl:10
+__solve at /home/mgantcher/Brookhaven/Julia/depot/packages/OrdinaryDiffEqCore/dTRyE/src/solve.jl:1 [inlined]
+#solve_call#25 at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:172 [inlined]
+solve_call at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:137
+unknown function (ip: 0x7f0725b14b8f) at (unknown file)
+#solve_up#32 at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:646
+solve_up at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:619 [inlined]
+#solve#31 at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:603
+solve at /home/mgantcher/Brookhaven/Julia/depot/packages/DiffEqBase/F2QKS/src/solve.jl:591
+unknown function (ip: 0x7f0794569a9b) at (unknown file)
+#_adjoint_sensitivities#261 at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/gauss_adjoint.jl:847
+_adjoint_sensitivities at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/gauss_adjoint.jl:766 [inlined]
+#adjoint_sensitivities#48 at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/sensitivity_interface.jl:422 [inlined]
+adjoint_sensitivities at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/sensitivity_interface.jl:373
+unknown function (ip: 0x7f0736de7d3c) at (unknown file)
+adjoint_sensitivity_backpass at /home/mgantcher/Brookhaven/Julia/depot/packages/SciMLSensitivity/KFwMv/src/concrete_solve.jl:946
+ZBack at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/chainrules.jl:228 [inlined]
+kw_zpullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/chainrules.jl:254
+#379 at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/lib/lib.jl:214 [inlined]
+#381 at /home/mgantcher/Brookhaven/Julia/depot/packages/ZygoteRules/CkVIK/src/adjoint.jl:72
+unknown function (ip: 0x7f0736de3c6a) at (unknown file)
+Pullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface2.jl:106
+#379 at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/lib/lib.jl:214 [inlined]
+#381 at /home/mgantcher/Brookhaven/Julia/depot/packages/ZygoteRules/CkVIK/src/adjoint.jl:72
+unknown function (ip: 0x7f0736dddae2) at (unknown file)
+Pullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface2.jl:106
+unknown function (ip: 0x7f0736ddd0a2) at (unknown file)
+variable_window_loss at /home/mgantcher/Brookhaven/Research_Code/src/HPC/FOM_opt_AC_hpc.jl:91 [inlined]
+Pullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface2.jl:0
+unknown function (ip: 0x7f0736dbf5b6) at (unknown file)
+Pullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface2.jl:106
+Pullback at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface2.jl:106
+#pullback##0 at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface.jl:100
+unknown function (ip: 0x7f0736db4c99) at (unknown file)
+withgradient at /home/mgantcher/Brookhaven/Julia/depot/packages/Zygote/Pm9ID/src/compiler/interface.jl:222
+value_and_gradient at /home/mgantcher/Brookhaven/Julia/depot/packages/DifferentiationInterface/f85Vv/ext/DifferentiationInterfaceZygoteExt/DifferentiationInterfaceZygoteExt.jl:115 [inlined]
+value_and_gradient! at /home/mgantcher/Brookhaven/Julia/depot/packages/DifferentiationInterface/f85Vv/ext/DifferentiationInterfaceZygoteExt/DifferentiationInterfaceZygoteExt.jl:131
+unknown function (ip: 0x7f07370f6a02) at (unknown file)
+fg! at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/ext/OptimizationZygoteExt.jl:60
+unknown function (ip: 0x7f07370f5741) at (unknown file)
+__solve at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationOptimisers/Lr1GL/src/OptimizationOptimisers.jl:88
+solve! at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:236
+unknown function (ip: 0x7f0725bfc384) at (unknown file)
+#solve_call#9 at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:282
+solve_call at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:269 [inlined]
+#solve_up#8 at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:265 [inlined]
+solve_up at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:256 [inlined]
+#solve#2 at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:104
+solve at /home/mgantcher/Brookhaven/Julia/depot/packages/OptimizationBase/EAGYd/src/solve.jl:93
+unknown function (ip: 0x7f0725bfa4cc) at (unknown file)
+#run_variable_window_stages#7 at /home/mgantcher/Brookhaven/Research_Code/src/HPC/variable_window_common_hpc.jl:213
+run_variable_window_stages at /home/mgantcher/Brookhaven/Research_Code/src/HPC/variable_window_common_hpc.jl:82 [inlined]
+#run_variable_window_optimization#19 at /home/mgantcher/Brookhaven/Research_Code/src/HPC/FOM_opt_AC_hpc.jl:198 [inlined]
+run_variable_window_optimization at /home/mgantcher/Brookhaven/Research_Code/src/HPC/FOM_opt_AC_hpc.jl:177
+unknown function (ip: 0x7f07b81e08dd) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+do_call at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:123
+eval_value at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:243
+eval_stmt_value at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:194 [inlined]
+eval_body at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:707
+jl_interpret_toplevel_thunk at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:898
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1035
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:975
+ijl_toplevel_eval at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1047
+ijl_toplevel_eval_in at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1092
+eval at ./boot.jl:489
+include_string at ./loading.jl:2874
+_include at ./loading.jl:2934
+include at ./Base.jl:306
+exec_options at ./client.jl:317
+_start at ./client.jl:550
+jfptr__start_63319.1 at /home/mgantcher/Brookhaven/Julia/julia-1.12.6/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+true_main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:971
+jl_repl_entrypoint at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:1139
+main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/cli/loader_exe.c:58
+__libc_start_call_main at /lib64/libc.so.6 (unknown line)
+__libc_start_main at /lib64/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+Allocations: 463988472 (Pool: 463985879; Big: 2593); GC: 131
+/home/mgantcher/Brookhaven/Research_Code/HPC_compatibility/hpc1_run_fom.slurm: line 75: 2806029 Aborted                 (core dumped) "$JULIA_EXE" --project="$HPC_JULIA_PROJECT" "$HPC_DIR/run_fom_hpc.jl" "${ARGS[@]}"

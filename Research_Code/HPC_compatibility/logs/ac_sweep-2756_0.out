@@ -1,0 +1,30 @@
+[Thu Jul  9 02:21:05 AM EDT 2026] Worker 0 starting FOM combination 0 / 2
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/03_fom_larger.txt
+Run name: FOM_boundary_learning_tests_0_2d_periodic_long
+Combination label: 2d_periodic_long
+BATCH_SIZE=1,1,1
+ETAS=0.006,0.002,0.0006
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=128
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_boundary_learning_tests_0_2d_periodic_long
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=2
+SWEEP_COMBO_INDEX=0
+SWEEP_COMBO_LABEL=2d_periodic_long
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/03_fom_larger.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=2
+SWEEP_WORKER_COUNT=2
+SWEEP_WORKER_INDEX=0
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Thu Jul  9 02:28:25 AM EDT 2026] Worker 0 finished FOM combination 0

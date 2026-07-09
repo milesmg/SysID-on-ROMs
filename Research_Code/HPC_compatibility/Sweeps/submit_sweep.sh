@@ -27,7 +27,6 @@ if [ "$COUNT" -lt 1 ]; then
     exit 1
 fi
 
-### ADJUSTED: Fit sweep workers within the hpc1 submit limit and run excess combinations sequentially.
 MAX_SUBMITTED="${MAX_SUBMITTED:-20}"
 MAX_CONCURRENT="${MAX_CONCURRENT:-8}"
 CURRENT_SUBMITTED="${CURRENT_SUBMITTED:-$(squeue -r -h -u "$USER" | wc -l | tr -d '[:space:]')}"

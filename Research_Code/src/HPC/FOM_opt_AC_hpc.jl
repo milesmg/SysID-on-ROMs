@@ -35,9 +35,10 @@ hpc_log_package("ADTypes", "Loaded")
 hpc_log_package("Zygote", "Loading")
 using Zygote
 hpc_log_package("Zygote", "Loaded")
-hpc_log_package("Enzyme", "Loading")
-using Enzyme
-hpc_log_package("Enzyme", "Loaded")
+### ADJUSTED: Load Mooncake for the default GaussAdjoint VJP backend.
+hpc_log_package("Mooncake", "Loading")
+using Mooncake
+hpc_log_package("Mooncake", "Loaded")
 hpc_log_package("Optimization", "Loading")
 using Optimization
 hpc_log_package("Optimization", "Loaded")
@@ -87,7 +88,9 @@ function variable_window_loss(window, prob, p, alg, sensalg, normalization)
             total += abs2(u_model[i] - u_ref[i])
         end
     end
-    loss = 0.5 * p.Δx * total
+    ### ADJUSTED: Weight 1D losses by Δx and 2D losses by Δx^2.
+    Δmeasure = hasproperty(p, :Δmeasure) ? p.Δmeasure : p.Δx
+    loss = 0.5 * Δmeasure * total
     return normalization == "mean" ? loss / length(window.u_ref_obs) : loss
 end
 
@@ -109,35 +112,46 @@ Get the parameters for a PDE-based optimization in order.
     - `ε2=1e-2`: diffusion parameter
     - `tspan=(0.0, 2.0)`: integration time span
     - `N_obs=10`: number of observation times
+    - `dimension=1`: spatial dimension; `2` uses an `N x N` flattened state
+    - `boundary_condition="homogeneous_dirichlet"`: AC boundary condition; use `"periodic"` for periodic solves
     - `u₀=nothing`: initial state; constructs the default tanh profile if omitted
     - `h=8`: hidden-layer width
     - `seed=1`: neural-network initialization seed
 
 - returns: `(; prob, p₀, t_obs, nn, state, x, u₀, run_params)`
     - `prob`: neural ODE problem with initial parameters `p₀`
-    - `p₀`: `ComponentVector(ε2=ε2, Δx=Δx, θ=ps₀)`
+    - `p₀`: `ComponentVector(ε2=ε2, Δx=Δx, Δmeasure=Δx^dimension, θ=ps₀)`
     - `t_obs`: observation times
     - `nn`: Lux neural-network architecture
     - `state`: Lux model state
     - `x`: spatial grid
     - `u₀`: initial PDE state
     - `run_params`: named tuple containing the grid, PDE, initial-state,
-      observation-time, neural-network architecture, and random-seed settings
+      dimension, boundary-condition, observation-time, neural-network architecture, and random-seed settings
 """
 function prepare_for_optimization(;N=256,
                                 L=1.0, 
                                 ε2 = 1e-2,
                                 tspan = (0.0, 2.0),
                                 N_obs = 10,
+                                dimension = 1,
+                                boundary_condition = "homogeneous_dirichlet",
                                 u₀ = nothing,
                                 h = 8,
                                 seed = 1,
                                 )
 
-    Δx = L/(N+1)
-    x = L*Δx*collect(1:N)
+    ### ADJUSTED: Build and validate 1D/2D initial conditions through shared HPC integration helpers.
+    dimension = validate_ac_dimension(dimension)
+    ### ADJUSTED: Carry the boundary-condition option into grid setup and neural ODE construction.
+    boundary_condition = validate_ac_boundary_condition(boundary_condition)
+    grid = ac_grid(N, L, boundary_condition)
+    Δx = grid.Δx
+    x = grid.x
 
-    u₀ = isnothing(u₀) ? tanh.((x .- L/2) / sqrt(2ε2)) : u₀
+    u₀ = isnothing(u₀) ?
+        default_ac_initial_condition(N, L, ε2, dimension, boundary_condition) :
+        normalize_ac_initial_condition(u₀, N, dimension)
 
     t_obs = collect(LinRange(tspan[1] + (tspan[2]-tspan[1])/(N_obs-1), tspan[2], N_obs-1))
 
@@ -146,11 +160,15 @@ function prepare_for_optimization(;N=256,
 
     ps₀, state = Lux.setup(rng, nn)
     ps₀ = fmap(x -> Float64.(x), ps₀)
-    p₀ = ComponentVector(ε2=ε2, Δx=Δx, θ=ps₀)
+    p₀ = ComponentVector(ε2=ε2, Δx=Δx, Δmeasure=spatial_measure(Δx, dimension), θ=ps₀)
 
     run_params = (;
         N, L, ε2, Δx,
+        dimension,
+        boundary_condition,
+        state_shape=dimension == 1 ? (N,) : (N, N),
         x=copy(x),
+        y=dimension == 1 ? nothing : copy(x),
         tspan,
         N_obs,
         t_obs=copy(t_obs),
@@ -161,7 +179,7 @@ function prepare_for_optimization(;N=256,
         seed,
     )
 
-    prob = neural_ODE_prob(u₀, tspan, p₀, nn, state)
+    prob = neural_ODE_prob(u₀, tspan, p₀, nn, state; N, dimension, boundary_condition)
     return (; prob, p₀, t_obs, nn, state, x, u₀, run_params)
 end
 
@@ -172,7 +190,7 @@ end
 Run staged Adam FOM training on deterministic variable-length windows.
 
 Window settings are scalar or same-length schedules with `eta`/`N_iter`.
-Defaults use the whole trajectory, a batch size of one, and mean loss.
+Defaults use the whole trajectory, a batch size of one, mean loss, and Mooncake VJP.
 """
 function run_variable_window_optimization(
     u_ref,
@@ -190,7 +208,8 @@ function run_variable_window_optimization(
     window_seed=1,
     validation_N_obs=run_params.N_obs,
     alg=TRBDF2(autodiff=AutoFiniteDiff()),
-    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
+    ### ADJUSTED: Use the fastest non-Enzyme Lux backend from the backprop benchmark.
+    sensalg=GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP()),
     warmup=true,
     save_frequency=nothing,
     print_frequency=10,
@@ -201,7 +220,8 @@ function run_variable_window_optimization(
         p₀;
         optimization_data=(; run_params),
         materialize_model_batch=materialize_batch,
-        rebuild_params=(p, re, theta) -> ComponentVector(ε2=p.ε2, Δx=p.Δx, θ=re(theta)),
+        ### ADJUSTED: Preserve the spatial measure needed by 1D/2D loss weighting.
+        rebuild_params=(p, re, theta) -> ComponentVector(ε2=p.ε2, Δx=p.Δx, Δmeasure=p.Δmeasure, θ=re(theta)),
         batch_loss=variable_window_batch_loss,
         validation_N_obs,
         log_name="run_variable_window_optimization",
@@ -243,11 +263,16 @@ function save_optimization_data(output, run_name::AbstractString)
     mkpath(data_root)
     mkdir(run_directory)
 
+    ### ADJUSTED: Attach final polynomial coefficients through the existing FOM save path.
+    run_params = hasproperty(output.run_params, :model_type) && output.run_params.model_type == "polynomial" ?
+        merge(output.run_params, (; polynomial_final_coefficients=copy(last(output.parameter_history).θ))) :
+        output.run_params
+
     serialize(joinpath(run_directory, "parameter_history.jls"), output.parameter_history)
-    serialize(joinpath(run_directory, "run_params.jls"), output.run_params)
+    serialize(joinpath(run_directory, "run_params.jls"), run_params)
 
     saved_metadata = merge(
-        output.run_params,
+        run_params,
         (;
             saved_at=Dates.format(now(), "yyyy-mm-ddTHH:MM:SS"),
             julia_version=VERSION,

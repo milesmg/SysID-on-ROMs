@@ -1,0 +1,33 @@
+[Thu Jul  9 09:38:16 AM EDT 2026] Worker 16 starting ROM combination 16 / 31
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/01_2d_periodic_fu_learning.txt
+Run name: ROM_2D_periodic_fu_learning_16_m10_r10_five_stage_eta_1e-3_to_2e-5_budget30m
+Combination label: m10_r10_five_stage_eta_1e-3_to_2e-5_budget30m
+BATCH_SIZE=1,1,1,1,1
+BOUNDARY_CONDITION=periodic
+DIMENSION=2
+ETAS=0.001,0.0005,0.0002,0.00008,0.00002
+H=8
+ITERS=2400,2600,2800,2800,3000
+LOSS_NORMALIZATION=mean
+M=10
+N=128
+N_OBS=100
+PRINT_FREQUENCY=500
+R=10
+RUN_NAME=ROM_2D_periodic_fu_learning_16_m10_r10_five_stage_eta_1e-3_to_2e-5_budget30m
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=31
+SWEEP_COMBO_INDEX=16
+SWEEP_COMBO_LABEL=m10_r10_five_stage_eta_1e-3_to_2e-5_budget30m
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/01_2d_periodic_fu_learning.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=31
+SWEEP_WORKER_COUNT=31
+SWEEP_WORKER_INDEX=16
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=3,4,6,10,12
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random,random,random
+WINDOW_T=0.05,0.2,0.5,1,2

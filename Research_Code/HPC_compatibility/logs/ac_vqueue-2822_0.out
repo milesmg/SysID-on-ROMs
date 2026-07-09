@@ -1,0 +1,31 @@
+[Thu Jul  9 11:35:19 AM EDT 2026] Worker 0 starting FOM combination 0 / 3
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/00_fom_boundary_learning_tests.txt
+Run name: FOM_boundary_learning_tests_0_001_2d_dirichlet
+Combination label: 001_2d_dirichlet
+BATCH_SIZE=1,1,1
+BOUNDARY_CONDITION=homogeneous_dirichlet
+DIMENSION=2
+ETAS=0.006,0.002,0.0006
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=64
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_boundary_learning_tests_0_001_2d_dirichlet
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=3
+SWEEP_COMBO_INDEX=0
+SWEEP_COMBO_LABEL=001_2d_dirichlet
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/00_fom_boundary_learning_tests.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=3
+SWEEP_WORKER_COUNT=3
+SWEEP_WORKER_INDEX=0
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0

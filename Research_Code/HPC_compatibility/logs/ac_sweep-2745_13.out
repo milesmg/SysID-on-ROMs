@@ -1,0 +1,128 @@
+[Thu Jul  9 02:47:04 AM EDT 2026] Worker 13 starting ROM combination 13 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+Run name: ROM_m10_stability_fu_learning_13_r3_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+Combination label: r3_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+BATCH_SIZE=1,1,1,1,1
+ETAS=0.0005,0.0002,8e-05,3e-05,1e-05
+H=8
+ITERS=18823,13473,8727,4911,3692
+LOSS_NORMALIZATION=mean
+M=10
+N=256
+N_OBS=100
+PRINT_FREQUENCY=500
+R=3
+RUN_NAME=ROM_m10_stability_fu_learning_13_r3_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=13
+SWEEP_COMBO_LABEL=r3_gentle_full_finish_eta_5e-4_to_1e-5_obs_2_5_10_25_50_budget40m
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=13
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10,25,50
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random,random,random
+WINDOW_T=0.05,0.5,2,2,2
+[Thu Jul  9 03:18:03 AM EDT 2026] Worker 13 finished ROM combination 13
+[Thu Jul  9 03:18:03 AM EDT 2026] Worker 13 starting ROM combination 33 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+Run name: ROM_m10_stability_fu_learning_33_r4_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+Combination label: r4_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+BATCH_SIZE=1,1,1,2,2
+ETAS=0.001,0.0005,0.0002,8e-05,2e-05
+H=8
+ITERS=14117,14619,12631,4714,4909
+LOSS_NORMALIZATION=mean
+M=10
+N=256
+N_OBS=100
+PRINT_FREQUENCY=500
+R=4
+RUN_NAME=ROM_m10_stability_fu_learning_33_r4_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=33
+SWEEP_COMBO_LABEL=r4_batch_taper_probe_eta_1e-3_to_2e-5_obs_2_3_5_8_10_budget30m
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=13
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,3,5,8,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random,random,random
+WINDOW_T=0.05,0.2,0.5,1,2
+[Thu Jul  9 03:41:31 AM EDT 2026] Worker 13 finished ROM combination 33
+[Thu Jul  9 03:41:31 AM EDT 2026] Worker 13 starting ROM combination 53 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+Run name: ROM_m10_stability_fu_learning_53_r5_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+Combination label: r5_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+BATCH_SIZE=1,1,1,2,2
+ETAS=0.0003,0.0001,3e-05,1e-05,3e-06
+H=8
+ITERS=16470,11789,7636,2148,1615
+LOSS_NORMALIZATION=mean
+M=10
+N=256
+N_OBS=100
+PRINT_FREQUENCY=500
+R=5
+RUN_NAME=ROM_m10_stability_fu_learning_53_r5_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=53
+SWEEP_COMBO_LABEL=r5_batch_gentle_finish_probe_eta_3e-4_to_3e-6_obs_2_5_10_25_50_budget35m
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=13
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10,25,50
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random,random,random
+WINDOW_T=0.05,0.5,2,2,2
+[Thu Jul  9 04:10:35 AM EDT 2026] Worker 13 finished ROM combination 53
+[Thu Jul  9 04:10:35 AM EDT 2026] Worker 13 starting ROM combination 73 / 90
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+Run name: ROM_m10_stability_fu_learning_73_r15_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+Combination label: r15_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+BATCH_SIZE=1,1,1
+ETAS=0.001,0.0003,0.0001
+H=8
+ITERS=11764,9473,8181
+LOSS_NORMALIZATION=mean
+M=10
+N=256
+N_OBS=100
+PRINT_FREQUENCY=500
+R=15
+RUN_NAME=ROM_m10_stability_fu_learning_73_r15_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=90
+SWEEP_COMBO_INDEX=73
+SWEEP_COMBO_LABEL=r15_conservative_oldshape_eta_1e-3_to_1e-4_obs_2_5_10_budget15m
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_more_hyperparam_opt_for_fu_learning/00_m10_stability_fu_learning.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=90
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=13
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2
+[Thu Jul  9 04:26:03 AM EDT 2026] Worker 13 finished ROM combination 73

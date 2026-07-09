@@ -1,0 +1,32 @@
+[Thu Jul  9 09:04:18 AM EDT 2026] Worker 8 starting ROM combination 8 / 10
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/03_m4_r10_longer_fu_tuning_logical_extension.txt
+Run name: ROM_m4_r10_longer_fu_tuning_logical_extension_8_009_extend_20k_40k_eta1e-4_3e-5_obs25_50
+Combination label: 009_extend_20k_40k_eta1e-4_3e-5_obs25_50
+BATCH_SIZE=1,1,1,1,1
+ETAS=0.01,0.003,0.001,0.0001,0.00003
+H=8
+ITERS=2016,2208,2349,20000,40000
+LOSS_NORMALIZATION=mean
+M=4
+N=256
+N_OBS=100
+PRINT_FREQUENCY=500
+R=10
+RUN_NAME=ROM_m4_r10_longer_fu_tuning_logical_extension_8_009_extend_20k_40k_eta1e-4_3e-5_obs25_50
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=10
+SWEEP_COMBO_INDEX=8
+SWEEP_COMBO_LABEL=009_extend_20k_40k_eta1e-4_3e-5_obs25_50
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/ROM_hyperparam_opt/03_m4_r10_longer_fu_tuning_logical_extension.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=10
+SWEEP_WORKER_COUNT=10
+SWEEP_WORKER_INDEX=8
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10,25,50
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random,random,random
+WINDOW_T=0.05,0.5,2.0,2.0,2.0
+[Thu Jul  9 11:10:21 AM EDT 2026] Worker 8 finished ROM combination 8

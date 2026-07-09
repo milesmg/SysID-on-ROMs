@@ -79,14 +79,22 @@ for ((COMBO_INDEX=SWEEP_WORKER_INDEX; COMBO_INDEX<SWEEP_TOTAL_COUNT; COMBO_INDEX
     echo "Sweep file: $SWEEP_FILE"
     echo "Run name: $RUN_NAME"
     echo "Combination label: $SWEEP_COMBO_LABEL"
-    # ### ADJUSTED: Print BATCH_SIZE with the other forwarded sweep parameters.
-    env | sort | grep -E '^(N|L|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|BATCH_SIZE|LOSS_NORMALIZATION|WINDOW_SEED|JULIA_NUM_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
+    ### ADJUSTED: Print DIMENSION and BOUNDARY_CONDITION with the other forwarded sweep parameters.
+    env | sort | grep -E '^(LEARNER|POLYNOMIAL_DEGREE|N|L|DIMENSION|BOUNDARY_CONDITION|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|BATCH_SIZE|LOSS_NORMALIZATION|WINDOW_SEED|JULIA_NUM_THREADS|JULIA_NUM_GC_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
 
     if [ "${DRY_RUN:-false}" = "true" ]; then
         echo "DRY_RUN=true, not running $TARGET_SCRIPT"
         continue
     fi
 
-    bash "$TARGET_SCRIPT"
+    ### ADJUSTED: Capture each successful sweep combination in its own logs before moving them to Data/<RUN_NAME>.
+    COMBO_LOG_OUT="$HPC_DIR/logs/${RUN_NAME}.out"
+    COMBO_LOG_ERR="$HPC_DIR/logs/${RUN_NAME}.err"
+    bash "$TARGET_SCRIPT" > "$COMBO_LOG_OUT" 2> "$COMBO_LOG_ERR"
+    RUN_DIR="$REPO_ROOT/Research_Code/Optimization/Data/$RUN_NAME"
+    if [ -d "$RUN_DIR" ]; then
+        mv "$COMBO_LOG_OUT" "$RUN_DIR/"
+        mv "$COMBO_LOG_ERR" "$RUN_DIR/"
+    fi
     echo "[$(date)] Worker $SWEEP_WORKER_INDEX finished $TARGET_LABEL combination $COMBO_INDEX"
 done

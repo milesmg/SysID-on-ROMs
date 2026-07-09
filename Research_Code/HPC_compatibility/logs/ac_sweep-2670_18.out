@@ -1,0 +1,23 @@
+[Tue Jul  7 03:39:16 PM EDT 2026] Worker 18 starting FOM combination 18 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+Run name: FOM_timing_per_iter_mooncake_18_window_t-0.5__window_n_obs-25
+Combination label: window_t-0.5__window_n_obs-25
+ETAS=1e-3
+ITERS=100
+N_OBS=100
+PRINT_FREQUENCY=1
+RUN_NAME=FOM_timing_per_iter_mooncake_18_window_t-0.5__window_n_obs-25
+SAVE_FREQUENCY=100000
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=18
+SWEEP_COMBO_LABEL=window_t-0.5__window_n_obs-25
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=18
+WARMUP=true
+WINDOW_N_OBS=25
+WINDOW_START_POLICY=random
+WINDOW_T=0.5
+[Tue Jul  7 03:43:53 PM EDT 2026] Worker 18 finished FOM combination 18

@@ -1,0 +1,243 @@
+[Tue Jul  7 10:18:57 AM EDT 2026] Worker 0 starting FOM combination 0 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling.txt
+Run name: FOM_timing_per_iter_accel_0_window_t-0.05__window_n_obs-2
+Combination label: window_t-0.05__window_n_obs-2
+ETAS=1e-3
+ITERS=100
+N_OBS=100
+PRINT_FREQUENCY=1
+RUN_NAME=FOM_timing_per_iter_accel_0_window_t-0.05__window_n_obs-2
+SAVE_FREQUENCY=100000
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=0
+SWEEP_COMBO_LABEL=window_t-0.05__window_n_obs-2
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=0
+WARMUP=true
+WINDOW_N_OBS=2
+WINDOW_START_POLICY=random
+WINDOW_T=0.05
+[Tue Jul  7 10:18:57 AM EDT 2026] Starting FOM training on node01
+[run_fom_hpc] Julia entrypoint started
+[run_fom_hpc] Loading integration helper code
+[package-load] Loading LinearAlgebra
+[package-load] Loaded LinearAlgebra
+[package-load] Loading SparseArrays
+[package-load] Loaded SparseArrays
+[package-load] Loading Random
+[package-load] Loaded Random
+[package-load] Loading ComponentArrays
+[package-load] Loaded ComponentArrays
+[package-load] Loading LinearSolve
+[package-load] Loaded LinearSolve
+[package-load] Loading OrdinaryDiffEq
+[package-load] Loaded OrdinaryDiffEq
+[package-load] Loading OrdinaryDiffEqSDIRK
+[package-load] Loaded OrdinaryDiffEqSDIRK
+[package-load] Loading OrdinaryDiffEqLowOrderRK
+[package-load] Loaded OrdinaryDiffEqLowOrderRK
+[package-load] Loading SciMLSensitivity
+[package-load] Loaded SciMLSensitivity
+[package-load] Loading ADTypes
+[package-load] Loaded ADTypes
+[package-load] Loading Zygote
+[package-load] Loaded Zygote
+[package-load] Loading Enzyme
+[package-load] Loaded Enzyme
+[package-load] Loading Optimization
+[package-load] Loaded Optimization
+[package-load] Loading OptimizationOptimisers
+[package-load] Loaded OptimizationOptimisers
+[package-load] Loading OptimizationOptimJL
+[package-load] Loaded OptimizationOptimJL
+[package-load] Loading LineSearches
+[package-load] Loaded LineSearches
+[package-load] Loading Lux
+[package-load] Loaded Lux
+[package-load] Loading Functors
+[package-load] Loaded Functors
+[package-load] Loading Plots
+[package-load] Loaded Plots
+[run_fom_hpc] Loading FOM helper code
+[package-load] Loading LinearAlgebra
+[package-load] Loaded LinearAlgebra
+[package-load] Loading SparseArrays
+[package-load] Loaded SparseArrays
+[package-load] Loading Random
+[package-load] Loaded Random
+[package-load] Loading ComponentArrays
+[package-load] Loaded ComponentArrays
+[package-load] Loading LinearSolve
+[package-load] Loaded LinearSolve
+[package-load] Loading OrdinaryDiffEq
+[package-load] Loaded OrdinaryDiffEq
+[package-load] Loading OrdinaryDiffEqSDIRK
+[package-load] Loaded OrdinaryDiffEqSDIRK
+[package-load] Loading OrdinaryDiffEqLowOrderRK
+[package-load] Loaded OrdinaryDiffEqLowOrderRK
+[package-load] Loading SciMLSensitivity
+[package-load] Loaded SciMLSensitivity
+[package-load] Loading ADTypes
+[package-load] Loaded ADTypes
+[package-load] Loading Zygote
+[package-load] Loaded Zygote
+[package-load] Loading Enzyme
+[package-load] Loaded Enzyme
+[package-load] Loading Optimization
+[package-load] Loaded Optimization
+[package-load] Loading OptimizationOptimisers
+[package-load] Loaded OptimizationOptimisers
+[package-load] Loading OptimizationOptimJL
+[package-load] Loaded OptimizationOptimJL
+[package-load] Loading LineSearches
+[package-load] Loaded LineSearches
+[package-load] Loading Lux
+[package-load] Loaded Lux
+[package-load] Loading Functors
+[package-load] Loaded Functors
+[package-load] Loading Plots
+[package-load] Loaded Plots
+[package-load] Loading Dates
+[package-load] Loaded Dates
+[package-load] Loading Serialization
+[package-load] Loaded Serialization
+[package-load] Including integration_AC_hpc.jl
+[package-load] Loading LinearAlgebra
+[package-load] Loaded LinearAlgebra
+[package-load] Loading SparseArrays
+[package-load] Loaded SparseArrays
+[package-load] Loading Random
+[package-load] Loaded Random
+[package-load] Loading ComponentArrays
+[package-load] Loaded ComponentArrays
+[package-load] Loading LinearSolve
+[package-load] Loaded LinearSolve
+[package-load] Loading OrdinaryDiffEq
+[package-load] Loaded OrdinaryDiffEq
+[package-load] Loading OrdinaryDiffEqSDIRK
+[package-load] Loaded OrdinaryDiffEqSDIRK
+[package-load] Loading OrdinaryDiffEqLowOrderRK
+[package-load] Loaded OrdinaryDiffEqLowOrderRK
+[package-load] Loading SciMLSensitivity
+[package-load] Loaded SciMLSensitivity
+[package-load] Loading ADTypes
+[package-load] Loaded ADTypes
+[package-load] Loading Zygote
+[package-load] Loaded Zygote
+[package-load] Loading Enzyme
+[package-load] Loaded Enzyme
+[package-load] Loading Optimization
+[package-load] Loaded Optimization
+[package-load] Loading OptimizationOptimisers
+[package-load] Loaded OptimizationOptimisers
+[package-load] Loading OptimizationOptimJL
+[package-load] Loaded OptimizationOptimJL
+[package-load] Loading LineSearches
+[package-load] Loaded LineSearches
+[package-load] Loading Lux
+[package-load] Loaded Lux
+[package-load] Loading Functors
+[package-load] Loaded Functors
+[package-load] Loading Plots
+[package-load] Loaded Plots
+[package-load] Included integration_AC_hpc.jl
+[run_fom_hpc] Loading HPC common code
+[package-load] Loading LinearAlgebra
+[package-load] Loaded LinearAlgebra
+[package-load] Loading SparseArrays
+[package-load] Loaded SparseArrays
+[package-load] Loading ComponentArrays
+[package-load] Loaded ComponentArrays
+[package-load] Loading OrdinaryDiffEq
+[package-load] Loaded OrdinaryDiffEq
+[package-load] Loading OrdinaryDiffEqLowOrderRK
+[package-load] Loaded OrdinaryDiffEqLowOrderRK
+[package-load] Loading Optimization
+[package-load] Loaded Optimization
+[package-load] Loading Dates
+[package-load] Loaded Dates
+[run_fom_hpc] Configuring HPC runtime
+Julia version: 1.12.6
+Host: node01
+SLURM_JOB_ID: 2591
+SLURM_ARRAY_TASK_ID: 0
+Julia threads: 8
+BLAS threads: 1
+[run_fom_hpc] Building Allen-Cahn reference solution
+Reference solve: N=256, Δx=0.0038910505836575876, Δt=0.0003785068661145513, saved_times=5283
+[run_fom_hpc] Preparing FOM optimization problem
+[run_fom_hpc] Prepared FOM optimization parameters
+  run_name = FOM_timing_per_iter_accel_0_window_t-0.05__window_n_obs-2
+  N = 256
+  L = 1.0
+  ε2 = 0.01
+  k = 1.0
+  tfinal = 2.0
+  N_obs = 100
+  h = 8
+  seed = 1
+  reference_dt_factor = 0.5
+  reference_Δx = 0.0038910505836575876
+  reference_Δt = 0.0003785068661145513
+  reference_save_count = 5283
+  etas = [0.001]
+  iterations = [100]
+  window_T = [0.05]
+  window_N_obs = [2]
+  window_start_policy = SubString{String}["random"]
+  batch_size = [1]
+  loss_normalization = mean
+  window_seed = 1
+  β = (0.9, 0.99)
+  warmup = true
+  save_frequency = 100000
+  print_frequency = 1
+  SLURM_JOB_ID = 2591
+  SLURM_ARRAY_TASK_ID = 0
+[run_fom_hpc] Running FOM optimization
+[run_variable_window_optimization] [2026-07-07 10:19:56] Optimization Params: eta = [0.001]; beta = (0.9, 0.99); N_iter = [100]; window_T = [0.05]; window_N_obs = [2]; window_start_policy = SubString{String}["random"]; batch_size = [1]; loss_normalization = mean; total_iterations = 100
+[run_variable_window_optimization] [2026-07-07 10:19:56] Warming up
+[run_variable_window_optimization] [2026-07-07 10:23:34] Warmup complete
+[run_variable_window_optimization] [2026-07-07 10:23:34] Stage 1 / 1 started: eta = 0.001; N_iter = 100; window_T = 0.05; window_N_obs = 2; window_start_policy = random; batch_size = 1
+[run_variable_window_optimization] [2026-07-07 10:23:36] iteration = 1, loss = 0.0002194126077627243, stage = 1, window_start = 0.19332241768834177, window_end = 0.24332241768834179, last iteration = 220.04 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 2, loss = 0.000242425533305736, stage = 1, window_start = 1.3688604420815107, window_end = 1.4188604420815107, last iteration = 0.65 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 3, loss = 0.00023019372608451376, stage = 1, window_start = 0.9813604823916191, window_end = 1.0313604823916191, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 4, loss = 0.0002291414612512245, stage = 1, window_start = 1.7078903503487277, window_end = 1.7578903503487278, last iteration = 0.12 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 5, loss = 0.00022231701672792263, stage = 1, window_start = 1.8592575531552509, window_end = 1.909257553155251, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 6, loss = 0.00020794316823791067, stage = 1, window_start = 0.9902306135593384, window_end = 1.0402306135593384, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 7, loss = 0.00020617992956112457, stage = 1, window_start = 1.5400147689467587, window_end = 1.5900147689467587, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 8, loss = 0.00016532716881859183, stage = 1, window_start = 0.13894555859146537, window_end = 0.1889455585914654, last iteration = 0.16 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 9, loss = 0.00016718646108142572, stage = 1, window_start = 0.2698372539957359, window_end = 0.31983725399573587, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 10, loss = 0.0001768099496222044, stage = 1, window_start = 0.7667189008474466, window_end = 0.8167189008474467, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 11, loss = 0.00015825736371958705, stage = 1, window_start = 0.34657862294205694, window_end = 0.3965786229420569, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 12, loss = 0.0001736522366054414, stage = 1, window_start = 1.6461056467691721, window_end = 1.6961056467691722, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 13, loss = 0.00016730578836648627, stage = 1, window_start = 1.6034791632593477, window_end = 1.6534791632593477, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 14, loss = 0.00016270338541972344, stage = 1, window_start = 1.9098719748513808, window_end = 1.9598719748513809, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 15, loss = 0.00015690712855689006, stage = 1, window_start = 1.9148187291295589, window_end = 1.964818729129559, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 16, loss = 0.0001512572021376893, stage = 1, window_start = 1.9166942760125785, window_end = 1.9666942760125785, last iteration = 0.03 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 17, loss = 0.00013963203415768086, stage = 1, window_start = 1.0212621731630158, window_end = 1.0712621731630159, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 18, loss = 0.00013560623925756542, stage = 1, window_start = 1.132553459699674, window_end = 1.182553459699674, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 19, loss = 0.00011050800204928969, stage = 1, window_start = 0.24523333633232577, window_end = 0.2952333363323258, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 20, loss = 0.00010792681220042495, stage = 1, window_start = 0.29196012073283273, window_end = 0.3419601207328327, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 21, loss = 0.00012436003088145845, stage = 1, window_start = 1.6540396055008035, window_end = 1.7040396055008036, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 22, loss = 0.00011694332514037576, stage = 1, window_start = 1.2225924244460156, window_end = 1.2725924244460156, last iteration = 0.03 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 23, loss = 0.00011603667068931521, stage = 1, window_start = 1.883803031275822, window_end = 1.933803031275822, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 24, loss = 0.00011087691042129581, stage = 1, window_start = 1.6877463549734393, window_end = 1.7377463549734393, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 25, loss = 0.00010625236662440508, stage = 1, window_start = 1.6092632983029451, window_end = 1.6592632983029452, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 26, loss = 8.910138189937085e-5, stage = 1, window_start = 0.4904729713649663, window_end = 0.5404729713649663, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 27, loss = 9.24269174444865e-5, stage = 1, window_start = 0.8894016107222955, window_end = 0.9394016107222956, last iteration = 0.03 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 28, loss = 9.486598900915964e-5, stage = 1, window_start = 1.754032799849325, window_end = 1.804032799849325, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 29, loss = 8.869778138900556e-5, stage = 1, window_start = 1.280312191947846, window_end = 1.330312191947846, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 30, loss = 7.551857335988533e-5, stage = 1, window_start = 0.520024396588444, window_end = 0.5700243965884441, last iteration = 0.03 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 31, loss = 7.073848623053552e-5, stage = 1, window_start = 0.4512981537860123, window_end = 0.5012981537860123, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 32, loss = 8.013401508124492e-5, stage = 1, window_start = 1.6156333213986, window_end = 1.6656333213986, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 33, loss = 7.676263046066351e-5, stage = 1, window_start = 1.5836375634790685, window_end = 1.6336375634790685, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 34, loss = 6.445793768432744e-5, stage = 1, window_start = 0.5856544539596644, window_end = 0.6356544539596645, last iteration = 0.03 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 35, loss = 5.9592869298495304e-5, stage = 1, window_start = 0.47627199090746103, window_end = 0.526271990907461, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 36, loss = 6.739875387037894e-5, stage = 1, window_start = 1.505311149456962, window_end = 1.555311149456962, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 37, loss = 6.51641403470613e-5, stage = 1, window_start = 1.6431125822439154, window_end = 1.6931125822439155, last iteration = 0.02 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 38, loss = 6.227653419678392e-5, stage = 1, window_start = 1.5943568580016294, window_end = 1.6443568580016295, last iteration = 0.01 s
+[run_variable_window_optimization] [2026-07-07 10:23:37] iteration = 39, loss = 6.0056918663012085e-5, stage = 1, window_start = 1.7065382463304206, window_end = 1.7565382463304207, last iteration = 0.01 s

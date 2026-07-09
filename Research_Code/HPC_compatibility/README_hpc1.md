@@ -89,6 +89,7 @@ Useful variables:
 ```text
 N=256
 L=1.0
+DIMENSION=1        # set DIMENSION=2 for flattened N x N 2D runs
 EPS2=1e-2
 K=1.0
 TFINAL=2.0
@@ -105,18 +106,46 @@ PRINT_FREQUENCY=50
 REFERENCE_DT_FACTOR=0.5
 ```
 
+### ADJUSTED: Document the 2D Allen-Cahn HPC flag.
+2D FOM and ROM jobs use the same wrappers and Julia entrypoints. Set
+`DIMENSION=2`; `N` is then the number of interior grid points per axis, and the
+ODE state is a flattened `N x N` grid. If no initial condition is supplied, the
+code uses a default 2D disk profile. Any supplied initial condition must match
+the requested dimension: length `N` for 1D, or length `N^2` / shape `N x N` for
+2D.
+
+Example 2D FOM run:
+
+```bash
+DIMENSION=2 \
+N=64 \
+RUN_NAME="FOM_2D_N64" \
+sbatch Research_Code/HPC_compatibility/hpc1_run_fom.slurm
+```
+
 The Slurm wrappers intentionally use `Julia/julia-1.12.6/bin/julia`,
 `Julia/HPC_compatibility`, and `Julia/depot` from this repo. Do not pass
 `JULIA_EXE` or `JULIA_DEPOT_PATH` for normal hpc1 runs.
 
+### ADJUSTED: Direct Julia calls must use the same repo-local depot as Slurm.
 If you call the Julia entrypoints directly instead of going through the Slurm
-wrappers, arguments must be named flags. Both `--key value` and `--key=value`
-forms are accepted; positional arguments are ignored by the parser.
+wrappers, set the same repo-local depot and project used by the wrappers.
+Arguments must be named flags. Both `--key value` and `--key=value` forms are
+accepted; positional arguments are ignored by the parser.
+
+Do not use a bare `Julia/julia-1.12.6/bin/julia --project=Julia/HPC_compatibility`
+command for hpc1 diagnostics or direct runs: without `JULIA_DEPOT_PATH`, Julia
+will use the interactive user depot instead of `Brookhaven/Julia/depot`.
 
 Example direct Julia call:
 
 ```bash
-Julia/julia-1.12.6/bin/julia --project=Julia/HPC_compatibility \
+cd /home/mgantcher/Brookhaven
+
+JULIA_DEPOT_PATH="$PWD/Julia/depot:" \
+JULIA_PKG_DEVDIR="$PWD/Julia/depot/dev" \
+JULIA_PKG_USE_CLI_GIT=true \
+./Julia/julia-1.12.6/bin/julia --project="$PWD/Julia/HPC_compatibility" \
     Research_Code/HPC_compatibility/run_rom_hpc.jl \
     --N 256 \
     --r 20 \

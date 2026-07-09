@@ -1,0 +1,150 @@
+[Wed Jul  8 09:46:35 AM EDT 2026] Worker 4 starting FOM combination 4 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+Run name: FOM_improve_05_25_mooncake_4_005_iter_one_half_more
+Combination label: 005_iter_one_half_more
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=3024,3312,3524
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_improve_05_25_mooncake_4_005_iter_one_half_more
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=4
+SWEEP_COMBO_LABEL=005_iter_one_half_more
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=6
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 09:59:49 AM EDT 2026] Worker 4 finished FOM combination 4
+[Wed Jul  8 09:59:50 AM EDT 2026] Worker 4 starting FOM combination 10 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+Run name: FOM_improve_05_25_mooncake_10_011_window_0p05_0p75_2p0
+Combination label: 011_window_0p05_0p75_2p0
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_improve_05_25_mooncake_10_011_window_0p05_0p75_2p0
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=10
+SWEEP_COMBO_LABEL=011_window_0p05_0p75_2p0
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=6
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.75,2.0
+[Wed Jul  8 10:10:10 AM EDT 2026] Worker 4 finished FOM combination 10
+[Wed Jul  8 10:10:10 AM EDT 2026] Worker 4 starting FOM combination 16 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+Run name: FOM_improve_05_25_mooncake_16_017_obs_2_5_5
+Combination label: 017_obs_2_5_5
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_improve_05_25_mooncake_16_017_obs_2_5_5
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=16
+SWEEP_COMBO_LABEL=017_obs_2_5_5
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=6
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,5
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 10:19:36 AM EDT 2026] Worker 4 finished FOM combination 16
+[Wed Jul  8 10:19:36 AM EDT 2026] Worker 4 starting FOM combination 22 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+Run name: FOM_improve_05_25_mooncake_22_023_eta_0p01_0p002_0p0005
+Combination label: 023_eta_0p01_0p002_0p0005
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.002,0.0005
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_improve_05_25_mooncake_22_023_eta_0p01_0p002_0p0005
+SAVE_FREQUENCY=100000
+SEED=1
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=22
+SWEEP_COMBO_LABEL=023_eta_0p01_0p002_0p0005
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=6
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 10:30:03 AM EDT 2026] Worker 4 finished FOM combination 22
+[Wed Jul  8 10:30:03 AM EDT 2026] Worker 4 starting FOM combination 28 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+Run name: FOM_improve_05_25_mooncake_28_029_seed_3
+Combination label: 029_seed_3
+BATCH_SIZE=1,1,1
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+N=256
+N_OBS=100
+PRINT_FREQUENCY=250
+RUN_NAME=FOM_improve_05_25_mooncake_28_029_seed_3
+SAVE_FREQUENCY=100000
+SEED=3
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=28
+SWEEP_COMBO_LABEL=029_seed_3
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/07_improving_on_05-25.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=6
+SWEEP_WORKER_INDEX=4
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=3
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Wed Jul  8 10:40:28 AM EDT 2026] Worker 4 finished FOM combination 28

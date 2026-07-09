@@ -1,0 +1,39 @@
+### ADJUSTED: Add short FOM boundary-condition learning tests for 2D and periodic AC runs.
+# Uses the FOM improvement sweep case 026 schedule with only three boundary/dimension cases.
+target = fom
+RUN_NAME = FOM_boundary_learning_tests
+
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 250
+
+ETAS = 0.006,0.002,0.0006
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = 001_2d_dirichlet
+N = 64
+DIMENSION = 2
+BOUNDARY_CONDITION = homogeneous_dirichlet
+
+[[case]]
+CASE_NAME = 002_1d_periodic
+N = 256
+DIMENSION = 1
+BOUNDARY_CONDITION = periodic
+
+[[case]]
+CASE_NAME = 003_2d_periodic
+N = 64
+DIMENSION = 2
+BOUNDARY_CONDITION = periodic

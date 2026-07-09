@@ -107,20 +107,33 @@ end
 """
 Build the Allen-Cahn reference solution used by FOM and ROM training.
 
-- args: `N`, `L`, `ε2`, `k`, `tfinal`, `reference_dt_factor`
+- args: `N`, `L`, `ε2`, `k`, `tfinal`, `reference_dt_factor`, `dimension`, `boundary_condition`
 - returns: named tuple with `u_ref`, `prob`, `p₀`, `u₀`, `x`, `t`, `tspan`, `Δx`, and `Δt`
 """
-function build_ac_reference(; N, L, ε2, k, tfinal, reference_dt_factor)
-    Δx = L / (N + 1)
-    x = L * Δx * collect(1:N)
-    u₀ = tanh.((x .- L / 2) ./ sqrt(2ε2))
+function build_ac_reference(; N, L, ε2, k, tfinal, reference_dt_factor, dimension=1, boundary_condition="homogeneous_dirichlet", u₀=nothing)
+    dimension = validate_ac_dimension(dimension)
+    boundary_condition = validate_ac_boundary_condition(boundary_condition)
+    grid = ac_grid(N, L, boundary_condition)
+    Δx = grid.Δx
+    x = grid.x
+    u₀ = isnothing(u₀) ?
+        default_ac_initial_condition(N, L, ε2, dimension, boundary_condition) :
+        normalize_ac_initial_condition(u₀, N, dimension)
     tspan = (0.0, tfinal)
-    Δt = reference_dt_factor * Δx^2 / (2ε2)
-    t = LinRange(tspan[1], tspan[2], floor(Int, (tspan[2] - tspan[1]) / Δt))
-    p₀ = ComponentVector(ε2=ε2, k=k, Δx=Δx)
-    f = ODEFunction(rhs_ac!; jac_prototype=Tridiagonal(zeros(N - 1), zeros(N), zeros(N - 1)))
+    Δt = reference_dt_factor * Δx^2 / (2 * dimension * ε2)
+    max_saved_time_count = 500
+    saved_time_count = min(
+        max_saved_time_count,
+        max(2, floor(Int, (tspan[2] - tspan[1]) / Δt) + 1),
+    )
+    t = LinRange(tspan[1], tspan[2], saved_time_count)
+    p₀ = (; ε2, k, Δx, N, dimension, boundary_condition)
+    jac_prototype = dimension == 1 && boundary_condition == "homogeneous_dirichlet" ?
+        Tridiagonal(zeros(N - 1), zeros(N), zeros(N - 1)) :
+        get_lap_ac_matrix(N, 1.0, 1.0, dimension, boundary_condition)
+    f = ODEFunction(rhs_ac!; jac_prototype)
     prob = ODEProblem(f, u₀, tspan, p₀)
-    println("Reference solve: N=$N, Δx=$Δx, Δt=$Δt, saved_times=$(length(t))")
+    println("Reference solve: dimension=$dimension, boundary_condition=$boundary_condition, N=$N, state_length=$(length(u₀)), Δx=$Δx, Δt=$Δt, saved_times=$(length(t))")
     u_ref = solve(prob, Euler(); dt=Δt, saveat=t)
-    return (; u_ref, prob, p₀, u₀, x, t, tspan, Δx, Δt)
+    return (; u_ref, prob, p₀, u₀, x, y=dimension == 1 ? nothing : copy(x), t, tspan, Δx, Δt, dimension, boundary_condition, state_shape=dimension == 1 ? (N,) : (N, N))
 end

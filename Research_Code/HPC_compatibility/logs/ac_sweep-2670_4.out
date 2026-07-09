@@ -1,0 +1,46 @@
+[Tue Jul  7 03:23:39 PM EDT 2026] Worker 4 starting FOM combination 4 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+Run name: FOM_timing_per_iter_mooncake_4_window_t-0.05__window_n_obs-50
+Combination label: window_t-0.05__window_n_obs-50
+ETAS=1e-3
+ITERS=100
+N_OBS=100
+PRINT_FREQUENCY=1
+RUN_NAME=FOM_timing_per_iter_mooncake_4_window_t-0.05__window_n_obs-50
+SAVE_FREQUENCY=100000
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=4
+SWEEP_COMBO_LABEL=window_t-0.05__window_n_obs-50
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=4
+WARMUP=true
+WINDOW_N_OBS=50
+WINDOW_START_POLICY=random
+WINDOW_T=0.05
+[Tue Jul  7 03:30:37 PM EDT 2026] Worker 4 finished FOM combination 4
+[Tue Jul  7 03:30:37 PM EDT 2026] Worker 4 starting FOM combination 24 / 30
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+Run name: FOM_timing_per_iter_mooncake_24_window_t-1.0__window_n_obs-50
+Combination label: window_t-1.0__window_n_obs-50
+ETAS=1e-3
+ITERS=100
+N_OBS=100
+PRINT_FREQUENCY=1
+RUN_NAME=FOM_timing_per_iter_mooncake_24_window_t-1.0__window_n_obs-50
+SAVE_FREQUENCY=100000
+SWEEP_COMBO_COUNT=30
+SWEEP_COMBO_INDEX=24
+SWEEP_COMBO_LABEL=window_t-1.0__window_n_obs-50
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_hyperparam_opt/00_timing_scaling_mooncake.txt
+SWEEP_TARGET=fom
+SWEEP_TOTAL_COUNT=30
+SWEEP_WORKER_COUNT=20
+SWEEP_WORKER_INDEX=4
+WARMUP=true
+WINDOW_N_OBS=50
+WINDOW_START_POLICY=random
+WINDOW_T=1.0
+[Tue Jul  7 03:35:46 PM EDT 2026] Worker 4 finished FOM combination 24

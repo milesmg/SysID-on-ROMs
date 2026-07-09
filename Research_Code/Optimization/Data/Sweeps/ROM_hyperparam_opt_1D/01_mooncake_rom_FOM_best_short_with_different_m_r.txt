@@ -1,0 +1,25 @@
+# Shared ROM HPO settings.
+target = rom
+RUN_NAME = ROM_short_training_param_sweep
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random
+WINDOW_SEED = 1
+SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100
+PRINT_FREQUENCY = 250
+
+# run a bunch of ROM trainings with the best hyperparams from the short FOM optimization
+ETAS = [[0.01,0.003,0.001]]
+ITERS = [[2016,2208,2349]]
+WINDOW_T = [[0.05,0.5,2.0]]
+WINDOW_N_OBS = [[2,5,10]]
+BATCH_SIZE = [[1,1,1]]
+
+# trying to find the best ROM parametrization
+M = [1,2,3,4,5,10,15,20,30]
+R = [1,2,3,4,5,10,15,20,30]

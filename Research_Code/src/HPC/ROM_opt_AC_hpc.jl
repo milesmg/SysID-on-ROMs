@@ -23,6 +23,10 @@ hpc_log_package("OrdinaryDiffEqSDIRK", "Loaded")
 hpc_log_package("SciMLSensitivity", "Loading")
 using SciMLSensitivity
 hpc_log_package("SciMLSensitivity", "Loaded")
+### ADJUSTED: Load Mooncake for the default GaussAdjoint VJP backend.
+hpc_log_package("Mooncake", "Loading")
+using Mooncake
+hpc_log_package("Mooncake", "Loaded")
 hpc_log_package("Optimization", "Loading")
 using Optimization
 hpc_log_package("Optimization", "Loaded")
@@ -135,7 +139,9 @@ function variable_window_ROM_loss(window, prob, p, alg, sensalg, normalization)
             total += abs2(u_model[i] - u_ref[i])
         end
     end
-    loss = 0.5 * data.Δx * total
+    ### ADJUSTED: Weight 1D ROM losses by Δx and 2D ROM losses by Δx^2.
+    Δmeasure = hasproperty(data, :Δmeasure) ? data.Δmeasure : data.Δx
+    loss = 0.5 * Δmeasure * total
     return normalization == "mean" ? loss / length(window.u_ref_obs) : loss
 end
 
@@ -164,6 +170,8 @@ Prepare an Allen–Cahn POD/DEIM neural ROM optimization.
     - `t_obs=...`: optimization observation times, matching the FOM default
     - `h=8`: neural-network hidden width
     - `seed=1`: neural-network initialization seed
+    - `dimension=1`: spatial dimension; `2` treats full states as flattened `N x N`
+    - `boundary_condition=u_ref.prob.p.boundary_condition`: AC boundary condition; use `"periodic"` for periodic solves
 - Returns: one reduced neural `ODEProblem` containing its runtime context.
 """
 function prepare_ROM_optimization(
@@ -181,8 +189,15 @@ function prepare_ROM_optimization(
     )),
     h=8,
     seed=1,
+    dimension=1,
+    boundary_condition=hasproperty(u_ref.prob.p, :boundary_condition) ? u_ref.prob.p.boundary_condition : "homogeneous_dirichlet",
 )
+    ### ADJUSTED: Store dimension metadata while keeping ROM snapshots flattened.
+    dimension = validate_ac_dimension(dimension)
+    ### ADJUSTED: Store the selected boundary condition with ROM metadata.
+    boundary_condition = validate_ac_boundary_condition(boundary_condition)
     u_snapshots = hcat(u_ref.u...)
+    grid_N = ac_grid_size(size(u_snapshots, 1), dimension)
     k = u_ref.prob.p.k
     use_default_nonlinearity = isnothing(nonlinear_snapshots)
     fu_snapshots = use_default_nonlinearity ?
@@ -202,7 +217,12 @@ function prepare_ROM_optimization(
         u_ref_obs=hcat((u_ref(ti) for ti in t_obs)...),
         t_obs=copy(t_obs),
         Δx,
+        Δmeasure=spatial_measure(Δx, dimension),
+        dimension,
+        boundary_condition,
+        state_shape=dimension == 1 ? (grid_N,) : (grid_N, grid_N),
         N=size(u_snapshots, 1),
+        grid_N,
         ε2=u_ref.prob.p.ε2,
         k,
         full_u₀=copy(u_ref.prob.u0),
@@ -226,7 +246,7 @@ end
 Run staged Adam ROM training on deterministic variable-length windows.
 
 Window settings are scalar or same-length schedules with `eta`/`N_iter`.
-Defaults use the whole trajectory, a batch size of one, and mean loss.
+Defaults use the whole trajectory, a batch size of one, mean loss, and Mooncake VJP.
 """
 function run_variable_window_ROM_optimization(
     u_ref,
@@ -242,7 +262,8 @@ function run_variable_window_ROM_optimization(
     window_seed=1,
     validation_N_obs=prob.f.f.data.requested_N_obs,
     alg=TRBDF2(autodiff=AutoFiniteDiff()),
-    sensalg=GaussAdjoint(autojacvec=EnzymeVJP(mode=Enzyme.set_runtime_activity(Enzyme.Reverse))),
+    ### ADJUSTED: Use the fastest non-Enzyme Lux backend from the backprop benchmark.
+    sensalg=GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP()),
     warmup=true,
     save_frequency=nothing,
     print_frequency=10,
@@ -307,11 +328,24 @@ function save_ROM_optimization_data(output, run_name::AbstractString)
     prob = output.rom_prob
     data = prob.f.f.data
     rom = data.rom
+    ### ADJUSTED: Let the existing ROM save path record polynomial metadata when present.
+    learner = hasproperty(data, :learner) ? data.learner : "NN"
+    model_type = hasproperty(data, :model_type) ? data.model_type : learner
+    polynomial_degree = hasproperty(data, :polynomial_degree) ? data.polynomial_degree : nothing
+    polynomial_initial_coefficients = hasproperty(data, :polynomial_initial_coefficients) ? data.polynomial_initial_coefficients : nothing
+    polynomial_final_coefficients = model_type == "polynomial" ? copy(last(output.parameter_history).θ) : nothing
     rom_data = (;
         N=data.N,
+        ### ADJUSTED: Save per-axis grid shape so 2D ROM visualizations can reshape flattened states.
+        grid_N=data.grid_N,
+        dimension=data.dimension,
+        ### ADJUSTED: Save the ROM boundary condition needed to reconstruct the diffusion operator.
+        boundary_condition=data.boundary_condition,
+        state_shape=data.state_shape,
         ε2=data.ε2,
         k=data.k,
         Δx=data.Δx,
+        Δmeasure=data.Δmeasure,
         tspan=prob.tspan,
         t_obs=data.t_obs,
         u₀=data.full_u₀,
@@ -323,8 +357,14 @@ function save_ROM_optimization_data(output, run_name::AbstractString)
         deim_indices=rom.p,
         state_singular_values=rom.state_singular_values,
         nonlinear_singular_values=rom.nonlinear_singular_values,
+        learner,
+        model_type,
+        polynomial_degree,
+        polynomial_coefficient_order=hasproperty(data, :polynomial_coefficient_order) ? data.polynomial_coefficient_order : nothing,
+        polynomial_initial_coefficients,
+        polynomial_final_coefficients,
         h=data.h,
-        activation="tanh",
+        activation=hasproperty(data, :activation) ? data.activation : "tanh",
         seed=data.seed,
         use_default_nonlinearity=data.use_default_nonlinearity,
     )
@@ -336,14 +376,23 @@ function save_ROM_optimization_data(output, run_name::AbstractString)
         saved_at=Dates.format(now(), "yyyy-mm-ddTHH:MM:SS"),
         julia_version=VERSION,
         N=rom_data.N,
+        grid_N=rom_data.grid_N,
+        dimension=rom_data.dimension,
+        boundary_condition=rom_data.boundary_condition,
+        state_shape=rom_data.state_shape,
         ε2=rom_data.ε2,
         k=rom_data.k,
         Δx=rom_data.Δx,
+        Δmeasure=rom_data.Δmeasure,
         tspan=rom_data.tspan,
         N_obs=length(rom_data.t_obs),
         reference_steps=length(rom_data.reference_saved_times) - 1,
         r=rom_data.r,
         m=rom_data.m,
+        learner=rom_data.learner,
+        model_type=rom_data.model_type,
+        polynomial_degree=rom_data.polynomial_degree,
+        polynomial_final_coefficients=rom_data.polynomial_final_coefficients,
         h=rom_data.h,
         activation=rom_data.activation,
         seed=rom_data.seed,

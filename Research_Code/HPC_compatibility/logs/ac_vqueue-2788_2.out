@@ -1,0 +1,34 @@
+[Thu Jul  9 09:21:15 AM EDT 2026] Worker 2 starting ROM combination 2 / 3
+Sweep file: /home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/01_rom_boundary_learning_tests.txt
+Run name: ROM_boundary_learning_tests_m4_r10_2_003_2d_periodic
+Combination label: 003_2d_periodic
+BATCH_SIZE=1,1,1
+BOUNDARY_CONDITION=periodic
+DIMENSION=2
+ETAS=0.01,0.003,0.001
+H=8
+ITERS=2016,2208,2349
+LOSS_NORMALIZATION=mean
+M=4
+N=64
+N_OBS=100
+PRINT_FREQUENCY=250
+R=10
+RUN_NAME=ROM_boundary_learning_tests_m4_r10_2_003_2d_periodic
+SAVE_FREQUENCY=100
+SEED=1
+SWEEP_COMBO_COUNT=3
+SWEEP_COMBO_INDEX=2
+SWEEP_COMBO_LABEL=003_2d_periodic
+SWEEP_FILE=/home/mgantcher/Brookhaven/Research_Code/Optimization/Data/Sweeps/FOM_ROM_2D_periodic_boundary/01_rom_boundary_learning_tests.txt
+SWEEP_TARGET=rom
+SWEEP_TOTAL_COUNT=3
+SWEEP_WORKER_COUNT=3
+SWEEP_WORKER_INDEX=2
+TFINAL=2.0
+WARMUP=true
+WINDOW_N_OBS=2,5,10
+WINDOW_SEED=1
+WINDOW_START_POLICY=random,random,random
+WINDOW_T=0.05,0.5,2.0
+[Thu Jul  9 10:18:43 AM EDT 2026] Worker 2 finished ROM combination 2
