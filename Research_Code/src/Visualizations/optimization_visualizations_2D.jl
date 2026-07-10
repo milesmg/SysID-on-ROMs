@@ -15,6 +15,9 @@ using Functors
 using OptimizationOptimisers
 using Plots
 
+### ADJUSTED: Limit local reference replays to the same maximum saved times as HPC reference builds.
+const MAX_REFERENCE_SAVED_TIMES = 500
+
 
 """Load the saved parameter history for a FOM or ROM run."""
 load_parameter_history(run_dir::AbstractString) = deserialize(joinpath(run_dir, "parameter_history.jls"))
@@ -101,19 +104,26 @@ function saved_boundary_condition(data, run_dir::AbstractString="")
     return "homogeneous_dirichlet"
 end
 
+### ADJUSTED: Cap saved reference output times used by local visualization tooling.
 """Return saved reference output times, reconstructing them for compact old HPO metadata."""
 function reference_saved_times(params)
-    if hasproperty(params, :reference_saved_times)
-        return params.reference_saved_times
+    times = if hasproperty(params, :reference_saved_times)
+        collect(params.reference_saved_times)
     elseif hasproperty(params, :reference_save_count)
-        return collect(LinRange(params.tspan[1], params.tspan[2], Int(params.reference_save_count)))
+        collect(LinRange(params.tspan[1], params.tspan[2], min(Int(params.reference_save_count), MAX_REFERENCE_SAVED_TIMES)))
     else
-        return params.t_obs
+        collect(params.t_obs)
     end
+    length(times) <= MAX_REFERENCE_SAVED_TIMES && return times
+    return collect(LinRange(first(times), last(times), MAX_REFERENCE_SAVED_TIMES))
 end
 
 """Return the reference Euler step size when it was stored separately from `saveat`."""
 reference_dt(params) = hasproperty(params, :reference_dt) ? params.reference_dt : nothing
+
+### ADJUSTED: Reconstruct the stable explicit Euler reference timestep when old runs did not serialize it.
+"""Return the stable explicit Euler timestep used by reference replays when no saved `reference_dt` exists."""
+stable_reference_dt(p) = 0.5 * p.Δx^2 / (2 * (hasproperty(p, :dimension) ? Int(p.dimension) : 1) * p.ε2)
 
 """Return the saved reference algorithm, defaulting compact HPO metadata to Euler."""
 reference_algorithm(params) = hasproperty(params, :reference_algorithm) ? params.reference_algorithm : "Euler"
@@ -307,12 +317,12 @@ end
 true_function_values(u, k) = .-k .* (u .^ 3 .- u)
 
 
-"""Solve the true Allen-Cahn trajectory using saved reference solver settings."""
+"""Solve the true Allen-Cahn trajectory using saved reference solver settings and a stable Euler fallback timestep."""
 function solve_true_trajectory(u₀, tspan, p, save_times, reference_algorithm::AbstractString; dt=nothing)
     prob = ODEProblem(viz_rhs_ac!, u₀, tspan, p)
     alg = algorithm_from_name(reference_algorithm)
     if occursin("Euler", reference_algorithm)
-        return solve(prob, alg; dt=something(dt, saved_time_step(save_times)), saveat=save_times)
+        return solve(prob, alg; dt=something(dt, stable_reference_dt(p)), saveat=save_times)
     end
     return solve(prob, alg; saveat=save_times)
 end

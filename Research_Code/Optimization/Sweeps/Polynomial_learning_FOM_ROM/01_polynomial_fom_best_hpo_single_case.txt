@@ -1,0 +1,26 @@
+### ADJUSTED: Add a single polynomial FOM case matching `FOM_HPO/Best_FOM_HPO_initial`.
+target = fom
+RUN_NAME = FOM_polynomial_best_hpo
+
+LEARNER = polynomial
+POLYNOMIAL_DEGREE = 3
+N = 256
+H = 8
+TFINAL = 2.0
+N_OBS = 100
+LOSS_NORMALIZATION = mean
+WINDOW_START_POLICY = random,random,random
+SEED = 1
+WINDOW_SEED = 1
+WARMUP = true
+SAVE_FREQUENCY = 100000
+PRINT_FREQUENCY = 250
+BATCH_SIZE = 1,1,1
+
+[[case]]
+CASE_NAME = best_fom_hpo_initial
+HPO_GROUP = polynomial_fom_best_hpo
+ETAS = 0.01,0.003,0.001
+ITERS = 2016,2208,2349
+WINDOW_T = 0.05,0.5,2.0
+WINDOW_N_OBS = 2,5,10

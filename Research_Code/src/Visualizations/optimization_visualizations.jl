@@ -15,6 +15,9 @@ using Functors
 using OptimizationOptimisers
 using Plots
 
+### ADJUSTED: Limit local reference replays to the same maximum saved times as HPC reference builds.
+const MAX_REFERENCE_SAVED_TIMES = 500
+
 
 """Load the saved parameter history for a FOM or ROM run."""
 load_parameter_history(run_dir::AbstractString) = deserialize(joinpath(run_dir, "parameter_history.jls"))
@@ -78,19 +81,26 @@ end
 """Return the saved spatial dimension, defaulting old runs to 1D."""
 saved_dimension(data) = hasproperty(data, :dimension) ? Int(data.dimension) : 1
 
+### ADJUSTED: Cap saved reference output times used by local visualization tooling.
 """Return saved reference output times, reconstructing them for compact old HPO metadata."""
 function reference_saved_times(params)
-    if hasproperty(params, :reference_saved_times)
-        return params.reference_saved_times
+    times = if hasproperty(params, :reference_saved_times)
+        collect(params.reference_saved_times)
     elseif hasproperty(params, :reference_save_count)
-        return collect(LinRange(params.tspan[1], params.tspan[2], Int(params.reference_save_count)))
+        collect(LinRange(params.tspan[1], params.tspan[2], min(Int(params.reference_save_count), MAX_REFERENCE_SAVED_TIMES)))
     else
-        return params.t_obs
+        collect(params.t_obs)
     end
+    length(times) <= MAX_REFERENCE_SAVED_TIMES && return times
+    return collect(LinRange(first(times), last(times), MAX_REFERENCE_SAVED_TIMES))
 end
 
 """Return the reference Euler step size when it was stored separately from `saveat`."""
 reference_dt(params) = hasproperty(params, :reference_dt) ? params.reference_dt : nothing
+
+### ADJUSTED: Reconstruct the stable explicit Euler reference timestep when old runs did not serialize it.
+"""Return the stable explicit Euler timestep used by reference replays when no saved `reference_dt` exists."""
+stable_reference_dt(p) = 0.5 * p.Δx^2 / (2 * (hasproperty(p, :dimension) ? Int(p.dimension) : 1) * p.ε2)
 
 """Return the saved reference algorithm, defaulting compact HPO metadata to Euler."""
 reference_algorithm(params) = hasproperty(params, :reference_algorithm) ? params.reference_algorithm : "Euler"
@@ -237,12 +247,12 @@ end
 true_function_values(u, k) = .-k .* (u .^ 3 .- u)
 
 
-"""Solve the true Allen-Cahn trajectory using saved reference solver settings."""
+"""Solve the true Allen-Cahn trajectory using saved reference solver settings and a stable Euler fallback timestep."""
 function solve_true_trajectory(u₀, tspan, p, save_times, reference_algorithm::AbstractString; dt=nothing)
     prob = ODEProblem(viz_rhs_ac!, u₀, tspan, p)
     alg = algorithm_from_name(reference_algorithm)
     if occursin("Euler", reference_algorithm)
-        return solve(prob, alg; dt=something(dt, saved_time_step(save_times)), saveat=save_times)
+        return solve(prob, alg; dt=something(dt, stable_reference_dt(p)), saveat=save_times)
     end
     return solve(prob, alg; saveat=save_times)
 end
@@ -425,8 +435,10 @@ function save_overlay_trajectory_gif(x, t, true_u, learned_u; path::AbstractStri
 end
 
 
-"""Create and save an animated GIF comparing flattened 2D true and learned trajectories."""
-function save_overlay_2d_trajectory_gif(x, y, t, true_u, learned_u; path::AbstractString, title::AbstractString, max_frames=120, fps=15, clims=nothing)
+### ADJUSTED: Document optional shared colorbar support for 2D trajectory GIFs.
+"""Create and save an animated GIF comparing flattened 2D true and learned trajectories, optionally with a shared field-value colorbar."""
+### ADJUSTED: Allow callers to suppress the learned-minus-true panel and request a colorbar for FOM/ROM stability GIFs.
+function save_overlay_2d_trajectory_gif(x, y, t, true_u, learned_u; path::AbstractString, title::AbstractString, max_frames=120, fps=15, clims=nothing, include_difference=true, show_colorbar=false)
     mkpath(dirname(path))
     N = length(x)
     time_count = min(length(t), size(true_u, 2), size(learned_u, 2))
@@ -435,11 +447,15 @@ function save_overlay_2d_trajectory_gif(x, y, t, true_u, learned_u; path::Abstra
     anim = @animate for j in frame_ids
         true_frame = reshape(true_u[:, j], N, N)
         learned_frame = reshape(learned_u[:, j], N, N)
-        error_frame = learned_frame .- true_frame
         p_true = heatmap(x, y, true_frame; clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title="true", colorbar=false)
-        p_learned = heatmap(x, y, learned_frame; clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned", colorbar=false)
-        p_error = heatmap(x, y, error_frame; aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned - true", colorbar=true)
-        plot(p_true, p_learned, p_error; layout=(1, 3), size=(1200, 360), plot_title="$title, t = $(@sprintf("%.3f", t[j]))")
+        p_learned = heatmap(x, y, learned_frame; clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned", colorbar=show_colorbar)
+        if include_difference
+            error_frame = learned_frame .- true_frame
+            p_error = heatmap(x, y, error_frame; aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned - true", colorbar=true)
+            plot(p_true, p_learned, p_error; layout=(1, 3), size=(1200, 360), plot_title="$title, t = $(@sprintf("%.3f", t[j]))")
+        else
+            plot(p_true, p_learned; layout=(1, 2), size=show_colorbar ? (900, 360) : (820, 360), plot_title="$title, t = $(@sprintf("%.3f", t[j]))")
+        end
     end
     gif(anim, path; fps)
     return path
@@ -494,6 +510,25 @@ function rom_trajectory_gifs(run_dir::AbstractString; max_frames=120, fps=15, di
 end
 
 
+### ADJUSTED: Add an in-memory FOM-vs-ROM overlay helper for stability notebooks.
+"""Save and optionally display an overlaid true/ROM trajectory GIF from in-memory stability objects, with an optional [-1, 1] colorbar for 2D."""
+function trajectory_gifs(fom, rom_run; out_dir=joinpath(pwd(), "rom_stability_gifs"), max_frames=120, fps=15, display_gifs=true, show_colorbar=false)
+    true_u = hcat(fom.u_ref.u...)
+    learned_u = rom_run.reconstructed
+    limits = extrema(vcat(vec(true_u), vec(learned_u)))
+    ### ADJUSTED: Use a fixed Allen-Cahn field scale when the optional 2D colorbar is requested.
+    gif_clims = fom.dimension == 2 && show_colorbar ? (-1, 1) : limits
+    path = fom.dimension == 1 ? joinpath(out_dir, "fom_rom_overlay.gif") : joinpath(out_dir, "fom_rom_overlay_2d.gif")
+    overlay_path = fom.dimension == 1 ?
+        save_overlay_trajectory_gif(fom.x, fom.u_ref.t, true_u, learned_u; path, title="FOM vs ROM", max_frames, fps, ylims=limits) :
+        save_overlay_2d_trajectory_gif(fom.x, fom.y, fom.u_ref.t, true_u, learned_u; path, title="FOM vs ROM", max_frames, fps, clims=gif_clims, include_difference=false, show_colorbar=show_colorbar)
+    if display_gifs
+        display_gif(overlay_path)
+    end
+    return (; overlay_path)
+end
+
+
 """Return a plot of saved ROM spatial modes and nonlinear/function modes."""
 function plot_rom_modes(run_dir::AbstractString; n_modes=6)
     rom_data = load_rom_data(run_dir)
@@ -525,6 +560,33 @@ function plot_rom_modes(run_dir::AbstractString; n_modes=6)
 
     p = plot(p_state, p_function; layout=(1, 2), size=(1000, 400))
     return p
+end
+
+
+### ADJUSTED: Add in-memory ROM mode plotting for stability notebooks.
+"""Return a plot of POD state and DEIM nonlinear modes from an in-memory ROM bundle."""
+function plot_rom_modes(fom, rom_bundle; n_state=min(size(rom_bundle.rom.U, 2), 6), n_deim=min(size(rom_bundle.rom.V, 2), 6))
+    rom = rom_bundle.rom
+    if fom.dimension == 2
+        plots = Any[]
+        for j in 1:n_state
+            push!(plots, heatmap(fom.x, fom.y, reshape(rom.U[:, j], fom.state_shape); title="U$j", aspect_ratio=:equal))
+        end
+        for j in 1:n_deim
+            push!(plots, heatmap(fom.x, fom.y, reshape(rom.V[:, j], fom.state_shape); title="V$j", aspect_ratio=:equal))
+        end
+        return plot(plots...; layout=(2, max(n_state, n_deim)), size=(260 * max(n_state, n_deim), 520))
+    end
+
+    p_state = plot(title="POD state modes", xlabel="x", ylabel="mode")
+    for j in 1:n_state
+        plot!(p_state, fom.x, rom.U[:, j]; label="U$j")
+    end
+    p_function = plot(title="DEIM nonlinear modes", xlabel="x", ylabel="mode")
+    for j in 1:n_deim
+        plot!(p_function, fom.x, rom.V[:, j]; label="V$j")
+    end
+    return plot(p_state, p_function; layout=(2, 1), size=(800, 700))
 end
 
 

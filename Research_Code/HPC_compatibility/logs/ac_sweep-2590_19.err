@@ -1,5 +1,0 @@
-
-[2835404] signal 11 (1): SegmeAllocations: gnal 11 (1): Segmentation fault
-Allocations: 473315833 (Pool: 473313155; Big: 2678); GC: 156
-in expression starting at /home/mgantcher/Brookhaven/Research_Code/HPC_compatibility/run_fom_hpc.jl:101
-/home/mgantcher/Brookhaven/Research_Code/HPC_compatibility/hpc1_run_fom.slurm: line 75: 2835404 Segmentation fault      (core dumped) "$JULIA_EXE" --project="$HPC_JULIA_PROJECT" "$HPC_DIR/run_fom_hpc.jl" "${ARGS[@]}"
