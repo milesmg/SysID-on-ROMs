@@ -1,5 +1,3 @@
-### ADJUSTED: Extend the existing FOM/ROM HPC helpers instead of duplicating their shared optimization code.
-
 """Evaluate `sum(coefficients[j+1] * u^j for j=0:degree)` by Horner's rule."""
 function polynomial_value(u, coefficients)
     value = zero(u + first(coefficients))

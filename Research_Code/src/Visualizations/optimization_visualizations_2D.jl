@@ -14,8 +14,9 @@ using Lux
 using Functors
 using OptimizationOptimisers
 using Plots
+using LaTeXStrings
 
-### ADJUSTED: Limit local reference replays to the same maximum saved times as HPC reference builds.
+
 const MAX_REFERENCE_SAVED_TIMES = 500
 
 
@@ -461,15 +462,55 @@ function save_trajectory_gif(x, t, u; path::AbstractString, title::AbstractStrin
     mkpath(dirname(path))
     frame_count = min(max_frames, length(t))
     frame_ids = unique(round.(Int, LinRange(1, length(t), frame_count)))
+    ### ADJUSTED: Delegate 1D trajectory GIF writing so paired GIFs can share frame timing.
+    return save_trajectory_gif(x, t, u, frame_ids; path, title, fps, ylims)
+end
+
+### ADJUSTED: Add a frame-id based 1D trajectory writer for synchronized separate GIFs.
+"""Create and save a 1D trajectory GIF using caller-supplied frame indices."""
+function save_trajectory_gif(x, t, u, frame_ids; path::AbstractString, title::AbstractString, fps=15, ylims=nothing, color=:blue)
+    mkpath(dirname(path))
     anim = @animate for j in frame_ids
         plot(
             x,
             u[:, j];
+            xlim=(first(x), last(x)),
             ylim=ylims,
             xlabel="x",
             ylabel="u",
             title="$title, t = $(@sprintf("%.3f", t[j]))",
             legend=false,
+            color,
+            linewidth=2,
+            size=(650, 420),
+        )
+    end
+    gif(anim, path; fps)
+    return path
+end
+
+### ADJUSTED: Add configurable 2D GIF frame size and optional heatmap interpolation.
+"""Create and save a 2D trajectory GIF using caller-supplied frame indices and optional render sizing."""
+function save_2d_trajectory_gif(x, y, t, u, frame_ids; path::AbstractString, title::AbstractString, fps=15, clims=nothing, show_colorbar=false, color_scheme=:viridis, plot_size=nothing, interpolate=false)
+    mkpath(dirname(path))
+    N = length(x)
+    frame_size = isnothing(plot_size) ? (show_colorbar ? (560, 470) : (500, 470)) : plot_size
+    anim = @animate for j in frame_ids
+        heatmap(
+            x,
+            y,
+            reshape(u[:, j], N, N);
+            clims,
+            xlim=(first(x), last(x)),
+            ylim=(first(y), last(y)),
+            aspect_ratio=:equal,
+            xlabel="x",
+            ylabel="y",
+            title="$title t = $(@sprintf("%.3f", t[j]))",
+            colorbar=show_colorbar,
+            color=color_scheme,
+            size=frame_size,
+            interpolate=interpolate,
         )
     end
     gif(anim, path; fps)
@@ -479,30 +520,42 @@ end
 
 """Create and save an animated GIF with true and learned trajectories overlaid."""
 function save_overlay_trajectory_gif(x, t, true_u, learned_u; path::AbstractString, title::AbstractString, max_frames=120, fps=15, ylims=nothing)
+    return save_overlay_trajectories_gif(x, t, true_u, [learned_u]; path, title, max_frames, fps, ylims, labels=["learned"])
+end
+
+
+### ADJUSTED: Add multi-ROM 1D trajectory overlays against one true trajectory.
+"""Create and save an animated GIF with one true trajectory and one or more learned trajectories overlaid."""
+function save_overlay_trajectories_gif(x, t, true_u, learned_us; path::AbstractString, title::AbstractString, max_frames=120, fps=15, ylims=nothing, labels=nothing, true_label="true", true_color=:blue, learned_colors=nothing)
     mkpath(dirname(path))
-    time_count = min(length(t), size(true_u, 2), size(learned_u, 2))
+    time_count = minimum(vcat([length(t), size(true_u, 2)], [size(u, 2) for u in learned_us]))
     frame_count = min(max_frames, time_count)
     frame_ids = unique(round.(Int, LinRange(1, time_count, frame_count)))
+    learned_labels = isnothing(labels) ? ["learned $i" for i in eachindex(learned_us)] : labels
+    colors = isnothing(learned_colors) ? palette(:tab10, length(learned_us)) : learned_colors
     anim = @animate for j in frame_ids
-        plot(
+        p = plot(
             x,
             true_u[:, j];
-            ylim=ylims,
             xlabel="x",
             ylabel="u",
             title="$title, t = $(@sprintf("%.3f", t[j]))",
-            label="true",
-            color=:blue,
+            label=true_label,
+            color=true_color,
             linewidth=2,
         )
-        plot!(
-            x,
-            learned_u[:, j];
-            label="learned",
-            color=:orange,
-            linewidth=2,
-            linestyle=:dash,
-        )
+        !isnothing(ylims) && ylims!(p, ylims)
+        for (u, label, color) in zip(learned_us, learned_labels, colors)
+            plot!(
+                p,
+                x,
+                u[:, j];
+                label,
+                color,
+                linewidth=2,
+                linestyle=:dash,
+            )
+        end
     end
     gif(anim, path; fps)
     return path
@@ -511,30 +564,146 @@ end
 
 """Create and save an animated GIF comparing flattened 2D true and learned trajectories."""
 function save_overlay_2d_trajectory_gif(x, y, t, true_u, learned_u; path::AbstractString, title::AbstractString, max_frames=120, fps=15, clims=nothing)
+    return save_overlay_2d_trajectories_gif(x, y, t, true_u, [learned_u]; path, title, max_frames, fps, clims, labels=["learned"])
+end
+
+
+### ADJUSTED: Add synchronized multi-ROM 2D trajectory comparisons against one true trajectory.
+"""Create and save an animated GIF comparing one true 2D trajectory with one or more learned trajectories."""
+function save_overlay_2d_trajectories_gif(x, y, t, true_u, learned_us; path::AbstractString, title::AbstractString, max_frames=120, fps=15, clims=nothing, labels=nothing, true_label="true", show_colorbar=false, color_scheme=:viridis, plot_size=nothing, interpolate=false)
     mkpath(dirname(path))
     N = length(x)
-    time_count = min(length(t), size(true_u, 2), size(learned_u, 2))
+    time_count = minimum(vcat([length(t), size(true_u, 2)], [size(u, 2) for u in learned_us]))
     frame_count = min(max_frames, time_count)
     frame_ids = unique(round.(Int, LinRange(1, time_count, frame_count)))
+    learned_labels = isnothing(labels) ? ["learned $i" for i in eachindex(learned_us)] : labels
+    n_panels = 1 + length(learned_us)
+    frame_size = isnothing(plot_size) ? (show_colorbar ? (360 * n_panels + 80, 360) : (360 * n_panels, 360)) : plot_size
     anim = @animate for j in frame_ids
-        true_frame = reshape(true_u[:, j], N, N)
-        learned_frame = reshape(learned_u[:, j], N, N)
-        error_frame = learned_frame .- true_frame
-        p_true = heatmap(x, y, true_frame; clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title="true", colorbar=false)
-        p_learned = heatmap(x, y, learned_frame; clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned", colorbar=false)
-        p_error = heatmap(x, y, error_frame; aspect_ratio=:equal, xlabel="x", ylabel="y", title="learned - true", colorbar=true)
-        plot(p_true, p_learned, p_error; layout=(1, 3), size=(1200, 360), plot_title="$title, t = $(@sprintf("%.3f", t[j]))")
+        plots = Any[
+            heatmap(x, y, reshape(true_u[:, j], N, N); clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title=true_label, colorbar=false, color=color_scheme, interpolate)
+        ]
+        for (i, u) in enumerate(learned_us)
+            push!(
+                plots,
+                heatmap(x, y, reshape(u[:, j], N, N); clims, aspect_ratio=:equal, xlabel="x", ylabel="y", title=learned_labels[i], colorbar=show_colorbar && i == length(learned_us), color=color_scheme, interpolate),
+            )
+        end
+        plot(plots...; layout=(1, n_panels), size=frame_size, plot_title="$title, t = $(@sprintf("%.3f", t[j]))")
     end
     gif(anim, path; fps)
     return path
 end
 
 
+### ADJUSTED: Allow wide combined GIFs to display at native pixel width instead of being downscaled.
 """Display a saved GIF in a notebook."""
-function display_gif(path::AbstractString)
+function display_gif(path::AbstractString; max_width="100%")
     encoded = base64encode(read(path))
-    display("text/html", HTML("""<img src="data:image/gif;base64,$encoded" style="max-width: 100%;">"""))
+    width_style = max_width == "none" ? "width: auto; max-width: none;" : "max-width: $max_width;"
+    display("text/html", HTML("""
+    <div style="overflow-x: auto;">
+        <img src="data:image/gif;base64,$encoded" style="$width_style image-rendering: auto;">
+    </div>
+    """))
     return nothing
+end
+
+
+### ADJUSTED: Add synchronized side-by-side GIF display and optional combined-GIF saving.
+"""Display GIFs side by side, optionally saving and displaying one combined side-by-side GIF."""
+function display_gifs_side_by_side(paths::AbstractString...; same_gif=false, output_path=nothing, gap_px=8, duration_ms=nothing)
+    if same_gif
+        saved_path = save_gifs_side_by_side(paths...; output_path, gap_px, duration_ms)
+        display_gif(saved_path; max_width="none")
+        return saved_path
+    end
+
+    imgs = String[]
+    max_width = 100 / max(length(paths), 1) - 1
+    for path in paths
+        encoded = base64encode(read(path))
+        push!(imgs, """
+        <img src="data:image/gif;base64,$encoded"
+             style="max-width: $(max_width)%; vertical-align: top;">
+        """)
+    end
+
+    display("text/html", HTML("""
+    <div style="display: flex; gap: $(gap_px)px; align-items: flex-start;">
+        $(join(imgs, "\n"))
+    </div>
+    """))
+
+    return nothing
+end
+
+
+### ADJUSTED: Add a small helper for saving combined side-by-side GIFs without overwriting the source GIFs.
+"""Save multiple GIFs as one side-by-side animated GIF and return the saved path."""
+function save_gifs_side_by_side(paths::AbstractString...; output_path=nothing, gap_px=8, duration_ms=nothing)
+    length(paths) >= 2 || error("At least two GIF paths are required.")
+    saved_path = isnothing(output_path) ? default_side_by_side_gif_path(first(paths)) : output_path
+    mkpath(dirname(saved_path))
+
+    python_code = raw"""
+import sys
+from PIL import Image, ImageSequence
+
+paths = sys.argv[1:-3]
+out_path = sys.argv[-3]
+gap_px = int(sys.argv[-2])
+duration_arg = sys.argv[-1]
+duration_ms = int(duration_arg) if duration_arg else None
+
+frame_sets = []
+widths = []
+heights = []
+for path in paths:
+    image = Image.open(path)
+    frames = [frame.convert("RGBA") for frame in ImageSequence.Iterator(image)]
+    frame_sets.append(frames)
+    widths.append(max(frame.width for frame in frames))
+    heights.append(max(frame.height for frame in frames))
+    if duration_ms is None:
+        duration_ms = int(image.info.get("duration", 100))
+
+frame_count = max(len(frames) for frames in frame_sets)
+canvas_width = sum(widths) + gap_px * (len(frame_sets) - 1)
+canvas_height = max(heights)
+combined = []
+
+for j in range(frame_count):
+    canvas = Image.new("RGBA", (canvas_width, canvas_height), (255, 255, 255, 255))
+    x_offset = 0
+    for frames, width, height in zip(frame_sets, widths, heights):
+        frame = frames[min(j, len(frames) - 1)]
+        y_offset = (canvas_height - frame.height) // 2
+        canvas.alpha_composite(frame, (x_offset, y_offset))
+        x_offset += width + gap_px
+    combined.append(canvas.convert("P", palette=Image.Palette.ADAPTIVE))
+
+combined[0].save(
+    out_path,
+    save_all=True,
+    append_images=combined[1:],
+    duration=duration_ms,
+    loop=0,
+    disposal=2,
+)
+"""
+
+    duration_arg = isnothing(duration_ms) ? "" : string(duration_ms)
+    run(Cmd(vcat(["python3", "-c", python_code], collect(String.(paths)), [saved_path, string(gap_px), duration_arg])))
+    return saved_path
+end
+
+
+### ADJUSTED: Add default naming for combined GIFs so source animations are preserved.
+"""Return a non-overwriting default path for a combined side-by-side GIF."""
+function default_side_by_side_gif_path(path::AbstractString)
+    stem, ext = splitext(basename(path))
+    return joinpath(dirname(path), stem * "_side_by_side" * ext)
 end
 
 
@@ -558,8 +727,9 @@ function fom_trajectory_gifs(run_dir::AbstractString; max_frames=120, fps=15, di
 end
 
 
-"""Save and optionally display an overlaid true/learned ROM trajectory GIF."""
-function rom_trajectory_gifs(run_dir::AbstractString; max_frames=120, fps=15, display_gifs=true)
+### ADJUSTED: Pass optional 2D GIF render controls through the ROM trajectory helper.
+"""Save and optionally display synchronized true and learned ROM trajectory GIFs."""
+function rom_trajectory_gifs(run_dir::AbstractString; max_frames=120, fps=15, display_gifs=true, show_colorbar=false, true_title="FOM true trajectory", learned_title="ROM learned trajectory", color_scheme=:viridis, true_color=:blue, learned_color=:orange, plot_size=nothing, interpolate=false)
     rom_data = load_rom_data(run_dir)
     true_sol = solve_rom_true_trajectory(run_dir)
     learned_sol = solve_rom_learned_trajectory(run_dir)
@@ -568,13 +738,153 @@ function rom_trajectory_gifs(run_dir::AbstractString; max_frames=120, fps=15, di
     ylims = extrema(vcat(vec(true_u), vec(learned_u)))
     out_dir = joinpath(run_dir, "visualizations")
     axes = saved_grid_axes(rom_data, run_dir)
-    overlay_path = saved_dimension(rom_data, run_dir) == 1 ?
-        save_overlay_trajectory_gif(axes.x, true_sol.t, true_u, learned_u; path=joinpath(out_dir, "overlaid_rom_trajectory.gif"), title="ROM trajectory", max_frames, fps, ylims) :
-        save_overlay_2d_trajectory_gif(axes.x, axes.y, true_sol.t, true_u, learned_u; path=joinpath(out_dir, "overlaid_rom_trajectory_2d.gif"), title="ROM trajectory", max_frames, fps, clims=ylims)
+    time_count = min(length(true_sol.t), size(true_u, 2), size(learned_u, 2))
+    frame_count = min(max_frames, time_count)
+    frame_ids = unique(round.(Int, LinRange(1, time_count, frame_count)))
+    if saved_dimension(rom_data, run_dir) == 1
+        true_path = save_trajectory_gif(axes.x, true_sol.t, true_u, frame_ids; path=joinpath(out_dir, "true_rom_reference_trajectory.gif"), title=true_title, fps, ylims, color=true_color)
+        learned_path = save_trajectory_gif(axes.x, true_sol.t, learned_u, frame_ids; path=joinpath(out_dir, "learned_rom_trajectory.gif"), title=learned_title, fps, ylims, color=learned_color)
+    else
+        true_path = save_2d_trajectory_gif(axes.x, axes.y, true_sol.t, true_u, frame_ids; path=joinpath(out_dir, "true_rom_reference_trajectory_2d.gif"), title=true_title, fps, clims=ylims, show_colorbar, color_scheme, plot_size, interpolate)
+        learned_path = save_2d_trajectory_gif(axes.x, axes.y, true_sol.t, learned_u, frame_ids; path=joinpath(out_dir, "learned_rom_trajectory_2d.gif"), title=learned_title, fps, clims=ylims, show_colorbar, color_scheme, plot_size, interpolate)
+    end
     if display_gifs
-        display_gif(overlay_path)
+        display_gif(true_path)
+        display_gif(learned_path)
+    end
+    return (; true_path, learned_path, true_solution=true_sol, learned_solution=learned_sol)
+end
+
+
+### ADJUSTED: Restore ROM trajectory visualization as an overlaid true-vs-learned comparison.
+"""Save and optionally display an overlaid true/learned ROM trajectory GIF."""
+function rom_overlay_trajectory_gif(run_dir::AbstractString; max_frames=120, fps=15, display_gifs=true, show_colorbar=false, title=nothing, labels=nothing, true_label="true", color_scheme=:viridis, true_color=:blue, learned_colors=nothing, plot_size=nothing, interpolate=false)
+    rom_data = load_rom_data(run_dir)
+    true_sol = solve_rom_true_trajectory(run_dir)
+    learned_sol = solve_rom_learned_trajectory(run_dir)
+    true_u = solution_matrix(true_sol)
+    learned_u = learned_sol.u
+    ylims = extrema(vcat(vec(true_u), vec(learned_u)))
+    out_dir = joinpath(run_dir, "visualizations")
+    axes = saved_grid_axes(rom_data, run_dir)
+    overlay_title = isnothing(title) ? "FOM vs ROM" : title
+    overlay_labels = isnothing(labels) ? ["learned"] : labels
+    path = saved_dimension(rom_data, run_dir) == 1 ? joinpath(out_dir, "overlaid_rom_trajectory.gif") : joinpath(out_dir, "overlaid_rom_trajectory_2d.gif")
+    overlay_path = saved_dimension(rom_data, run_dir) == 1 ?
+        save_overlay_trajectories_gif(axes.x, true_sol.t, true_u, [learned_u]; path, title=overlay_title, max_frames, fps, ylims, labels=overlay_labels, true_label, true_color, learned_colors) :
+        save_overlay_2d_trajectories_gif(axes.x, axes.y, true_sol.t, true_u, [learned_u]; path, title=overlay_title, max_frames, fps, clims=ylims, labels=overlay_labels, true_label, show_colorbar, color_scheme, plot_size, interpolate)
+    if display_gifs
+        display_gif(overlay_path; max_width=saved_dimension(rom_data, run_dir) == 1 ? "100%" : "none")
     end
     return (; overlay_path, true_solution=true_sol, learned_solution=learned_sol)
+end
+
+
+### ADJUSTED: Add multi-run ROM trajectory overlays against one true trajectory.
+"""Save and optionally display one true ROM reference trajectory with learned trajectories from multiple runs."""
+function rom_overlay_trajectory_gif(run_dirs::AbstractVector{<:AbstractString}; max_frames=120, fps=15, display_gifs=true, show_colorbar=false, labels=nothing, run_names=nothing, title=nothing, true_label="true", color_scheme=:viridis, true_color=:blue, learned_colors=nothing, plot_size=nothing, interpolate=false)
+    run_labels = isnothing(labels) ? (isnothing(run_names) ? basename.(run_dirs) : run_names) : labels
+    length(run_labels) == length(run_dirs) || error("labels must have the same length as run_dirs")
+    first_data = load_rom_data(first(run_dirs))
+    true_sol = solve_rom_true_trajectory(first(run_dirs))
+    true_u = solution_matrix(true_sol)
+    learned_us = [solve_rom_learned_trajectory(run_dir).u for run_dir in run_dirs]
+    ylims = extrema(vcat(vec(true_u), vec.(learned_us)...))
+    out_dir = joinpath(first(run_dirs), "visualizations")
+    axes = saved_grid_axes(first_data, first(run_dirs))
+    overlay_title = isnothing(title) ? "FOM vs ROMs" : title
+    path = saved_dimension(first_data, first(run_dirs)) == 1 ? joinpath(out_dir, "overlaid_rom_trajectory_comparison.gif") : joinpath(out_dir, "overlaid_rom_trajectory_comparison_2d.gif")
+    overlay_path = saved_dimension(first_data, first(run_dirs)) == 1 ?
+        save_overlay_trajectories_gif(axes.x, true_sol.t, true_u, learned_us; path, title=overlay_title, max_frames, fps, ylims, labels=run_labels, true_label, true_color, learned_colors) :
+        save_overlay_2d_trajectories_gif(axes.x, axes.y, true_sol.t, true_u, learned_us; path, title=overlay_title, max_frames, fps, clims=ylims, labels=run_labels, true_label, show_colorbar, color_scheme, plot_size, interpolate)
+    if display_gifs
+        display_gif(overlay_path; max_width=saved_dimension(first_data, first(run_dirs)) == 1 ? "100%" : "none")
+    end
+    return (; overlay_path, true_solution=true_sol, learned_solutions=learned_us)
+end
+
+
+### ADJUSTED: Add a static initial-condition plot matching the ROM trajectory visualization styling.
+"""Return true and ROM-projected initial-condition plots, optionally saving the figure."""
+function plot_rom_initial_condition(run_dir::AbstractString; show_colorbar=false, color_scheme=:viridis, colorscheme=nothing, true_title="FOM true initial condition", learned_title="ROM projected initial condition", save_path=nothing)
+    rom_data = load_rom_data(run_dir)
+    axes = saved_grid_axes(rom_data, run_dir)
+    scheme = isnothing(colorscheme) ? color_scheme : colorscheme
+    true_u0 = rom_data.u₀
+    projected_u0 = rom_data.spatial_modes * (rom_data.spatial_modes' * true_u0)
+    clims = extrema(vcat(vec(true_u0), vec(projected_u0)))
+
+    if saved_dimension(rom_data, run_dir) == 1
+        p = plot(
+            axes.x,
+            true_u0;
+            xlim=(first(axes.x), last(axes.x)),
+            ylim=clims,
+            xlabel="x",
+            ylabel="u",
+            title=true_title,
+            label=false,
+            color=:blue,
+            linewidth=2,
+            size=(650, 420),
+        )
+        plot!(
+            p,
+            axes.x,
+            projected_u0;
+            label=false,
+            color=:orange,
+            linewidth=2,
+            linestyle=:dash,
+        )
+    else
+        N = saved_grid_N(rom_data, run_dir)
+        p_true = heatmap(
+            axes.x,
+            axes.y,
+            reshape(true_u0, N, N);
+            clims,
+            xlim=(first(axes.x), last(axes.x)),
+            ylim=(first(axes.y), last(axes.y)),
+            aspect_ratio=:equal,
+            xlabel="x",
+            ylabel="y",
+            title=true_title,
+            colorbar=show_colorbar,
+            color=scheme,
+        )
+        p_learned = heatmap(
+            axes.x,
+            axes.y,
+            reshape(projected_u0, N, N);
+            clims,
+            xlim=(first(axes.x), last(axes.x)),
+            ylim=(first(axes.y), last(axes.y)),
+            aspect_ratio=:equal,
+            xlabel="x",
+            ylabel="y",
+            title=learned_title,
+            colorbar=show_colorbar,
+            color=scheme,
+        )
+        p = plot(p_true, p_learned; layout=(1, 2), size=show_colorbar ? (1000, 470) : (900, 470))
+    end
+
+    if !isnothing(save_path)
+        mkpath(dirname(save_path))
+        savefig(p, save_path)
+    end
+
+    return p
+end
+
+
+### ADJUSTED: Add a display-and-save wrapper for ROM initial-condition plots.
+"""Display the ROM initial-condition plot and return the saved path when requested."""
+function visualize_ROM_initial_condition(run_dir::AbstractString; show_colorbar=false, color_scheme=:viridis, colorscheme=nothing, true_title="FOM true initial condition", learned_title="ROM projected initial condition", save_plot=false, save_path=joinpath(run_dir, "visualizations", "rom_initial_condition.png"))
+    p = plot_rom_initial_condition(run_dir; show_colorbar, color_scheme, colorscheme, true_title, learned_title, save_path=save_plot ? save_path : nothing)
+    display(p)
+    return save_plot ? save_path : nothing
 end
 
 
@@ -613,7 +923,10 @@ end
 
 
 """Return a plot of the learned nonlinearity against the true Allen-Cahn nonlinearity."""
-function plot_learned_function(run_dir::AbstractString; u_min=-1.2, u_max=1.2, n_points=400)
+function plot_learned_function(run_dir::AbstractString; u_min=-1.2, u_max=1.2, n_points=400, title=nothing)
+    if isnothing(title)
+        title = "True vs learned nonlinearity"
+    end
     θ_flat = final_theta(run_dir)
     u = collect(LinRange(u_min, u_max, n_points))
     if isfile(joinpath(run_dir, "rom_data.jls"))
@@ -622,13 +935,12 @@ function plot_learned_function(run_dir::AbstractString; u_min=-1.2, u_max=1.2, n
         data = load_fom_run_params(run_dir)
     end
     k = saved_k(data)
-    p = plot(u, true_function_values(u, k); label="true -k(u^3-u)", xlabel="u", ylabel="f(u)", title="True vs learned nonlinearity")
+    p = plot(u, true_function_values(u, k); label="True " * L"-k(u^3-u)", xlabel=L"u", ylabel=L"f(u)", title=title)
     if saved_model_type(data) == "polynomial"
-        ### ADJUSTED: Plot saved polynomial learned nonlinearities without rebuilding a Lux network.
         degree = hasproperty(data, :polynomial_degree) ? data.polynomial_degree : length(θ_flat) - 1
         plot!(p, u, learned_polynomial_values(u, θ_flat); label="learned polynomial degree $degree")
     else
-        plot!(p, u, learned_function_values(u, θ_flat, data.h, data.seed); label="learned NN")
+        plot!(p, u, learned_function_values(u, θ_flat, data.h, data.seed); label="Learned Neural "* L"f(u)")
     end
     return p
 end
@@ -678,9 +990,18 @@ function print_singular_value_capture_table(run_dir::AbstractString; max_modes=n
 end
 
 
+### ADJUSTED: Route ROM trajectory visualization through the overlaid comparison helper.
 """Solve and display an overlaid true/learned trajectory GIF for a saved ROM run."""
-function visualize_ROM_trajectories(run_dir::AbstractString; max_frames=120, fps=15)
-    rom_trajectory_gifs(run_dir; max_frames, fps, display_gifs=true)
+function visualize_ROM_trajectories(run_dir::AbstractString; max_frames=120, fps=15, show_colorbar=false, title=nothing, true_title="true", learned_title="learned", color_scheme=:viridis, true_color=:blue, learned_color=:orange, plot_size=nothing, interpolate=false)
+    rom_overlay_trajectory_gif(run_dir; max_frames, fps, display_gifs=true, show_colorbar, title, labels=[learned_title], true_label=true_title, color_scheme, true_color, learned_colors=[learned_color], plot_size, interpolate)
+    return nothing
+end
+
+
+### ADJUSTED: Allow multiple ROM runs to be shown in one synchronized trajectory comparison.
+"""Solve and display one true ROM reference trajectory with learned trajectories from multiple saved runs."""
+function visualize_ROM_trajectories(run_dirs::AbstractVector{<:AbstractString}; max_frames=120, fps=15, show_colorbar=false, labels=nothing, run_names=nothing, title=nothing, true_title="true", color_scheme=:viridis, true_color=:blue, learned_colors=nothing, plot_size=nothing, interpolate=false)
+    rom_overlay_trajectory_gif(run_dirs; max_frames, fps, display_gifs=true, show_colorbar, labels, run_names, title, true_label=true_title, color_scheme, true_color, learned_colors, plot_size, interpolate)
     return nothing
 end
 
@@ -698,8 +1019,8 @@ visualize_ROM_singular_values(run_dir::AbstractString; max_modes=20) =
 
 
 """Display learned ROM nonlinearity against the true Allen-Cahn nonlinearity."""
-function visualize_ROM_learned_function(run_dir::AbstractString; u_min=-1.2, u_max=1.2, n_points=400)
-    display(plot_learned_function(run_dir; u_min, u_max, n_points))
+function visualize_ROM_learned_function(run_dir::AbstractString; u_min=-1.2, u_max=1.2, n_points=400,title=nothing)
+    display(plot_learned_function(run_dir; u_min, u_max, n_points, title))
     return nothing
 end
 

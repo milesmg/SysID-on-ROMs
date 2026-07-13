@@ -14,6 +14,8 @@ hpc_log("run_rom_hpc", "Loading HPC common code")
 include(joinpath(@__DIR__, "hpc_common.jl"))
 ### ADJUSTED: Load named 2D sweep initial conditions for ROM reference construction.
 include(joinpath(@__DIR__, "Sweeps", "2D_initial_conditions.jl"))
+### ADJUSTED: Load named 1D sweep initial conditions and the dimension dispatcher.
+include(joinpath(@__DIR__, "Sweeps", "1D_initial_conditions.jl"))
 
 opts = parse_cli(ARGS)
 

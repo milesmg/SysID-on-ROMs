@@ -1,6 +1,4 @@
-### ADJUSTED: Load HPC logging from the moved Tools directory.
 include(joinpath(@__DIR__, "..", "Tools", "hpc_logging.jl"))
-### ADJUSTED: Load the run-name guard from its moved Misc. directory.
 include(joinpath(@__DIR__, "..", "..", "Misc.", "run_name_guard.jl"))
 
 hpc_log_package("LinearAlgebra", "Loading")
@@ -24,7 +22,6 @@ hpc_log_package("OrdinaryDiffEqSDIRK", "Loaded")
 hpc_log_package("SciMLSensitivity", "Loading")
 using SciMLSensitivity
 hpc_log_package("SciMLSensitivity", "Loaded")
-### ADJUSTED: Load Mooncake for the default GaussAdjoint VJP backend.
 hpc_log_package("Mooncake", "Loading")
 using Mooncake
 hpc_log_package("Mooncake", "Loaded")
@@ -193,9 +190,7 @@ function prepare_ROM_optimization(
     dimension=1,
     boundary_condition=hasproperty(u_ref.prob.p, :boundary_condition) ? u_ref.prob.p.boundary_condition : "homogeneous_dirichlet",
 )
-    ### ADJUSTED: Store dimension metadata while keeping ROM snapshots flattened.
     dimension = validate_ac_dimension(dimension)
-    ### ADJUSTED: Store the selected boundary condition with ROM metadata.
     boundary_condition = validate_ac_boundary_condition(boundary_condition)
     u_snapshots = hcat(u_ref.u...)
     grid_N = ac_grid_size(size(u_snapshots, 1), dimension)
