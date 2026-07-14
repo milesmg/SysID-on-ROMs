@@ -16,7 +16,3 @@ Research_Code/Optimization/Sweeps/
 /Untracked
 /Notes
 /codex_logs
-Research_Code/Optimization/Local/test_CH_ROM_stability_1D.ipynb
-Research_Code/Optimization/Local/test_CH_ROM_stability_2D.ipynb
-Research_Code/src/HPC/Simulations/FOM_opt_CH_hpc.jl
-Research_Code/src/HPC/Simulations/ROM_opt_CH_hpc.jl

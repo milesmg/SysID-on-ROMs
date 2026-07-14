@@ -32,11 +32,20 @@ function materialize_1d_sweep_initial_condition(name; N, L, ε2, dimension, boun
 end
 
 """Materialize a named 1D or 2D sweep initial condition on the active Allen-Cahn grid."""
-function materialize_sweep_initial_condition(name; N, L, ε2, dimension, boundary_condition)
+### ADJUSTED: Accept the mean and seed needed to reproduce the notebook's seeded 2D random field.
+function materialize_sweep_initial_condition(name; N, L, ε2, dimension, boundary_condition, mean_c=0.0, seed=1)
     normalize_initial_condition_name(name) == "default" && return nothing
     dim = validate_ac_dimension(dimension)
     if dim == 1
         return materialize_1d_sweep_initial_condition(name; N, L, ε2, dimension, boundary_condition)
+    end
+    ### ADJUSTED: Materialize the same centered, amplitude-limited random field used by test_CH_ROM_stability_2D.ipynb.
+    ### ADJUSTED: Accept both the notebook label and its queue-friendly abbreviated form.
+    if normalize_initial_condition_name(name) in ("2d random scalar field", "random scalar field")
+        rng = MersenneTwister(seed)
+        values = randn(rng, N, N)
+        values .-= mean(values)
+        return mean_c .+ 0.10 .* values ./ maximum(abs.(values))
     end
     f = sweep_initial_condition(name)
     grid = ac_grid(N, L, boundary_condition)

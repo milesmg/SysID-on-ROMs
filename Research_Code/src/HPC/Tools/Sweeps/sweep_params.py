@@ -43,6 +43,9 @@ def canonical_key(key):
         "INIT_COND": "INITIAL_CONDITION",
         "INITIAL_CONDITION_NAME": "INITIAL_CONDITION",
         "U0_NAME": "INITIAL_CONDITION",
+        ### ADJUSTED: Accept readable diffusion-coefficient names in RD sweep files.
+        "D_1": "D1",
+        "D_2": "D2",
     }
     return aliases.get(normalized, normalized)
 

@@ -86,6 +86,8 @@ else
     error("--learner must be nn or polynomial; got $learner")
 end
 hpc_log("run_rom_hpc", "Prepared ROM optimization parameters")
+### ADJUSTED: Print the equation alongside the shared AC/CH runner diagnostics.
+println("  equation = ac")
 println("  run_name = ", run_name)
 println("  N = ", N)
 println("  L = ", L)
@@ -106,7 +108,6 @@ println("  reference_Δt = ", reference.Δt)
 println("  reference_save_count = ", length(reference.t))
 println("  etas = ", etas)
 println("  iterations = ", iterations)
-### ADJUSTED: Print the window schedule used by standard and sweep jobs.
 println("  window_T = ", window_T)
 println("  window_N_obs = ", window_N_obs)
 println("  window_start_policy = ", window_start_policy)
@@ -123,7 +124,6 @@ println("  SLURM_JOB_ID = ", get(ENV, "SLURM_JOB_ID", "local"))
 println("  SLURM_ARRAY_TASK_ID = ", get(ENV, "SLURM_ARRAY_TASK_ID", ""))
 flush(stdout)
 hpc_log("run_rom_hpc", "Running ROM optimization")
-### ADJUSTED: Use the central ROM variable-window path for all runs, including full-trajectory defaults.
 output = run_variable_window_ROM_optimization(
     reference.u_ref,
     prob_rom;
@@ -141,10 +141,9 @@ output = run_variable_window_ROM_optimization(
     save_frequency,
     print_frequency,
 )
-### ADJUSTED: Save the sweep-selected initial-condition name in ROM metadata.
-output = merge(output, (; run_settings=merge(output.run_settings, (; initial_condition))))
+
+output = merge(output, (; run_settings=merge(output.run_settings, (; equation="ac", initial_condition))))
 hpc_log("run_rom_hpc", "Saving ROM optimization data")
-### ADJUSTED: Save window and full-trajectory validation histories for every ROM run.
 save_dir = save_variable_window_ROM_optimization_data(output, run_name)
 
 println("Saved ROM output to: ", save_dir)

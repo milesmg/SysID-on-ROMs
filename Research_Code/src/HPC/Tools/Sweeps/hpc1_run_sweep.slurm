@@ -11,7 +11,6 @@
 set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$SLURM_SUBMIT_DIR}"
-### ADJUSTED: Use the moved HPC sweep/tooling directories.
 HPC_DIR="$REPO_ROOT/Research_Code/src/HPC/Tools"
 SWEEP_DIR="$HPC_DIR/Sweeps"
 LOG_DIR="$REPO_ROOT/Research_Code/Optimization/Data/_Logs"
@@ -20,7 +19,6 @@ cd "$REPO_ROOT"
 mkdir -p "$LOG_DIR"
 
 if [ -z "${SWEEP_FILE:-}" ]; then
-    ### ADJUSTED: Point missing-file guidance at the moved Optimization/Sweeps directory.
     echo "Missing SWEEP_FILE. Submit with: SWEEP_FILE=Research_Code/Optimization/Sweeps/<file>.txt sbatch --array=0-N Research_Code/src/HPC/Tools/Sweeps/hpc1_run_sweep.slurm"
     exit 1
 fi
@@ -77,7 +75,6 @@ for ((COMBO_INDEX=SWEEP_WORKER_INDEX; COMBO_INDEX<SWEEP_TOTAL_COUNT; COMBO_INDEX
     BASE_RUN_NAME="${RUN_NAME:-${SWEEP_NAME:-${TARGET_LABEL}_sweep}}"
     RUN_NAME="${BASE_RUN_NAME}_${COMBO_INDEX}_${SWEEP_COMBO_LABEL}"
     export RUN_NAME SWEEP_WORKER_COUNT SWEEP_WORKER_INDEX
-    ### ADJUSTED: Capture one explicit out/err pair per sweep combination so FOM/ROM logs are not hidden under the array-worker log.
     RUN_LOG_OUT="$LOG_DIR/${RUN_NAME}.out"
     RUN_LOG_ERR="$LOG_DIR/${RUN_NAME}.err"
     RUN_STATUS=0
@@ -87,9 +84,9 @@ for ((COMBO_INDEX=SWEEP_WORKER_INDEX; COMBO_INDEX<SWEEP_TOTAL_COUNT; COMBO_INDEX
         echo "Sweep file: $SWEEP_FILE"
         echo "Run name: $RUN_NAME"
         echo "Combination label: $SWEEP_COMBO_LABEL"
-        # ### ADJUSTED: Print BATCH_SIZE with the other forwarded sweep parameters.
-        ### ADJUSTED: Include named initial conditions in per-combination sweep logs.
-        env | sort | grep -E '^(N|L|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|DIMENSION|BOUNDARY_CONDITION|INITIAL_CONDITION|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|BATCH_SIZE|LOSS_NORMALIZATION|WINDOW_SEED|LEARNER|POLYNOMIAL_DEGREE|JULIA_NUM_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
+
+        ### ADJUSTED: Include RD diffusion coefficients in per-combination sweep logs.
+        env | sort | grep -E '^(EQUATION|D1|D2|SIGMA|MEAN_C|N|L|EPS2|K|TFINAL|N_OBS|R|M|H|SEED|REFERENCE_DT_FACTOR|DIMENSION|BOUNDARY_CONDITION|INITIAL_CONDITION|ETAS|ITERS|BETA|SAVE_FREQUENCY|PRINT_FREQUENCY|WARMUP|WINDOW_T|WINDOW_N_OBS|WINDOW_START_POLICY|BATCH_SIZE|LOSS_NORMALIZATION|WINDOW_SEED|LEARNER|POLYNOMIAL_DEGREE|JULIA_NUM_THREADS|JULIA_BLAS_THREADS|RUN_NAME|SWEEP_.*)='
 
         if [ "${DRY_RUN:-false}" = "true" ]; then
             echo "DRY_RUN=true, not running $TARGET_SCRIPT"
@@ -109,7 +106,6 @@ for ((COMBO_INDEX=SWEEP_WORKER_INDEX; COMBO_INDEX<SWEEP_TOTAL_COUNT; COMBO_INDEX
     if [ "$RUN_STATUS" -eq 0 ] && [ "${DRY_RUN:-false}" != "true" ]; then
         RUN_DIR="$REPO_ROOT/Research_Code/Optimization/Data/$RUN_NAME"
         if [ -d "$RUN_DIR" ]; then
-            ### ADJUSTED: Move successful run-named logs out of _Logs instead of leaving duplicate copies.
             mv "$RUN_LOG_OUT" "$RUN_DIR/${RUN_NAME}.out"
             mv "$RUN_LOG_ERR" "$RUN_DIR/${RUN_NAME}.err"
         else
