@@ -1,0 +1,16 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  julia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1.12"
+      - run: julia --project=Julia -e 'using Pkg; Pkg.instantiate()'
+      - run: julia --project=Julia --startup-file=no src/Tools/Tests/runtests.jl
