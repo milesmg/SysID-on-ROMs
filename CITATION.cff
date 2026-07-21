@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "System Identification on POD-DEIM ROMs"
+authors:
+  - family-names: Gantcher
+    given-names: Miles
+repository-code: "https://github.com/milesmg/BNL_work"
+license: MIT

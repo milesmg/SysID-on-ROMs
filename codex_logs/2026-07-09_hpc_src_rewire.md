@@ -1,0 +1,59 @@
+### ADJUSTED: Rewired moved HPC tooling after removing `Research_Code/HPC_compatibility`.
+
+Files edited:
+- `Research_Code/src/HPC/Simulations/integration_AC_hpc.jl`
+  - Loaded `hpc_logging.jl` from the moved `Research_Code/src/HPC/Tools` directory.
+- `Research_Code/src/HPC/Simulations/FOM_opt_AC_hpc.jl`
+  - Fixed moved logging/run-name includes.
+  - Fixed optimization output saves to write under `Research_Code/Optimization/Data`.
+- `Research_Code/src/HPC/Simulations/ROM_opt_AC_hpc.jl`
+  - Fixed moved logging/run-name includes.
+  - Fixed optimization output saves to write under `Research_Code/Optimization/Data`.
+- `Research_Code/src/HPC/Tools/hpc_common.jl`
+  - Fixed moved `run_name_guard.jl` include.
+  - Restored dimension/boundary-aware reference building in the moved tools path.
+  - Ensured reference save grids always contain at least start/end times.
+- `Research_Code/src/HPC/Tools/run_fom_hpc.jl`
+  - Fixed repository-root resolution and moved simulation includes.
+  - Parsed/forwarded dimension and boundary condition into reference and FOM setup.
+- `Research_Code/src/HPC/Tools/run_rom_hpc.jl`
+  - Fixed repository-root resolution and moved ROM include.
+  - Parsed/forwarded dimension and boundary condition into reference, Laplacian construction, and ROM setup.
+- `Research_Code/src/HPC/Tools/hpc1_run_fom.slurm`
+  - Pointed to `Research_Code/src/HPC/Tools`.
+  - Moved Slurm stdout/stderr to `Research_Code/Optimization/Data/_Logs`.
+  - Forwarded `DIMENSION` and `BOUNDARY_CONDITION`.
+- `Research_Code/src/HPC/Tools/hpc1_run_rom.slurm`
+  - Pointed to `Research_Code/src/HPC/Tools`.
+  - Moved Slurm stdout/stderr to `Research_Code/Optimization/Data/_Logs`.
+  - Forwarded `DIMENSION` and `BOUNDARY_CONDITION`.
+- `Research_Code/src/HPC/Tools/Sweeps/hpc1_run_sweep.slurm`
+  - Pointed to moved sweep and direct FOM/ROM wrappers.
+  - Moved Slurm stdout/stderr to `Research_Code/Optimization/Data/_Logs`.
+  - Included dimension/boundary settings in sweep logging.
+- `Research_Code/src/HPC/Tools/Sweeps/submit_sweep.sh`
+  - Pointed to the moved sweep tooling directory.
+- `Research_Code/src/HPC/Tools/Sweeps/virtual_sweep_queue.sh`
+  - Pointed to moved sweep tooling while keeping virtual-queue logs/state under `Research_Code/src/HPC/Tools/Sweeps`.
+- `Research_Code/src/HPC/Tools/Sweeps/sweep_params.py`
+  - Restored row-wise `[[case]]` support.
+  - Preserved grouped schedule parsing.
+  - Preferred `CASE_NAME` for row-wise run labels.
+  - Added aliases for boundary/dimension/polynomial sweep keys.
+- `Research_Code/src/HPC/Tools/README_hpc1.md`
+  - Updated command/log examples to the moved paths.
+- `Research_Code/src/HPC/Tools/Sweeps/README_sweeps.md`
+  - Updated sweep commands to the moved paths.
+- `Research_Code/Optimization/Data/Sweeps/ROM_backend_tests/README.md`
+  - Updated backend-test commands to the moved paths.
+- `Research_Code/Optimization/Local/test_ROM_stability.ipynb`
+  - Updated notebook includes to the moved `src/HPC/Tools` and `src/HPC/Simulations` paths.
+
+Validation run:
+- `bash -n` on moved FOM, ROM, sweep, submit, and virtual-queue scripts.
+- `python3 -B sweep_params.py count` on Cartesian, 90-case row-wise FOM, and 2D ROM sweep files.
+- `DRY_RUN=true submit_sweep.sh ...` against the moved example ROM sweep.
+- Direct dry-run of `hpc1_run_sweep.slurm` against the moved example ROM sweep.
+- Julia reference/include smoke checks for moved `hpc_common.jl`, FOM helper, and ROM helper.
+- One tiny local FOM entrypoint smoke test reached optimization and exposed the old save-root bug.
+- A save-only Julia check then confirmed FOM outputs now save under `Research_Code/Optimization/Data`.
