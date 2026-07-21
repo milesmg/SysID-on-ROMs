@@ -20,7 +20,7 @@ Build a RunConfig struct (see types.jl), which stores many optimization params, 
     which stores equation-specific parameters; also taking into account params passed in via cli
 Args:
     - options: a dict with defaults and params passed in via cli
-    - spec: an EquationSpec struct, built by the equation_spec l2_error_learned_function
+    - spec: an EquationSpec struct, built by the equation_spec function
 """
 function run_configuration(options, spec::EquationSpec)::RunConfig
     N = get_int(options, "N", spec.default_N)
@@ -52,17 +52,16 @@ Args:
     - mode: either :fom or :rom
     - args: these are the command line arguments passed in as a vector of strings. 
 """
-### ADJUSTED: Run both FOM and ROM through the top-level entrypoint.
 function run_training(mode::Symbol, args)
     options = parse_cli(args) # parse arguments passed in via command line and turn them into a nice dictionary
     name = lowercase(get_string(options, "equation", "ac")) # which equation are we modeling?
     spec = equation_spec(name) # build the specifications based on that equation; eg. get the proper parameters, and find the default settings
     config = run_configuration(options, spec) # combine our defaults with the options dictionary to configure a run
     grid = spatial_grid(config.N, config.L, config.dimension, config.boundary_condition) # build our spatial discretization
-    u₀ = materialize_initial_condition(spec, grid, config.initial_condition, config) # build an intial condition
+    u₀ = materialize_initial_condition(spec, grid, config.initial_condition, config) # build an initial condition
     reference = spec.reference(config, grid, u₀) # build reference trajectory, the true u
     init = initialize_learner(spec, config) # combine our settings with equation-specific requirements to build our machine learning model, whether it be a NN or a polynomial
-    prepared = spec.model(mode, config, grid, reference, init) # this is a PreparedTraining struct; it's designed to plug-and-play into an optimizer. It has all the FOM/ROM specific data, projectors, initial condtis, params, etc. 
+    prepared = spec.model(mode, config, grid, reference, init) # this is a PreparedTraining struct; it's designed to plug-and-play into an optimizer. It has all the FOM/ROM specific data, projectors, initial conditions, params, etc.
     training = parse_training_options(options, config.tfinal, config.N_obs, config.seed) # this takes the options dictionary, and a few other data, and gets all the relevant training parametrizations (see cli.jl)
     run_name = get_string(options, "run-name", timestamp_run_name("$(uppercase(string(mode)))_$(uppercase(spec.name))_hpc")) # default name is very generic and will likely collide, which is fine
     assert_run_name_available(run_name) # if run name is not available, break immediately; you don't want to run and have nowhere to save. Note that I moved this function into saving.jl

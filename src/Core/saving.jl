@@ -2,7 +2,6 @@
 
 """Gets the path for the Data directory"""
 function optimization_data_root()
-    ### ADJUSTED: Save all run output in the repository-level Data directory.
     normpath(joinpath(@__DIR__, "..", "..", "Data"))
 end
 
@@ -41,7 +40,7 @@ Args:
 - run_directory: the path to save
 - output: a TrainingOutput struct; see types.jl
 """
-### ADJUSTED: Save the validation history once rather than emitting a duplicate evaluation file.
+
 function save_training_histories(run_directory, output::TrainingOutput)
     for (name, value) in (("window_history", output.window_history),
                           ("validation_history", output.validation_history))
@@ -66,13 +65,11 @@ function serialized_run_parameters(prepared::PreparedTraining, output::TrainingO
         state_shape = grid.state_shape
         state_components, learned_component, reference_reactions = nothing, nothing, nothing
     elseif equation == "rd"
-        ### ADJUSTED: Initialize every serialized equation parameter for reaction-diffusion runs.
         ε2, k, sigma, mean_c, D1, D2 = nothing, nothing, nothing, nothing, parameters.D1, parameters.D2
         state_shape = (2, grid.state_shape...)
         state_components, learned_component = ("v1", "v2"), "s2"
         reference_reactions = "s1=v1-v1^3-v2-0.005; s2=10*(v1-v2)"
     elseif equation == "ch"
-        ### ADJUSTED: Initialize every serialized equation parameter for Cahn-Hilliard runs.
         ε2, k, sigma, mean_c, D1, D2 = parameters.ε2, nothing, parameters.sigma, reference.mean_state, nothing, nothing
         state_shape = grid.state_shape
         state_components, learned_component, reference_reactions = nothing, nothing, nothing
@@ -104,6 +101,9 @@ function serialized_run_parameters(prepared::PreparedTraining, output::TrainingO
     if !isnothing(prepared.rom)
         r, m = size(prepared.rom.state_modes, 2), size(prepared.rom.nonlinear_modes, 2)
     end
+    m_requested = parameters.m
+    forced_deim_split = equation == "rd" ? parameters.forced_deim_split : nothing
+    m_per_function = forced_deim_split === true ? parameters.m ÷ 2 : nothing
     (; equation, N=config.N, L=config.L, ε2, k, sigma, mean_c, D1, D2,
        Δx=grid.Δx, Δmeasure=spatial_measure(grid), dimension=grid.dimension,
        boundary_condition=grid.boundary_condition, state_shape, x=copy(grid.x), y,
@@ -114,7 +114,7 @@ function serialized_run_parameters(prepared::PreparedTraining, output::TrainingO
        polynomial_coefficient_order, polynomial_initial_coefficients, polynomial_final_coefficients,
        seed=learner.seed, reference_dt=reference.Δt, reference_dt_factor=config.reference_dt_factor,
        reference_save_count=length(reference.times), initial_condition=config.initial_condition,
-       variable_window_training=true, r, m)
+       variable_window_training=true, r, m, m_requested, forced_deim_split, m_per_function)
 end
 
 """
@@ -142,7 +142,6 @@ function serialized_training_parameters(prepared::PreparedTraining, output::Trai
     if length(window_start_policy) == 1
         window_start_policy = window_start_policy[1]
     end
-    ### ADJUSTED: Preserve complete stage schedules alongside compact scalar metadata.
     (; ode_algorithm="TRBDF2(autodiff=AutoFiniteDiff())",
        sensitivity_algorithm="GaussAdjoint(MooncakeVJP)", optimizer="Adam variable-window staged",
        η, N_iter, η_schedule=copy(training.etas), N_iter_schedule=copy(training.iterations), β=training.beta,
@@ -150,6 +149,8 @@ function serialized_training_parameters(prepared::PreparedTraining, output::Trai
        window_T_schedule=copy(training.window_T), window_N_obs_schedule=copy(training.window_N_obs),
        window_start_policy_schedule=copy(training.window_start_policy),
        loss_normalization=training.loss_normalization, window_seed=training.window_seed,
+       loss_space=training.loss_space, learned_function_error=training.learned_function_error,
+       learned_function_error_bounds=training.learned_function_error_bounds,
        validation_N_obs=prepared.reference.N_obs, warmup=training.warmup,
        save_frequency=training.save_frequency, print_frequency=training.print_frequency,
        final_training_loss=output.final_training_loss,

@@ -58,7 +58,6 @@ Args:
 - D: the Laplacian matrix with some boundary condits
 - nonlinearity: the nonlinearity in CH, either learned or fixed
 """
-### ADJUSTED: Accept the trainable ComponentVector as well as fixed EquationParameters.
 function ch_problem(u₀, tspan, p, grid::Grid, D, nonlinearity)
     Dc, Df = similar(u₀), similar(u₀)
     rhs! = (du, c, p, t) -> begin
@@ -84,7 +83,7 @@ function ch_reference(config::RunConfig, grid::Grid, u₀::Vector{Float64})::Ref
     nonlinearity = (u, _) -> ch_fixed_values(u)
     Δt = config.reference_dt_factor * grid.Δx^4 / p.ε2
     tspan = (0.0, config.tfinal)
-    t = collect(LinRange(0.0, config.tfinal, min(max(2, floor(Int, config.tfinal / Δt) + 1), 500)))
+    t = reference_save_times(config.tfinal)
     prob = ch_problem(u₀, tspan, p, grid, D, nonlinearity)
     ReferenceData(solve(prob, TRBDF2(autodiff=AutoFiniteDiff()); saveat=t), prob, p, copy(u₀), D, t, tspan, Δt, config.N_obs, mean_c)
 end

@@ -75,7 +75,7 @@ function ac_reference(config::RunConfig, grid::Grid, u₀::Vector{Float64})::Ref
     end    
     Δt = config.reference_dt_factor * grid.Δx^2 / (2p.ε2)
     tspan = (0.0, config.tfinal)
-    t = collect(LinRange(0.0, config.tfinal, min(max(2, floor(Int, config.tfinal / Δt)),500)))
+    t = reference_save_times(config.tfinal)
     prob = ODEProblem(ODEFunction(rhs!; jac_prototype=laplacian_matrix(grid; scale=p.ε2)), u₀, tspan, p)
     ReferenceData(solve(prob, TRBDF2(); saveat=t), prob, p, copy(u₀), nothing, t, tspan, Δt, config.N_obs, 0.0)
 end

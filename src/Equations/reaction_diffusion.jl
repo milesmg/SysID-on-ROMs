@@ -114,7 +114,7 @@ function rd_reference(config::RunConfig, grid::Grid, u₀::Vector{Float64})::Ref
     p = config.parameters
     Δt = config.reference_dt_factor * grid.Δx^2 / max(p.D1, p.D2)
     tspan = (0.0, config.tfinal)
-    t = collect(LinRange(0.0, config.tfinal, min(max(2, floor(Int, config.tfinal / Δt) + 1), 500)))
+    t = reference_save_times(config.tfinal)
     rhs! = (du, u, p, t) -> rd_rhs!(du, u, p, grid, n, (v1, v2, _) -> rd_s2.(v1, v2))
     jac = [p.D1 * lap sparse(I, n, n); sparse(I, n, n) p.D2 * lap]
     prob = ODEProblem(ODEFunction(rhs!; jac_prototype=jac), u₀, tspan, p)
@@ -130,8 +130,9 @@ Args:
 - m: the number of DEIM points / modes
 - D1: the diffusion coefficient on the first component
 - D2: the diffusion coefficient on the second component
+- forced_deim_split: whether to select `m ÷ 2` DEIM points from each reaction separately
 """
-function rd_rom(lap, frames, r, m, D1, D2)::ROMData
+function rd_rom(lap, frames, r, m, D1, D2, forced_deim_split=false)::ROMData
     Phi, state_singular_values = pod_modes(frames, r)
     n = size(frames, 1) ÷ 2
     F = similar(frames)
@@ -140,8 +141,17 @@ function rd_rom(lap, frames, r, m, D1, D2)::ROMData
         F[1:n, j] .= rd_s1.(v1, v2)
         F[n+1:2n, j] .= rd_s2.(v1, v2)
     end
-    V, nonlinear_singular_values = pod_modes(F, m)
-    points = deim_indices(V)
+    if forced_deim_split
+        m_per_function = max(m ÷ 2,1)
+        V1, singular_values_1 = pod_modes(F[1:n, :], m_per_function)
+        V2, singular_values_2 = pod_modes(F[n+1:2n, :], m_per_function)
+        V = [V1 zeros(n, m_per_function); zeros(n, m_per_function) V2]
+        nonlinear_singular_values = vcat(singular_values_1, singular_values_2)
+        points = vcat(deim_indices(V1), n .+ deim_indices(V2))
+    else
+        V, nonlinear_singular_values = pod_modes(F, m)
+        points = deim_indices(V)
+    end
     spatial_points = [point <= n ? point : point - n for point in points]
     components = [point <= n ? 1 : 2 for point in points]
     L = [D1 * lap spzeros(n, n); spzeros(n, n) D2 * lap]
@@ -172,7 +182,9 @@ function rd_model(mode::Symbol, config::RunConfig, grid::Grid, reference::Refere
         return PreparedTraining(config, grid, init, reference, mode, prob, p₀, rebuild, nothing,
                                 (state, _, _) -> state, spatial_measure(grid), nothing,"rd")
     elseif mode == :rom
-        rom = rd_rom(reference.operator, hcat(reference.solution.u...), p.r, p.m, p.D1, p.D2)
+        ### ADJUSTED: Pass the sweep-selected DEIM split through to the reaction-diffusion ROM builder.
+        rom = rd_rom(reference.operator, hcat(reference.solution.u...), p.r, p.m, p.D1, p.D2, p.forced_deim_split)
+        p.forced_deim_split && hpc_log_timed("reaction-diffusion", "m requested = $(p.m); m per function = $(p.m ÷ 2)")
         p₀ = ComponentVector(Atilde=rom.linear_operator, Phi_v1_p=rom.sampled_state, Phi_v2_p=rom.sampled_state_2, Btilde=rom.nonlinear_projection, θ=θ)
         rhs! = (du, a, p, t) -> begin
             v1, v2 = p.Phi_v1_p * a, p.Phi_v2_p * a
@@ -193,6 +205,6 @@ Build EquationSpec struct for RD
 """
 function rd_spec()::EquationSpec
     EquationSpec("rd", 2, 2, 128, 32.0, 2, "neumann",
-       options -> EquationParameters(; D1=get_float(options, "d1", 2.8e-4), D2=get_float(options, "d2", 5e-2), r=get_int(options, "r", 20), m=get_int(options, "m", 10)),
+       options -> EquationParameters(; D1=get_float(options, "d1", 2.8e-4), D2=get_float(options, "d2", 5e-2), r=get_int(options, "r", 20), m=get_int(options, "m", 10), forced_deim_split=get_bool(options, "forced-deim-split", false)),
        (grid, config) -> rd_default_state(grid), rd_named_state, rd_reference, rd_model)
 end

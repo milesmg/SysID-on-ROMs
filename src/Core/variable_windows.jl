@@ -47,7 +47,6 @@ function build_stage_window_specs(tspan::Tuple{Float64,Float64}, stage::Integer,
         if policy == "beginning"
             t_start = t0
         else
-            ### ADJUSTED: Initialize each random window start from the trajectory origin.
             t_start = t0 + rand(rng) * (latest_start - t0)
         end
         push!(specs, make_window_spec(t_start, window_T, n_obs; stage, iteration, policy))
@@ -90,6 +89,7 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
         window_T_schedule,
         window_N_obs_schedule,
     )) || error("etas, iterations, window T's, and window N obs must be > 0")
+    training.loss_space == "REDUCED" && prepared.mode != :rom && error("REDUCED loss-space is only available for ROM training")
     policy_schedule = training.window_start_policy
     stage_count, total_iterations = length(eta_schedule), sum(N_iter_schedule)
     base_prob, p0, u_ref = prepared.problem, prepared.initial_parameters, prepared.reference.solution
@@ -116,7 +116,9 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
                                         GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP()),
                                         training.loss_normalization, 
                                         prepared.Δmeasure, 
-                                        prepared.reconstruct),
+                                        prepared.reconstruct,
+                                        prepared.project,
+                                        training.loss_space),
         Optimization.AutoZygote(), # outer autodiff backend. Mooncake is doing the VJP, and GaussAdjoint is doing the adjoint solve through the PDE, but this is doing the outer sensitivty of the loss wrt NN/polynom. params
     )
 
@@ -124,11 +126,15 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
     initial_loss = optf(copy(theta0), nothing) # can call optf whenever we want to calculate the loss based on a parametrization; however, this will work over the current window. 
     # If we want the full trajectory *validation* loss, we need to do: 
     initial_validation_loss = solve_window_loss(validation_window, base_prob, prepared.rebuild_parameters(p0, re, copy(theta0)),
-                                                alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct)
+                                                alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct,
+                                                prepared.project, training.loss_space)
     
     # save initial params and validation loss
-    parameter_history = TrainingSnapshot[TrainingSnapshot(0, 0, :parameter, copy(theta0), initial_loss)]
-    validation_history = TrainingSnapshot[TrainingSnapshot(0, 0, :validation, nothing, initial_validation_loss)]
+
+    initial_error = training.learned_function_error ? learned_function_l2_error(prepared, prepared.rebuild_parameters(p0, re, copy(theta0)).θ, training.learned_function_error_bounds) : nothing
+    !isnothing(initial_error) && hpc_log_timed(log_name, "iteration = 0, learned_function_l2_error = $initial_error")
+    parameter_history = TrainingSnapshot[TrainingSnapshot(0, 0, :parameter, copy(theta0), initial_loss, initial_error)]
+    validation_history = TrainingSnapshot[TrainingSnapshot(0, 0, :validation, nothing, initial_validation_loss, nothing)]
     
     # store references (so we can mutate) to the current window optimiztaion data
     latest_theta, last_training_loss = Ref(copy(theta0)), Ref(initial_loss)
@@ -138,7 +144,7 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
     alg_label = "TRBDF2(autodiff=AutoFiniteDiff())"
     sensalg_label = "GaussAdjoint(MooncakeVJP)"
 
-    hpc_log_timed(log_name, "Optimization Params: ode_algorithm = $alg_label; sensitivity_algorithm = $sensalg_label; eta = $eta_schedule; beta = $(training.beta); N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; loss_normalization = $(training.loss_normalization); total_iterations = $total_iterations")
+    hpc_log_timed(log_name, "Optimization Params: ode_algorithm = $alg_label; sensitivity_algorithm = $sensalg_label; eta = $eta_schedule; beta = $(training.beta); N_iter = $N_iter_schedule; window_T = $window_T_schedule; window_N_obs = $window_N_obs_schedule; window_start_policy = $policy_schedule; loss_normalization = $(training.loss_normalization); loss_space = $(training.loss_space); learned_function_error = $(training.learned_function_error); learned_function_error_bounds = $(training.learned_function_error_bounds); total_iterations = $total_iterations")
 
     # a warmup compilation run
     if training.warmup
@@ -166,7 +172,9 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
         latest_theta[], last_training_loss[] = copy(state.u), loss
         # if we're at a place to save, and we haven't saved, save 
         if global_iteration > 0 && global_iteration % training.save_frequency == 0 && parameter_history[end].iteration != global_iteration
-            push!(parameter_history, TrainingSnapshot(global_iteration, curr_stage_ref[], :parameter, copy(state.u), loss))
+            function_error = training.learned_function_error ? learned_function_l2_error(prepared, prepared.rebuild_parameters(p0, re, state.u).θ, training.learned_function_error_bounds) : nothing
+            !isnothing(function_error) && hpc_log_timed(log_name, "iteration = $global_iteration, learned_function_l2_error = $function_error")
+            push!(parameter_history, TrainingSnapshot(global_iteration, curr_stage_ref[], :parameter, copy(state.u), loss, function_error))
         end
         # if we're at a place to print, print
         if global_iteration % training.print_frequency == 0
@@ -201,8 +209,9 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
             OptimizationOptimisers.Adam(eta_schedule[stage], training.beta); maxiters=N_iter_schedule[stage], callback=callback_variable_window)
         iteration_offset[] += N_iter_schedule[stage]
         stage_validation_loss = solve_window_loss(validation_window, base_prob, prepared.rebuild_parameters(p0, re, latest_theta[]),
-                                                  alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct)
-        push!(validation_history, TrainingSnapshot(iteration_offset[], stage, :validation, nothing, stage_validation_loss))
+                                                  alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct,
+                                                  prepared.project, training.loss_space)
+        push!(validation_history, TrainingSnapshot(iteration_offset[], stage, :validation, nothing, stage_validation_loss, nothing))
         hpc_log_timed(log_name, "Stage $stage / $stage_count complete; validation_loss = $stage_validation_loss; elapsed = $(round(time() - stage_start; digits=2)) s")
     end
 
@@ -212,7 +221,11 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
     if final_iteration == 0
         final_iteration = total_iterations
     end
-    final_snapshot = TrainingSnapshot(final_iteration, stage_count, :parameter, copy(latest_theta[]), final_training_loss)
+
+    final_error = parameter_history[end].iteration == final_iteration ? parameter_history[end].learned_function_error :
+        (training.learned_function_error ? learned_function_l2_error(prepared, prepared.rebuild_parameters(p0, re, latest_theta[]).θ, training.learned_function_error_bounds) : nothing)
+    parameter_history[end].iteration != final_iteration && !isnothing(final_error) && hpc_log_timed(log_name, "iteration = $final_iteration, learned_function_l2_error = $final_error")
+    final_snapshot = TrainingSnapshot(final_iteration, stage_count, :parameter, copy(latest_theta[]), final_training_loss, final_error)
     if parameter_history[end].iteration == final_iteration
         parameter_history[end] = final_snapshot
     else

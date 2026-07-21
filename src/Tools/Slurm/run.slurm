@@ -31,7 +31,6 @@ if [ "${INSTANTIATE:-true}" = "true" ]; then
     "$JULIA_EXE" --project="$JULIA_ROOT" "$REPO_ROOT/src/Tools/Julia/setup_project.jl"
 fi
 
-### ADJUSTED: Forward the selected equation to the generic Julia entrypoint.
 ARGS=(--mode "$MODE")
 for pair in \
     EQUATION:equation N:N L:L EPS2:eps2 K:k TFINAL:tfinal N_OBS:N-obs R:r M:m H:h SEED:seed \
@@ -39,6 +38,8 @@ for pair in \
     INITIAL_CONDITION:initial-condition ETAS:etas ITERS:iters BETA:beta SAVE_FREQUENCY:save-frequency \
     PRINT_FREQUENCY:print-frequency WARMUP:warmup WINDOW_T:window-T WINDOW_N_OBS:window-N-obs \
     WINDOW_START_POLICY:window-start-policy LOSS_NORMALIZATION:loss-normalization WINDOW_SEED:window-seed \
+    LOSS_SPACE:loss-space FORCED_DEIM_SPLIT:forced-deim-split LEARNED_FUNCTION_ERROR:learned-function-error \
+    LEARNED_FUNCTION_ERROR_BOUNDS:learned-function-error-bounds \
     LEARNER:learner POLYNOMIAL_DEGREE:polynomial-degree SIGMA:sigma MEAN_C:mean-c D1:d1 D2:d2 RUN_NAME:run-name
 do
     environment="${pair%%:*}"

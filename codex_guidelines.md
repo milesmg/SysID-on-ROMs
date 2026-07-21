@@ -11,7 +11,7 @@
 - Commenting
   - wherever you make edits, add a one line comment above describing what you've changed
   - this comment should begin with ### ADJUSTED: (description)
-  - document your edit in a new .md file in the codex_logs folder. 
+  - document your edit in a new .md file in the Untracked/codex_logs directory. 
     - This description should be short, unless large scale changes were made. 
     - This file should also contain a list of files edited, with edits made to each
 

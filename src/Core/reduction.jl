@@ -1,4 +1,7 @@
-# Work with (hypperreduced) ROM data, and project things into and out of ROM 
+# Work with (hyperreduced) ROM data, and project things into and out of ROM
+
+"""Return the fixed 500-time reference snapshot grid used to build every POD/DEIM basis."""
+reference_save_times(tfinal) = collect(LinRange(0.0, tfinal, 500))
 
 """Get first r/m POD/DEIM modes, where r,m passed in as rank. Also return the singular values"""
 function pod_modes(frames, rank::Integer)

@@ -31,25 +31,41 @@ Args:
     - p is the parameters
     - alg defaults to TRBDF2(autodiff=AutoFiniteDiff()), the forward solver
     - sensalg defaults to GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP()), which solves the adjoint
-    - normalization and Δmeasure are how we noramlize/scale the loss; see function above
+    - normalization and Δmeasure are how we normalize/scale the loss; see function above
     - reconstruct takes a state and produces something that can be compared to the reference; eg projecting a ROM state up, or adding back avg. mass in Cahn Hilliard
+    - project takes a reference and produces something that can be compared to the reduced state
+    - loss_space: "REDUCED" or "FULL"; do we project a ROM up before we compute the loss?
 """
-function solve_window_loss(window::TrainingWindow, prob, p, alg, sensalg, normalization, Δmeasure, reconstruct)
+function solve_window_loss(window::TrainingWindow, prob, p, alg, sensalg, normalization, Δmeasure, reconstruct, project, loss_space)
     window_prob = remake(prob; u0=window.model_u0, tspan=(window.spec.t_start, window.spec.t_end), p=p)
     sol = solve(window_prob, alg; saveat=window.spec.t_obs, sensealg=sensalg)
-    model_states = [reconstruct(state, prob, p) for state in sol.u]
-    weighted_solution_loss(model_states, window.reference_observations, Δmeasure, normalization)
+    if loss_space == "REDUCED" && !isnothing(project)
+        weighted_solution_loss(sol.u, [project(state) for state in window.reference_observations], Δmeasure, normalization)
+    else
+        weighted_solution_loss([reconstruct(state, prob, p) for state in sol.u], window.reference_observations, Δmeasure, normalization)
+    end
 end
 
-
-## TO ADD:
-function l2_error_learned_function(grid, learner)
-
+"""Compute the learned-versus-reference reaction-function L2 error over common scalar bounds.
+Args:
+- prepared: a PreparedTraining struct (will tell us how our learner is rebuilt from θ)
+- θ: parameters for our learned function
+- bounds: the bounds for the domain of our integral"""
+function learned_function_l2_error(prepared::PreparedTraining, θ, bounds)
+    lower, upper = bounds
+    grid, parameters = prepared.grid, prepared.config.parameters
+    x = collect(LinRange(lower, upper, grid.N))
+    Δx = (upper - lower) / (grid.N - 1)
+    if prepared.equation_name == "ac"
+        learned, reference = ac_values(x, prepared.learner, θ), ac_fixed_values(x, parameters.k)
+        return sqrt(Δx * sum(abs2, learned .- reference))
+    elseif prepared.equation_name == "ch"
+        learned, reference = ch_values(x, prepared.learner, θ), ch_fixed_values(x)
+        return sqrt(Δx * sum(abs2, learned .- reference))
+    elseif prepared.equation_name == "rd"
+        v1 = repeat(x; inner=grid.N)
+        v2 = repeat(x; outer=grid.N)
+        learned, reference = rd_values(v1, v2, prepared.learner, θ), rd_s2.(v1, v2)
+        return sqrt(Δx^2 * sum(abs2, learned .- reference))
+    end
 end
-
-# actually, I think this can be done by adjusting the 'reconstruct' passed into solve_window_loss
-function reduced_weighted_solution_loss()
-
-end
-
-

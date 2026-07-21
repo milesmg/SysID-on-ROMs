@@ -44,7 +44,6 @@ Set threading for the optimization and print results
     - Default is 1 BLAS thread
     - Most of these variables/objects (BLAS, ENV, Threads, etc.) are built in to Julia
 """
-### ADJUSTED: Keep runtime setup independent of the former HPC directory name.
 function setup_runtime()
     BLAS.set_num_threads(get_int(ENV, "JULIA_BLAS_THREADS", 1))
     println("Julia version: ", VERSION)
@@ -73,11 +72,14 @@ Sets the parameters for a run based on dictionary of command line arguments.
     - window_N_obs default = global Nobs (), for each stage [this N_obs builds the validation ]
     - window-start-policy default = beginning, for each stage
     - loss_normalization default = mean
+    - loss_space default = FULL
     - window_seed default = seed, passed in as argument
     - beta default (0.0,0.99)
     - warmup default = true
     - save_frequency default = 10
     - print-frequency default = 10 
+    - learned_function_error defaults to false
+    - learned_function_error_bounds defaults to (-1.0,1.0)
     - NOTE: This is where we validate that the number of stages is the same across inputs
 """
 function parse_training_options(options, tfinal, N_obs, seed)::TrainingConfig
@@ -89,14 +91,19 @@ function parse_training_options(options, tfinal, N_obs, seed)::TrainingConfig
     window_T = get_float_vector(options, "window-T", fill(tfinal, stage_count))
     window_N_obs = get_int_vector(options, "window-N-obs", fill(N_obs, stage_count))
     window_start_policy = get_string_vector(options, "window-start-policy", fill("beginning", stage_count))
+    loss_space = uppercase(get_string(options, "loss-space", "FULL"))
+    loss_space in ("FULL", "REDUCED") || error("loss-space must be FULL or REDUCED")
+    learned_function_error_bounds = get_float_tuple(options, "learned-function-error-bounds", (-1.0, 1.0))
     lengths = (length(iterations), length(window_T), length(window_N_obs),
                length(window_start_policy))
     all(==(stage_count), lengths) || error("staged schedules must have equal lengths")
     TrainingConfig(etas, iterations, window_T, window_N_obs, window_start_policy,
-                   get_string(options, "loss-normalization", "mean"),
+                   get_string(options, "loss-normalization", "mean"), loss_space,
                    get_int(options, "window-seed", seed),
                    get_float_tuple(options, "beta", (0.9, 0.99)),
                    get_bool(options, "warmup", true),
                    get_int(options, "save-frequency", 10),
-                   get_int(options, "print-frequency", 10))
+                   get_int(options, "print-frequency", 10),
+                   get_bool(options, "learned-function-error", false),
+                   learned_function_error_bounds)
 end

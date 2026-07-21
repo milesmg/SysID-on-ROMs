@@ -1,5 +1,3 @@
-# ### ADJUSTED: Define every cross-file HPC data contract in one typed location.
-#
 # Containment map:
 # EquationSpec -> equation defaults and adapter functions
 # RunConfig -> EquationParameters
@@ -17,17 +15,19 @@ struct EquationParameters
     D2::Float64 # reaction-diffusion second-species diffusivity
     r::Int # requested state POD rank
     m::Int # requested nonlinear DEIM rank
+    forced_deim_split::Bool # split reaction-diffusion DEIM points evenly by reaction function
 end
 # Appears in:
 # - Core/types.jl
 # - Core/pipeline.jl
+# - Core/saving.jl
 # - Equations/allen_cahn.jl
 # - Equations/cahn_hilliard.jl
 # - Equations/reaction_diffusion.jl
 # - Tools/Tests/runtests.jl
 
-EquationParameters(; ε2=0.0, k=0.0, sigma=0.0, mean_c=0.0, D1=0.0, D2=0.0, r=0, m=0) =
-    EquationParameters(Float64(ε2), Float64(k), Float64(sigma), Float64(mean_c), Float64(D1), Float64(D2), Int(r), Int(m))
+EquationParameters(; ε2=0.0, k=0.0, sigma=0.0, mean_c=0.0, D1=0.0, D2=0.0, r=0, m=0, forced_deim_split=false) =
+    EquationParameters(Float64(ε2), Float64(k), Float64(sigma), Float64(mean_c), Float64(D1), Float64(D2), Int(r), Int(m), Bool(forced_deim_split))
 
 struct Grid
     N::Int # grid points along each spatial dimension
@@ -187,16 +187,20 @@ struct TrainingConfig
     window_N_obs::Vector{Int} # observations per training window for each stage
     window_start_policy::Vector{String} # beginning or random window policy for each stage
     loss_normalization::String # mean or sum trajectory-loss scaling
+    loss_space::String # FULL or REDUCED ROM trajectory-loss comparison space
     window_seed::Int # deterministic random-window seed
     beta::Tuple{Float64,Float64} # Adam momentum coefficients
     warmup::Bool # whether to compile with one warmup update
     save_frequency::Int # parameter-history snapshot interval
     print_frequency::Int # progress-log interval
+    learned_function_error::Bool # whether saved parameter snapshots include learned-function L2 error
+    learned_function_error_bounds::Tuple{Float64,Float64} # shared lower and upper function-error integration bounds
 end
 # Appears in:
 # - Core/types.jl
 # - Core/cli.jl
 # - Core/pipeline.jl
+# - Core/saving.jl
 # - Core/variable_windows.jl
 # - Tools/Tests/runtests.jl
 
@@ -214,7 +218,7 @@ end
 # - Core/types.jl
 # - Core/variable_windows.jl
 
-### ADJUSTED: Preserve value comparison for deterministic window-schedule tests.
+# This tests whether two schedules are the same. Useful for testing only. 
 Base.:(==)(left::WindowSpec, right::WindowSpec) =
     left.stage == right.stage && left.iteration == right.iteration && left.policy == right.policy &&
     left.t_start == right.t_start && left.t_end == right.t_end && left.window_T == right.window_T &&
@@ -238,6 +242,7 @@ struct TrainingSnapshot
     kind::Symbol # :parameter for training or :validation for full-trajectory evaluation
     θ::Union{Nothing,Vector{Float64}} # trainable parameters for :parameter snapshots, otherwise nothing
     loss::Float64 # training-window or fixed validation loss according to kind
+    learned_function_error::Union{Nothing,Float64} # optional learned-vs-true function L2 error for parameter snapshots
 end
 # Appears in:
 # - Core/types.jl

@@ -1,8 +1,6 @@
 using Test
 
-### ADJUSTED: Test the top-level source tree directly.
 const SRC_ROOT = normpath(joinpath(@__DIR__, "..", ".."))
-### ADJUSTED: Include the active variable-window implementation before testing its public functions.
 for file in ("Core/bootstrap.jl", "Core/types.jl", "Core/grids.jl", "Core/laplacian.jl", "Core/initial_conditions.jl", "Core/learners.jl", "Core/losses.jl", "Core/reduction.jl", "Core/saving.jl", "Core/cli.jl", "Core/variable_windows.jl", "Equations/allen_cahn.jl", "Equations/cahn_hilliard.jl", "Equations/reaction_diffusion.jl", "Core/pipeline.jl")
     include(joinpath(SRC_ROOT, file))
 end
@@ -41,13 +39,15 @@ end
     @test rd_du[1:rd_n] ≈ rd_p.D1 .* (rd_lap * rd_v1) .+ rd_s1.(rd_v1, rd_v2)
     @test rd_du[rd_n+1:2rd_n] ≈ rd_p.D2 .* (rd_lap * rd_v2) .+ rd_s2.(rd_v1, rd_v2)
 
-    options = parse_cli(["--etas", "1e-3,5e-4", "--iters=2,3", "--warmup", "false"])
+    options = parse_cli(["--etas", "1e-3,5e-4", "--iters=2,3", "--warmup", "false", "--loss-space", "REDUCED", "--learned-function-error", "true", "--learned-function-error-bounds", "-.7,.7"])
     training = parse_training_options(options, 1.0, 4, 42)
     @test training.etas == [1e-3, 5e-4]
     @test training.iterations == [2, 3]
+    @test training.loss_space == "REDUCED"
+    @test training.learned_function_error
+    @test training.learned_function_error_bounds == (-.7, .7)
 
     args = ((0.0, 1.0), [2, 1], [0.2, 0.5], [2, 4], ["random", "beginning"], 42)
-    ### ADJUSTED: Derive the saved flat history from the stage-wise schedule returned by the active API.
     stages1 = build_window_schedule(args...)
     stages2 = build_window_schedule(args...)
     history1 = reduce(vcat, stages1)
@@ -61,6 +61,14 @@ end
     reference = [[0.0, 1.0], [1.0, 3.0]]
     @test weighted_solution_loss(model, reference, .5, "sum") ≈ 1.0
     @test weighted_solution_loss(model, reference, .5, "mean") ≈ .5
+
+    loss_spec = WindowSpec(1, 1, "beginning", 0.0, 1.0, 1.0, 1, [1.0])
+    loss_window = TrainingWindow(loss_spec, zeros(2), zeros(1), [[1.0, 2.0]])
+    loss_prob = ODEProblem((du, u, p, t) -> (du .= 0), zeros(1), (0.0, 1.0))
+    loss_alg = TRBDF2(autodiff=AutoFiniteDiff())
+    loss_sensalg = GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP())
+    @test solve_window_loss(loss_window, loss_prob, nothing, loss_alg, loss_sensalg, "sum", 1.0, (state, _, _) -> [state[1], 0.0], state -> state[1:1], "FULL") ≈ 2.5
+    @test solve_window_loss(loss_window, loss_prob, nothing, loss_alg, loss_sensalg, "sum", 1.0, (state, _, _) -> [state[1], 0.0], state -> state[1:1], "REDUCED") ≈ .5
 
     learner = build_learner("nn", 1, 2, 1, 3)
     @test length(nn_values([0.0, 1.0], learner.nn, learner.θ, learner.state)) == 2
@@ -77,12 +85,12 @@ end
         state = materialize_initial_condition(spec, grid, "default", config)
         ref = spec.reference(config, grid, state)
         @test length(ref.initial_state) == spatial_length(grid; fields=spec.fields)
+        @test length(ref.times) == 500
         @test isfinite(sum(ref.solution.u[end]))
-        ### ADJUSTED: Check run-parameter serialization for each equation and both FOM/ROM prepared paths.
         for mode in (:fom, :rom)
             prepared = spec.model(mode, config, grid, ref, initialize_learner(spec, config))
             @test hasproperty(prepared, :problem)
-            training = TrainingConfig([1e-3], [1], [config.tfinal], [1], ["beginning"], "mean", 1, (0.9, 0.99), false, 1, 1)
+            training = TrainingConfig([1e-3], [1], [config.tfinal], [1], ["beginning"], "mean", "FULL", 1, (0.9, 0.99), false, 1, 1, false, (-1.0, 1.0))
             output = TrainingOutput(nothing, Float64[], training, TrainingSnapshot[], 0.0, 0.0, WindowSpec[], TrainingSnapshot[])
             @test serialized_run_parameters(prepared, output).N == config.N
         end
@@ -93,29 +101,39 @@ end
     grid = spatial_grid(config.N, config.L, config.dimension, config.boundary_condition)
     reference = ReferenceData(nothing, nothing, config.parameters, zeros(4), nothing, [0.0, 0.1], (0.0, 0.1), 0.01, 2, 0.0)
     learner = LearnerSetup("nn", nothing, nothing, [0.0], 2, 1, nothing, "tanh")
-    ### ADJUSTED: Supply the equation name required by the current PreparedTraining contract.
     prepared = PreparedTraining(config, grid, learner, reference, :fom, nothing, nothing, nothing, nothing, nothing, grid.Δx, nothing, "ac")
-    training = TrainingConfig([1e-3], [1], [0.1], [2], ["beginning"], "mean", 1, (0.9, 0.99), false, 1, 1)
-    parameter_history = [TrainingSnapshot(0, 0, :parameter, [0.0], 1.0)]
-    validation_history = [TrainingSnapshot(0, 0, :validation, nothing, 1.0)]
+    training = TrainingConfig([1e-3], [1], [0.1], [2], ["beginning"], "mean", "FULL", 1, (0.9, 0.99), false, 1, 1, false, (-1.0, 1.0))
+    parameter_history = [TrainingSnapshot(0, 0, :parameter, [0.0], 1.0, nothing)]
+    validation_history = [TrainingSnapshot(0, 0, :validation, nothing, 1.0, nothing)]
     output = TrainingOutput(nothing, [0.0], training, parameter_history, 1.0, 1.0, WindowSpec[], validation_history)
     training_params = serialized_training_parameters(prepared, output)
     @test training_params.η_schedule == training.etas
     @test training_params.final_full_trajectory_loss == output.final_full_trajectory_loss
+    @test training_params.loss_space == "FULL"
     @test serialized_run_parameters(prepared, output).N == config.N
     history_dir = mktempdir()
     save_training_histories(history_dir, output)
-    ### ADJUSTED: Persist only distinct histories.
     @test all(isfile(joinpath(history_dir, name)) for name in ("window_history.jls", "validation_history.jls"))
 
-    ### ADJUSTED: Keep differentiated FOM/ROM smoke coverage available without making the default local suite depend on Mooncake's unstable IRTools path.
+    rd_specification = equation_spec("rd")
+    rd_config = run_configuration(parse_cli(["--N", "4", "--tfinal", "0.01", "--r", "1", "--m", "4", "--forced-deim-split", "true"]), rd_specification)
+    rd_grid = spatial_grid(rd_config.N, rd_config.L, rd_config.dimension, rd_config.boundary_condition)
+    rd_ref = rd_specification.reference(rd_config, rd_grid, materialize_initial_condition(rd_specification, rd_grid, "default", rd_config))
+    rd_split = rd_rom(rd_ref.operator, hcat(rd_ref.solution.u...), 1, 4, rd_config.parameters.D1, rd_config.parameters.D2, true)
+    @test rd_config.parameters.forced_deim_split
+    @test length(rd_split.deim_indices) == 4
+    @test count(==(1), rd_split.components) == 2
+    @test count(==(2), rd_split.components) == 2
+    rd_prepared = rd_specification.model(:rom, rd_config, rd_grid, rd_ref, initialize_learner(rd_specification, rd_config))
+    @test isfinite(learned_function_l2_error(rd_prepared, rd_prepared.learner.θ, (-.7, .7)))
+
     if get(ENV, "RUN_DIFFERENTIATED_SMOKE", "false") == "true"
         for (name, options) in (("ac", ["--N", "8", "--tfinal", "0.01", "--r", "1", "--m", "1"]), ("ch", ["--N", "8", "--tfinal", "0.01", "--r", "1", "--m", "1"]), ("rd", ["--N", "4", "--tfinal", "0.01", "--r", "1", "--m", "1"]))
             spec = equation_spec(name)
             config = run_configuration(parse_cli(options), spec)
             grid = spatial_grid(config.N, config.L, config.dimension, config.boundary_condition)
             ref = spec.reference(config, grid, materialize_initial_condition(spec, grid, "default", config))
-            training = TrainingConfig([1e-3], [1], [config.tfinal], [1], ["beginning"], "mean", 1, (0.9, 0.99), false, 1, 1)
+            training = TrainingConfig([1e-3], [1], [config.tfinal], [1], ["beginning"], "mean", "FULL", 1, (0.9, 0.99), false, 1, 1, false, (-1.0, 1.0))
             for mode in (:fom, :rom)
                 prepared = spec.model(mode, config, grid, ref, initialize_learner(spec, config))
                 output = run_variable_window_stages(prepared, training; log_name="typed_contract_smoke")
@@ -127,7 +145,6 @@ end
                 @test all(snapshot.kind == :validation && isnothing(snapshot.θ) for snapshot in output.validation_history)
                 history_dir = mktempdir()
                 save_training_histories(history_dir, output)
-                ### ADJUSTED: Persist only distinct histories.
                 @test all(isfile(joinpath(history_dir, name)) for name in ("window_history.jls", "validation_history.jls"))
                 @test serialized_run_parameters(prepared, output).N == config.N
                 @test serialized_training_parameters(prepared, output).η_schedule == training.etas

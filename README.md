@@ -139,6 +139,7 @@ Use the uppercase underscore spelling shown below. The parser emits each selecte
 | `SIGMA`, `MEAN_C` | Cahn-Hilliard relaxation coefficient and requested mean initial concentration. |
 | `D1`, `D2` | Reaction-diffusion diffusion coefficients. |
 | `R`, `M` | ROM state POD rank and nonlinear DEIM rank. They matter only for `TARGET = rom`. |
+| `FORCED_DEIM_SPLIT` | Reaction-diffusion ROM only. `true` assigns `M ÷ 2` DEIM points to each reaction function (so an odd `M` uses `2(M ÷ 2)` points); default `false` retains combined DEIM. |
 | `LEARNER` | `nn` for the Lux tanh network or `polynomial` for a polynomial nonlinearity. Default: `nn`. |
 | `H` | Hidden width of the neural network. The default architecture is `(input, H, H, 1)`. |
 | `POLYNOMIAL_DEGREE` | Degree used when `LEARNER = polynomial`. |
@@ -151,9 +152,12 @@ Use the uppercase underscore spelling shown below. The parser emits each selecte
 | `WINDOW_START_POLICY` | `beginning` or `random` per stage. `random` precomputes deterministic starts from `WINDOW_SEED`. Default: `beginning`. |
 | `WINDOW_SEED` | Seed used to precompute random training-window starts. Default: `SEED`. |
 | `LOSS_NORMALIZATION` | `mean` or `sum`; default `mean`. `mean` keeps the scale less sensitive to the number of observations. |
+| `LOSS_SPACE` | ROM only: `FULL` (default) compares reconstructed fields; `REDUCED` compares state POD coordinates before reconstruction. |
 | `BETA` | Adam coefficients as `β1,β2`; default `0.9,0.99`. |
 | `WARMUP` | `true` or `false`; default `true`. A one-update warmup compiles the differentiated path before measured optimization. |
 | `SAVE_FREQUENCY` | Parameter-snapshot interval in optimizer iterations. |
+| `LEARNED_FUNCTION_ERROR` | `true` saves and logs an L2 error between the learned and reference reaction at each saved parameter snapshot; default `false`. |
+| `LEARNED_FUNCTION_ERROR_BOUNDS` | Comma-separated lower and upper integration bounds for `LEARNED_FUNCTION_ERROR`; default `-1.0,1.0`. R-D integrates over the resulting square. |
 | `PRINT_FREQUENCY` | Progress-log interval in optimizer iterations. |
 | `JULIA_NUM_THREADS` | Julia thread count requested by the Slurm launcher; default `8`. |
 | `JULIA_BLAS_THREADS` | BLAS thread count; default `1`. |
@@ -266,7 +270,7 @@ Data/<RUN_NAME>/
 
 ROM runs save the same histories and metadata, plus `rom_data.jls`, which contains the saved configuration and ROM artifacts: POD modes, DEIM modes and indices, singular values, reduced operators, and reaction-diffusion component/index metadata when applicable.
 
-`parameter_history.jls` stores saved trainable-parameter snapshots. `window_history.jls` stores every precomputed training-window specification. `validation_history.jls` stores initial and per-stage full-trajectory losses. `metadata.txt` is human-readable; the `.jls` files use Julia serialization.
+`parameter_history.jls` stores saved trainable-parameter snapshots and, when enabled, their learned-function L2 errors. `window_history.jls` stores every precomputed training-window specification. `validation_history.jls` stores initial and per-stage full-trajectory losses. `metadata.txt` is human-readable; the `.jls` files use Julia serialization.
 
 Slurm initially writes direct-job and array-worker output to `Data/_Logs/`. For a successful sweep combination, the per-combination logs are moved into its run directory as `log.out` and `log.err`; failed-combination logs remain in `Data/_Logs/` for diagnosis. The Slurm array worker logs also remain in `Data/_Logs/`.
 
