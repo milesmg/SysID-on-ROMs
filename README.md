@@ -18,14 +18,14 @@ System identification (SysID) infers a model from observed system behavior. Here
 
 We would like to model the trajectory of a time-dependent PDE with some initial condition: 
 $$\frac{d}{dt}u(t)= F(u(t))$$
- given $u(0)$. We discretize in time, say, via 
+ given $u(0).$ We discretize in time, say, via 
 $$u(t+1)= u(t) + \Delta t \frac{d}{dt}u(t) = u(t) + \Delta t F(u(t)) .$$ 
 
-To accelerate this algorithm, we attempt to exploit the symmetries of a PDE solution trajectory: we build some reduced version of the state variable, $\tilde{u} = u$, which encodes its most important properties. Proper orthogonal decomposition (POD) reduces a state trajectory to a low-dimensional basis. Given a snapshot matrix $S$ of trajectory states, its singular value decomposition supplies spatial POD modes $\phi_1,...,\phi_r$. A rank-`r` state basis, concatenated into a matrix as $\Phi$, represents a full state approximately as $u \approx \Phi \tilde{u}$. If $F$ is linear, we can precompute $\tilde{F} = \Phi^T F \Phi$, arriving at the fast approximation $\frac{d}{dt}\tilde{u}(t) = \tilde{F}(\tilde{u}(t)).$
+To accelerate this algorithm, we attempt to exploit the symmetries of a PDE solution trajectory: we build some reduced version of the state variable, $\tilde{u} = u$, which encodes its most important properties. Proper orthogonal decomposition (POD) reduces a state trajectory to a low-dimensional basis. Given a snapshot matrix $S$ of trajectory states, its singular value decomposition supplies spatial POD modes $\phi_1,...,\phi_r.$ A rank-`r` state basis, concatenated into a matrix as $\Phi$, represents a full state approximately as $u \approx \Phi \tilde{u}.$ If $F$ is linear, we can precompute $\tilde{F} = \Phi^T F \Phi$, arriving at the fast approximation $\frac{d}{dt}\tilde{u}(t) = \tilde{F}(\tilde{u}(t)).$
 
 In this project, we deal with nonlinear PDEs; specifically, PDEs of the form $F(u) = L(u) + N(u)$, a sum of linear and nonlinear parts. We can apply the nice reduction technique above to the linear part, but to reduce the nonlinear part we need *hyperreduction*; in this case, we employ the discrete empirical interpolation method (DEIM). 
 
-DEIM builds a separate rank-$m$ nonlinear basis as the singular vectors of a snapshot matrix of nonlinear function evaluations, $S_N \mapsto \psi_1,...,\psi_m$. We then choose $m$ spatial points at which to evaluate our nonlinearity at every timestep (these points are chosen via a greedy algorithm), and at each time we do 
+DEIM builds a separate rank-$m$ nonlinear basis as the singular vectors of a snapshot matrix of nonlinear function evaluations, $S_N \mapsto \psi_1,...,\psi_m.$ We then choose $m$ spatial points at which to evaluate our nonlinearity at every timestep (these points are chosen via a greedy algorithm), and at each time we do 
 $$\frac{d}{dt}\tilde{u}(t) = \tilde{L}(\tilde{u}(t)) + BN(u_p(t)),$$ 
 where $\tilde{L} = \Phi^T L \Phi$, $u_p$ is our reduced $\tilde{u}$ projected up into the full state but only at $m$ interpolation points, and $B$ is the matrix that interpolates those $m$ evaluations of $N$ based on our snapshot-produced basis $\psi_1,...,\psi_m \equiv \Psi$ and our projector $\Phi.$
 
@@ -35,8 +35,8 @@ We employ a Petrov-Galerkin ROM for the Cahn-Hilliard equation, as well as a gra
 
 The reference models use the following nonlinear terms:
 
-- **Allen-Cahn (AC):** $u_t = ε² Δu - k(u³ - u)$. The learner approximates the scalar reaction $-k(u³-u)$.
-- **Cahn-Hilliard (CH):** $c_t = Δ(-ε² Δc + c³-c) - σ(c-mean(c))$. The learner approximates $c³-c$.
+- **Allen-Cahn (AC):** $u_t = ε² Δu - k(u³ - u).$ The learner approximates the scalar reaction $-k(u³-u).$
+- **Cahn-Hilliard (CH):** $c_t = Δ(-ε² Δc + c³-c) - σ(c-mean(c)).$ The learner approximates $c³-c.$
 - **Reaction-diffusion (RD):**
   $$
   \begin{aligned}

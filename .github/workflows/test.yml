@@ -12,5 +12,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: "1.12"
+      # ### ADJUSTED: Reuse the Julia depot between CI runs when the project environment is unchanged.
+      - uses: julia-actions/cache@v2
       - run: julia --project=Julia -e 'using Pkg; Pkg.instantiate()'
       - run: julia --project=Julia --startup-file=no src/Tools/Tests/runtests.jl
