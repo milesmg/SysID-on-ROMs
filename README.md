@@ -274,13 +274,11 @@ ROM runs save the same histories and metadata, plus `rom_data.jls`, which contai
 
 Slurm initially writes direct-job and array-worker output to `Data/_Logs/`. For a successful sweep combination, the per-combination logs are moved into its run directory as `log.out` and `log.err`; failed-combination logs remain in `Data/_Logs/` for diagnosis. The Slurm array worker logs also remain in `Data/_Logs/`.
 
-## Local Visualization Notebooks
+## Local Notebooks
 
-`Untracked/Visualize_results/A-C/` and `Untracked/Visualize_results/R-D/` contain local notebooks for replaying saved FOM and ROM runs. Set `input_path` to either one `Data/<RUN_NAME>` directory or, with `dir_of_dirs = true`, a directory containing runs. Each notebook solves its selected trajectories once into `trajectory_data`, so titles, axes, legends, colorbars, and saved figures can be adjusted without re-solving. Rendered Allen--Cahn/Cahn--Hilliard figures go to `Untracked/Visualize_results/A-C/Data/`; reaction--diffusion figures go to `Untracked/Visualize_results/R-D/Data/`.
+`Local/` is the workstation-local notebook workspace. In visualizations, each notebook replays either one saved run or a directory of runs, retaining solved trajectory data for repeat plotting. Their reusable reconstruction and plotting functions live in `src/Tools/Visualizations/`.
 
-The stability notebooks in `Untracked/Tests/` construct fresh FOM and ROM trajectories for Allen--Cahn, Cahn--Hilliard, or reaction--diffusion from notebook-global problem settings. Their plotting and replay functions live in `src/Tools/Visualizations/`, which is loaded by including `visualizations.jl` after activating `Julia/`. The visualization dependency is part of the project environment, so instantiate once after pulling this change before running a notebook.
-
-`Untracked/Tests/timing_tests.ipynb` uses `src/Tools/Tests/timing_tests.jl` to benchmark repeated post-warm-up 2D Allen--Cahn forward solves, losses, and complete Adam steps over FOM or ROM parameter schedules. Give each schedule a required test name; its cases and readable/serialized results are saved under `Untracked/Tests/timing_test_results/<test name>/`. The notebook is opt-in: set `RUN_BENCHMARKS = true` only after choosing a schedule sized for the available machine.
+`Local/Tests/` contains equation-specific ROM-stability notebooks, which construct fresh FOM and ROM trajectories and make comparison GIFs. It also contains `timing_tests.ipynb` for benchmarking the computational cost of all aspects of an optimization step under various (hyper)parametriazations; `gradient_error.ipynb` and `test_learnability.ipynb` are intentional placeholders. Timing schedules require a test name; data is saved under `Untracked/Tests/timing_test_results/<test name>/`.
 
 ## Repository Structure
 
