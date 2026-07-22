@@ -63,15 +63,26 @@ end
     @test weighted_solution_loss(model, reference, .5, "mean") ≈ .5
 
     loss_spec = WindowSpec(1, 1, "beginning", 0.0, 1.0, 1.0, 1, [1.0])
-    loss_window = TrainingWindow(loss_spec, zeros(2), zeros(1), [[1.0, 2.0]])
+    # ### ADJUSTED: Supply the cached model-space reference alongside its full-space counterpart.
+    loss_window = TrainingWindow(loss_spec, zeros(2), zeros(1), [[1.0, 2.0]], [[1.0]])
     loss_prob = ODEProblem((du, u, p, t) -> (du .= 0), zeros(1), (0.0, 1.0))
     loss_alg = TRBDF2(autodiff=AutoFiniteDiff())
     loss_sensalg = GaussAdjoint(autojacvec=SciMLSensitivity.MooncakeVJP())
     @test solve_window_loss(loss_window, loss_prob, nothing, loss_alg, loss_sensalg, "sum", 1.0, (state, _, _) -> [state[1], 0.0], state -> state[1:1], "FULL") ≈ 2.5
     @test solve_window_loss(loss_window, loss_prob, nothing, loss_alg, loss_sensalg, "sum", 1.0, (state, _, _) -> [state[1], 0.0], state -> state[1:1], "REDUCED") ≈ .5
+    # ### ADJUSTED: Ensure reduced-space loss reuses reference projections cached when its window is materialized.
+    projection_calls = Ref(0)
+    counting_project = state -> (projection_calls[] += 1; state[1:1])
+    cached_window = materialize_window(t -> [t, 2t], loss_spec, counting_project)
+    @test projection_calls[] == 2 # one initial condition and one observation
+    @test solve_window_loss(cached_window, loss_prob, nothing, loss_alg, loss_sensalg, "sum", 1.0,
+                            (state, _, _) -> [state[1], 0.0], counting_project, "REDUCED") ≈ .5
+    @test projection_calls[] == 2
 
     learner = build_learner("nn", 1, 2, 1, 3)
     @test length(nn_values([0.0, 1.0], learner.nn, learner.θ, learner.state)) == 2
+    # ### ADJUSTED: A degree-one RD polynomial needs constant, v1, and v2 coefficients.
+    @test length(build_learner("polynomial", 2, 2, 1, 1).θ) == 3
     modes, singular_values = pod_modes([1.0 0.0; 0.0 1.0], 2)
     @test pod_capture(singular_values, 1) ≈ .5
     @test length(unique(deim_indices(modes))) == 2

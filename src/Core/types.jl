@@ -229,6 +229,7 @@ struct TrainingWindow
     u0::Vector{Float64} # full-order state at the window start
     model_u0::Vector{Float64} # FOM or ROM state used to start the model solve
     reference_observations::Vector{Vector{Float64}} # full-order comparison states
+    model_reference_observations::Vector{Vector{Float64}} # reference states preprojected to the model comparison space
 end
 # Appears in:
 # - Core/types.jl

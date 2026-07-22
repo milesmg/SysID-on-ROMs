@@ -1,6 +1,4 @@
-"""
-Build a LearnerSetup struct; see types.jl
-"""
+"""Build a `LearnerSetup`, using a total-degree basis for two-input polynomials."""
 function build_learner(learner, input_dim::Integer, h::Integer, seed::Integer, polynomial_degree::Integer)::LearnerSetup
     learner_name = lowercase(string(learner))
     if learner_name == "nn"
@@ -10,7 +8,9 @@ function build_learner(learner, input_dim::Integer, h::Integer, seed::Integer, p
         return LearnerSetup(learner_name, nn, state, fmap(x -> Float64.(x), parameters),
                             h, seed, nothing, "tanh")
     elseif learner_name == "polynomial"
-        coefficients = zeros(Float64, polynomial_degree + 1)
+        # ### ADJUSTED: Allocate all total-degree monomials for the two-input RD polynomial learner.
+        coefficient_count = input_dim == 2 ? (polynomial_degree + 1) * (polynomial_degree + 2) ÷ 2 : polynomial_degree + 1
+        coefficients = zeros(Float64, coefficient_count)
         return LearnerSetup(learner_name, nothing, nothing, coefficients,
                             nothing, seed, polynomial_degree, "polynomial")
     end
