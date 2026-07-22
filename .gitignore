@@ -7,5 +7,10 @@
 !/Data/_Logs/.gitkeep
 /codex_logs
 /Untracked
-# ### ADJUSTED: Keep repository-local rsync rules available without tracking them in Git.
 .rsync-filter
+Local/Tests/outputs/
+Local/Tests/timing_test_results/
+Local/Tests/visualizations/
+Local/Visualize_results/*/Data/*
+!Local/Visualize_results/*/Data/.gitkeep
+

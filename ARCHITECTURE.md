@@ -14,3 +14,8 @@
 `Julia/` is the pinned Julia environment. 
 
 `Data/` contains run output, Slurm logs, and sweep configurations.
+
+`Local/` contains workstation-local Jupyter notebooks; 
+    - `Visualize_results/` has FOM/ROM replay notebooks, 
+    -  `Tests/` has ROM-stability and timing notebooks plus two placeholders. 
+    -  reusable tooling located in `src/Tools/Visualizations/` and `src/Tools/Tests/`.
