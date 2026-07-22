@@ -17,8 +17,8 @@ System identification (SysID) infers a model from observed system behavior. Here
 ### POD ROMs and DEIM
 
 We would like to model the trajectory of a time-dependent PDE with some initial condition: 
-$$\frac{d}{dt}u(t)= F(u(t))$$
- given $u(0).$ We discretize in time, say, via 
+$$\frac{d}{dt}u(t)= F(u(t))$$ 
+given $u(0).$ We discretize in time, say, via 
 $$u(t+1)= u(t) + \Delta t \frac{d}{dt}u(t) = u(t) + \Delta t F(u(t)) .$$ 
 
 To accelerate this algorithm, we attempt to exploit the symmetries of a PDE solution trajectory: we build some reduced version of the state variable, $\tilde{u}$, which encodes the most important properties of $u$. Proper orthogonal decomposition (POD) reduces a state trajectory to a low-dimensional basis. Given a snapshot matrix $S$ of trajectory states, its singular value decomposition supplies spatial POD modes $\phi_1,...,\phi_r.$ A rank-`r` state basis, concatenated into a matrix as $\Phi$, represents a full state approximately as $u \approx \Phi \tilde{u}.$ If $F$ is linear, we can precompute $\tilde{F} = \Phi^T F \Phi$, arriving at the fast approximation $\frac{d}{dt}\tilde{u}(t) = \tilde{F}(\tilde{u}(t)).$
@@ -58,7 +58,7 @@ On an x86_64 Linux cluster, run once from the repository root:
 bash src/Tools/Julia/setup_julia.sh
 ```
 
-This downloads Julia if necessary, instantiates `Julia/`, and precompiles dependencies into the repository-local depot. The depot and downloaded runtime are intentionally ignored by Git and protected by `Julia/.rsync-filter`.
+This downloads Julia if necessary, instantiates `Julia/`, and precompiles dependencies into the repository-local depot. The depot and downloaded runtime are intentionally ignored by Git.
 
 For local development, use an installed Julia compatible with the project:
 
@@ -242,7 +242,7 @@ bash src/Tools/Slurm/Sweeps/virtual_sweep_queue.sh status
 bash src/Tools/Slurm/Sweeps/virtual_sweep_queue.sh stop
 ```
 
-The daemon uses `nohup`, so it continues after the SSH session ends. Its queue table and activity log live under `src/Tools/Misc/VirtualQueue/`; its transient state directory is ignored by Git and protected by the local rsync filter.
+The daemon uses `nohup`, so it continues after the SSH session ends. Its queue table and activity log live under `src/Tools/Misc/VirtualQueue/`; its transient state directory is ignored by Git.
 
 ## Training and Reproducibility
 
@@ -273,6 +273,14 @@ ROM runs save the same histories and metadata, plus `rom_data.jls`, which contai
 `parameter_history.jls` stores saved trainable-parameter snapshots and, when enabled, their learned-function L2 errors. `window_history.jls` stores every precomputed training-window specification. `validation_history.jls` stores initial and per-stage full-trajectory losses. `metadata.txt` is human-readable; the `.jls` files use Julia serialization.
 
 Slurm initially writes direct-job and array-worker output to `Data/_Logs/`. For a successful sweep combination, the per-combination logs are moved into its run directory as `log.out` and `log.err`; failed-combination logs remain in `Data/_Logs/` for diagnosis. The Slurm array worker logs also remain in `Data/_Logs/`.
+
+## Local Visualization Notebooks
+
+`Untracked/Visualize_results/A-C/` and `Untracked/Visualize_results/R-D/` contain local notebooks for replaying saved FOM and ROM runs. Set `input_path` to either one `Data/<RUN_NAME>` directory or, with `dir_of_dirs = true`, a directory containing runs. Each notebook solves its selected trajectories once into `trajectory_data`, so titles, axes, legends, colorbars, and saved figures can be adjusted without re-solving. Rendered Allen--Cahn/Cahn--Hilliard figures go to `Untracked/Visualize_results/A-C/Data/`; reaction--diffusion figures go to `Untracked/Visualize_results/R-D/Data/`.
+
+The stability notebooks in `Untracked/Tests/` construct fresh FOM and ROM trajectories for Allen--Cahn, Cahn--Hilliard, or reaction--diffusion from notebook-global problem settings. Their plotting and replay functions live in `src/Tools/Visualizations/`, which is loaded by including `visualizations.jl` after activating `Julia/`. The visualization dependency is part of the project environment, so instantiate once after pulling this change before running a notebook.
+
+`Untracked/Tests/timing_tests.ipynb` uses `src/Tools/Tests/timing_tests.jl` to benchmark repeated post-warm-up 2D Allen--Cahn forward solves, losses, and complete Adam steps over FOM or ROM parameter schedules. Give each schedule a required test name; its cases and readable/serialized results are saved under `Untracked/Tests/timing_test_results/<test name>/`. The notebook is opt-in: set `RUN_BENCHMARKS = true` only after choosing a schedule sized for the available machine.
 
 ## Repository Structure
 

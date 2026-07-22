@@ -16,15 +16,17 @@ function make_window_spec(t_start, window_T, n_obs::Integer; stage::Integer, ite
 end
 
 """
-Populate a TrainingWindow struct. This is similar to WindowSpec, but it contains both the hefty reference snapshot data to be compared against, and any projected data if needed for a ROM
+Populate a TrainingWindow struct. This is similar to WindowSpec, but it contains full reference snapshots and their preprojected model-space versions.
 Args:
 - u_ref: the reference soln initial condition
 - spec: a WindowSpec struct (see above, and types.jl)
-- project: if we're doing a rom, this projects an initial condition down to the reduced basis. If not, it's just the reference initial condition.
+- project: if we're doing a ROM, this projects the initial condition and each reference observation down to the reduced basis.
 """
 function materialize_window(u_ref, spec::WindowSpec, project=nothing)::TrainingWindow
     u0 = copy(u_ref(spec.t_start))
-    TrainingWindow(spec, u0, isnothing(project) ? copy(u0) : project(u0), [copy(u_ref(ti)) for ti in spec.t_obs])
+    reference_observations = [copy(u_ref(ti)) for ti in spec.t_obs]
+    model_reference_observations = isnothing(project) ? reference_observations : [project(state) for state in reference_observations]
+    TrainingWindow(spec, u0, isnothing(project) ? copy(u0) : project(u0), reference_observations, model_reference_observations)
 end
 
 """
@@ -127,7 +129,7 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
     # If we want the full trajectory *validation* loss, we need to do: 
     initial_validation_loss = solve_window_loss(validation_window, base_prob, prepared.rebuild_parameters(p0, re, copy(theta0)),
                                                 alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct,
-                                                prepared.project, training.loss_space)
+                                                prepared.project, "FULL")
     
     # save initial params and validation loss
 
@@ -210,7 +212,7 @@ function run_variable_window_stages(prepared::PreparedTraining, training::Traini
         iteration_offset[] += N_iter_schedule[stage]
         stage_validation_loss = solve_window_loss(validation_window, base_prob, prepared.rebuild_parameters(p0, re, latest_theta[]),
                                                   alg, sensalg, training.loss_normalization, prepared.Δmeasure, prepared.reconstruct,
-                                                  prepared.project, training.loss_space)
+                                                  prepared.project, "FULL")
         push!(validation_history, TrainingSnapshot(iteration_offset[], stage, :validation, nothing, stage_validation_loss, nothing))
         hpc_log_timed(log_name, "Stage $stage / $stage_count complete; validation_loss = $stage_validation_loss; elapsed = $(round(time() - stage_start; digits=2)) s")
     end
